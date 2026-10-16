@@ -723,6 +723,20 @@ two packages together.
   the extras.
 - **`uv` itself.** The [`uv` docs](https://docs.astral.sh/uv/) cover
   projects, lockfiles and Python versions in depth.
+- **Your editor's files.** Editors write settings folders into your
+  project: PyCharm makes `.idea/`, VS Code `.vscode/`. They belong to you,
+  not to the project, so keep them out of its `.gitignore` and ignore them
+  for every repository at once, in a personal ignore file:
+
+  ```bash
+  printf '.idea/\n.vscode/\n' >> ~/.gitignore_global
+  git config --global core.excludesFile ~/.gitignore_global
+  ```
+
+  Once your editor has made its folder, `git check-ignore -v .idea` names
+  `~/.gitignore_global` as the rule that matched. (Unlike step 4's check, it
+  prints nothing before the folder exists: a pattern ending in `/` matches
+  only folders.)
 
 ## Next
 
