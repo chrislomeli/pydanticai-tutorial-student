@@ -31,7 +31,7 @@ def no_real_models(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def run_script(name: str) -> str:
-    """Run one of the lesson's scripts from the project root; return its stdout."""
+    """Run one of the lesson's scripts, by its path from the project root; return its stdout."""
     result = subprocess.run(
         [sys.executable, name],
         cwd=PROJECT_ROOT,
@@ -82,7 +82,7 @@ def test_inspect_run_shows_the_instructions_apart_from_the_parts() -> None:
         return ModelResponse(parts=[TextPart("ok")])
 
     agent.run_sync("anything", model=FunctionModel(reply))
-    printed = run_script("inspect_run.py")
+    printed = run_script("scripts/inspect_run.py")
 
     assert instructions[0] is not None and instructions[0] in printed
     assert "user-prompt" in printed
@@ -99,7 +99,7 @@ def test_scripted_run_prints_what_the_function_decided() -> None:
         return ModelResponse(parts=[TextPart("ok")])
 
     agent.run_sync("anything", model=FunctionModel(reply))
-    printed = run_script("scripted_run.py")
+    printed = run_script("scripts/scripted_run.py")
 
     # The reply is built from the prompt and the instructions the model was
     # sent, so it can only match if the function, not a canned answer,
