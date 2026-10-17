@@ -101,7 +101,8 @@ def test_scripted_run_prints_what_the_function_decided() -> None:
     agent.run_sync("anything", model=FunctionModel(reply))
     printed = run_script("scripted_run.py")
 
-    # The reply is built from what the model was sent, so it can only match
-    # if the function, not a canned answer, produced it.
-    expected = f"I was sent 1 message(s), with these instructions: {instructions[0]}"
+    # The reply is built from the prompt and the instructions the model was
+    # sent, so it can only match if the function, not a canned answer,
+    # produced it.
+    expected = f"You asked 'What does this repo do?', and my instructions say: {instructions[0]}"
     assert printed.strip().splitlines()[-1] == expected
