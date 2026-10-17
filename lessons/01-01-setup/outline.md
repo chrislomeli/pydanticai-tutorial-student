@@ -68,7 +68,7 @@ stop there: the next step builds on it.
 Everything in this lesson runs in a terminal, on macOS or Linux, with two
 tools: `git` and `uv`. You do not need to install Python.
 
-### Do
+**Do this**
 
 Run:
 
@@ -99,19 +99,18 @@ git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 ```
 
-### Check
+> [!TIP]
+> **Check:** The first two commands print versions, such as:
+>
+> ```text
+> git version 2.50.1 (Apple Git-155)
+> uv 0.13.1 (62faed335 2026-10-13 aarch64-apple-darwin)
+> ```
+>
+> `uv` is 0.13.1 or newer, and the two `git config` commands each print a
+> value.
 
-The first two commands print versions, such as:
-
-```text
-git version 2.50.1 (Apple Git-155)
-uv 0.13.1 (62faed335 2026-10-13 aarch64-apple-darwin)
-```
-
-`uv` is 0.13.1 or newer, and the two `git config` commands each print a
-value.
-
-### What it means
+**What it means**
 
 **Term: `uv`.** A tool that manages a Python project for you: it downloads
 Python, creates the project's virtual environment, installs packages, and
@@ -130,7 +129,7 @@ ends up in your history.
 You have the tools. Now you make the project that every lesson in the series
 adds to.
 
-### Do
+**Do this**
 
 Make an empty folder for the project, outside any other git repository, and
 go into it. Every command from here on runs inside this folder.
@@ -164,30 +163,29 @@ pyproject.toml
 src
 ```
 
-### Check
+> [!TIP]
+> **Check:** Run the command the project comes with:
+>
+> ```bash
+> uv run pydantic-tutor
+> ```
+>
+> You should see this. Your paths will differ, and so may Python's patch
+> version (3.14.8 here); if `uv` already has a Python 3.14, the two download
+> lines are missing:
+>
+> ```text
+> Downloading cpython-3.14.8-macos-aarch64-none (download) (25.4MiB)
+>  Downloaded cpython-3.14.8-macos-aarch64-none (download)
+> Using CPython 3.14.8
+> Creating virtual environment at: .venv
+>    Building pydantic-tutor @ file:///Users/you/pydantic-tutor
+>       Built pydantic-tutor @ file:///Users/you/pydantic-tutor
+> Installed 1 package in 2ms
+> Hello from pydantic-tutor!
+> ```
 
-Run the command the project comes with:
-
-```bash
-uv run pydantic-tutor
-```
-
-You should see this. Your paths will differ, and so may Python's patch
-version (3.14.8 here); if `uv` already has a Python 3.14, the two download
-lines are missing:
-
-```text
-Downloading cpython-3.14.8-macos-aarch64-none (download) (25.4MiB)
- Downloaded cpython-3.14.8-macos-aarch64-none (download)
-Using CPython 3.14.8
-Creating virtual environment at: .venv
-   Building pydantic-tutor @ file:///Users/you/pydantic-tutor
-      Built pydantic-tutor @ file:///Users/you/pydantic-tutor
-Installed 1 package in 2ms
-Hello from pydantic-tutor!
-```
-
-### What it means
+**What it means**
 
 **Term: project.** A folder with a `pyproject.toml`, the file that
 describes it: its name, the Python it needs, and the packages it depends on.
@@ -233,7 +231,7 @@ would not work as written.
 The project runs, but it has no Pydantic AI yet. You add it with one
 command, at the versions this lesson was tested with.
 
-### Do
+**Do this**
 
 Run:
 
@@ -275,26 +273,25 @@ requires = ["uv_build>=0.13.1,<0.14.0"]
 build-backend = "uv_build"
 ```
 
-### Check
+> [!TIP]
+> **Check:** Ask `uv` what depends on `pydantic-ai-slim`:
+>
+> ```bash
+> uv tree --invert --package pydantic-ai-slim --depth 1
+> ```
+>
+> You should see this. Check that `pydantic-ai-slim` says `v2.56.0` and
+> `pydantic-ai-harness` says `v0.56.0`:
+>
+> ```text
+> Resolved 107 packages in 3ms
+> pydantic-ai-slim v2.56.0
+> ├── pydantic-ai[anthropic, cli, evals, google, logfire, mcp, openai, web] v2.56.0
+> ├── pydantic-ai-harness v0.56.0
+> └── pydantic-evals v2.56.0
+> ```
 
-Ask `uv` what depends on `pydantic-ai-slim`:
-
-```bash
-uv tree --invert --package pydantic-ai-slim --depth 1
-```
-
-You should see this. Check that `pydantic-ai-slim` says `v2.56.0` and
-`pydantic-ai-harness` says `v0.56.0`:
-
-```text
-Resolved 107 packages in 3ms
-pydantic-ai-slim v2.56.0
-├── pydantic-ai[anthropic, cli, evals, google, logfire, mcp, openai, web] v2.56.0
-├── pydantic-ai-harness v0.56.0
-└── pydantic-evals v2.56.0
-```
-
-### What it means
+**What it means**
 
 **Term: dependency.** A package your project needs. `uv add` records it in
 `pyproject.toml`, works out every package *it* needs in turn, and installs
@@ -351,7 +348,7 @@ dependencies with `uv`, so the file always matches what is installed.
 
 Everything is installed. Five lines of Python prove it works.
 
-### Do
+**Do this**
 
 Create a file called `hello_agent.py` in the project folder, next to
 `pyproject.toml`, with this content:
@@ -367,33 +364,32 @@ result = agent.run_sync("Hello!")
 print(result.output)
 ```
 
-### Check
+> [!TIP]
+> **Check:** Run it:
+>
+> ```bash
+> uv run hello_agent.py
+> ```
+>
+> You should see this. The banner's layout depends on how wide your terminal
+> is: in a narrower one, its lines wrap differently, and below about 60
+> columns the drawing is left out. Check the first line's versions and the
+> last line:
+>
+> ```text
+>                  pydantic-ai v2.56.0 • pydantic-ai-harness v0.56.0 • Python 3.14.8
+>       / \
+>      /   \       agent: agent • model: test:test • tools: 0 • capabilities: 0
+>    /___.___\
+>   /    |    \    observability: off — see every model and tool call live, with cost
+> /      |      \    set it up free with Logfire and a GitHub login: https://pydantic.dev/ai-setup.md
+> `---.._|_..---'    or use any OpenTelemetry backend: https://pydantic.dev/docs/ai/logfire/#otel
+>
+>                  goes away once observability is on — or PYDANTIC_AI_NO_BANNER=1
+> success (no tool calls)
+> ```
 
-Run it:
-
-```bash
-uv run hello_agent.py
-```
-
-You should see this. The banner's layout depends on how wide your terminal
-is: in a narrower one, its lines wrap differently, and below about 60
-columns the drawing is left out. Check the first line's versions and the
-last line:
-
-```text
-                 pydantic-ai v2.56.0 • pydantic-ai-harness v0.56.0 • Python 3.14.8
-      / \
-     /   \       agent: agent • model: test:test • tools: 0 • capabilities: 0
-   /___.___\
-  /    |    \    observability: off — see every model and tool call live, with cost
-/      |      \    set it up free with Logfire and a GitHub login: https://pydantic.dev/ai-setup.md
-`---.._|_..---'    or use any OpenTelemetry backend: https://pydantic.dev/docs/ai/logfire/#otel
-
-                 goes away once observability is on — or PYDANTIC_AI_NO_BANNER=1
-success (no tool calls)
-```
-
-### What it means
+**What it means**
 
 **Term: agent.** An `Agent` sends your prompt to a model and gives you back
 its answer. `run_sync` runs it and waits for the result; `result.output` is
@@ -447,7 +443,7 @@ From the chat lesson on, your project holds a secret: your API key, in a file
 called `.env`. You do not create that file yet; you make sure git never
 picks it up by accident.
 
-### Do
+**Do this**
 
 Ask git whether it would ignore a `.env` file now:
 
@@ -486,21 +482,20 @@ wheels/
 .env
 ```
 
-### Check
+> [!TIP]
+> **Check:** Ask git again:
+>
+> ```bash
+> git check-ignore -v .env
+> ```
+>
+> You should see:
+>
+> ```text
+> .gitignore:13:.env	.env
+> ```
 
-Ask git again:
-
-```bash
-git check-ignore -v .env
-```
-
-You should see:
-
-```text
-.gitignore:13:.env	.env
-```
-
-### What it means
+**What it means**
 
 **Term: `.gitignore`.** The list of files git leaves out. The one `uv init`
 wrote ignores Python's caches and build files, and `.venv`, but not
@@ -524,7 +519,7 @@ adds an ignored file anyway. Never use `-f` on a file that holds a secret.
 The project is complete. Save it in git, so every later lesson starts from
 here.
 
-### Do
+**Do this**
 
 See what you are about to commit:
 
@@ -549,26 +544,25 @@ git add -A
 git commit -m "Set up the project"
 ```
 
-### Check
+> [!TIP]
+> **Check:** You should see:
+>
+> ```text
+> [main (root-commit) 5d7a055] Set up the project
+>  7 files changed, 1991 insertions(+)
+>  create mode 100644 .gitignore
+>  create mode 100644 .python-version
+>  create mode 100644 README.md
+>  create mode 100644 hello_agent.py
+>  create mode 100644 pyproject.toml
+>  create mode 100644 src/pydantic_tutor/__init__.py
+>  create mode 100644 uv.lock
+> ```
+>
+> Your commit id will differ, and your branch may be called `master` rather
+> than `main`, depending on your git settings. Neither matters here.
 
-You should see:
-
-```text
-[main (root-commit) 5d7a055] Set up the project
- 7 files changed, 1991 insertions(+)
- create mode 100644 .gitignore
- create mode 100644 .python-version
- create mode 100644 README.md
- create mode 100644 hello_agent.py
- create mode 100644 pyproject.toml
- create mode 100644 src/pydantic_tutor/__init__.py
- create mode 100644 uv.lock
-```
-
-Your commit id will differ, and your branch may be called `master` rather
-than `main`, depending on your git settings. Neither matters here.
-
-### What it means
+**What it means**
 
 **Term: lockfile.** `uv.lock`. `uv` wrote it the first time you ran
 `uv run`, and updated it when you added the two packages. It records the
