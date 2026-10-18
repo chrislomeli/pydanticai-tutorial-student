@@ -1,0 +1,21 @@
+[project]
+name = "tinyjobs"
+version = "0.3.0"
+description = "A small job queue with a command-line interface."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+tinyjobs = "tinyjobs.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
