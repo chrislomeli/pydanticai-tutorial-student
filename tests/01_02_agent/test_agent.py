@@ -62,9 +62,11 @@ def test_the_instructions_travel_on_the_request_not_in_a_part() -> None:
 
     def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         sent.extend(messages)
-        return ModelResponse(parts=[TextPart("ok")])
+        return ModelResponse(parts=[TextPart(content="ok")])
 
-    agent.run_sync("What does this repo do?", model=FunctionModel(reply))
+    agent.run_sync(
+        user_prompt="What does this repo do?", model=FunctionModel(function=reply)
+    )
 
     [request] = sent
     assert isinstance(request, ModelRequest)
@@ -79,9 +81,9 @@ def test_inspect_run_shows_the_instructions_apart_from_the_parts() -> None:
 
     def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         instructions.append(info.instructions)
-        return ModelResponse(parts=[TextPart("ok")])
+        return ModelResponse(parts=[TextPart(content="ok")])
 
-    agent.run_sync("anything", model=FunctionModel(reply))
+    agent.run_sync(user_prompt="anything", model=FunctionModel(function=reply))
     printed = run_script("scripts/inspect_run.py")
 
     assert instructions[0] is not None and instructions[0] in printed
@@ -96,9 +98,9 @@ def test_scripted_run_prints_what_the_function_decided() -> None:
 
     def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         instructions.append(info.instructions)
-        return ModelResponse(parts=[TextPart("ok")])
+        return ModelResponse(parts=[TextPart(content="ok")])
 
-    agent.run_sync("anything", model=FunctionModel(reply))
+    agent.run_sync(user_prompt="anything", model=FunctionModel(function=reply))
     printed = run_script("scripts/scripted_run.py")
 
     # The reply is built from the prompt and the instructions the model was
