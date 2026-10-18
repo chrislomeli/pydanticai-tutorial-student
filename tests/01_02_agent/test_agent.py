@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from pydantic_ai import models
+from pydantic_ai import Agent, models
 from pydantic_ai.messages import ModelMessage, ModelRequest, ModelResponse, TextPart
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
@@ -46,8 +46,6 @@ def run_script(name: str) -> str:
 
 
 def test_the_agent_is_in_the_package_without_a_model() -> None:
-    from pydantic_ai import Agent
-
     from pydantic_tutor.agent import agent
 
     assert isinstance(agent, Agent)
