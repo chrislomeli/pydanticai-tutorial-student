@@ -44,3 +44,4 @@ ignore = ["E501"]  # line length is the formatter's job
 [tool.mypy]
 strict = true
 plugins = ["pydantic.mypy"]
+exclude = ["^tests/"]  # the series' lesson tests refer to code you have not written yet
