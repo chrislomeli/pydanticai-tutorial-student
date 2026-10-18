@@ -35,6 +35,9 @@ def test_python_is_3_14() -> None:
         # exactly this version, so the two pins move together.
         ("pydantic-ai-slim", "2.56.0"),
         ("pydantic-ai-harness", "0.56.0"),
+        # The code checks, development dependencies from step 5.
+        ("ruff", "0.16.10"),
+        ("mypy", "2.4.0"),
     ],
 )
 def test_versions_are_pinned(package: str, expected: str) -> None:
@@ -74,6 +77,49 @@ def test_agent_runs_without_a_key(monkeypatch: pytest.MonkeyPatch) -> None:
     # so this test passes only if it needs no key and costs nothing.
     monkeypatch.setattr(models, "ALLOW_MODEL_REQUESTS", False)
 
-    result = Agent(TestModel()).run_sync("hello")
+    result = Agent(model=TestModel()).run_sync(user_prompt="hello")
 
     assert result.output == "success (no tool calls)"
+
+
+# The three checks of step 5, each run as a module of the project's own
+# Python, so they use the versions installed in .venv.
+CHECKS: list[list[str]] = [
+    ["ruff", "check"],
+    ["ruff", "format", "--check"],
+    ["mypy", "."],
+]
+
+
+@pytest.mark.parametrize("check", CHECKS)
+def test_code_checks_pass(check: list[str]) -> None:
+    result = subprocess.run(
+        [sys.executable, "-m", *check],
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def test_code_checks_are_strict(tmp_path: Path) -> None:
+    # Clean code passes any settings; this proves the project's settings
+    # are on: each tool must report the rule that a function with no
+    # annotations breaks. Matching the rule, not just a failure, keeps a
+    # missing tool from passing.
+    untyped = tmp_path / "untyped.py"
+    untyped.write_text("def greet(name):\n    return name\n")
+    settings = str(PROJECT_ROOT / "pyproject.toml")
+    for check, rule in (
+        (["ruff", "check", "--config", settings, str(untyped)], "ANN001"),
+        (["mypy", "--config-file", settings, str(untyped)], "[no-untyped-def]"),
+    ):
+        result = subprocess.run(
+            [sys.executable, "-m", *check],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert rule in result.stdout, f"{check[0]} did not report {rule}"
