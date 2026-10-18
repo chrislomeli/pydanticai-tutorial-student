@@ -1,8 +1,9 @@
 """Checks that the project from the setup lesson is in place.
 
 Our checks for the setup lesson: they verify the lesson, and the student is
-not asked to run them. The project has no pytest of its own, so run them
-with `uv run --with pytest pytest`. They fail until the lesson is done.
+not asked to run them. Once step 5 has added pytest to the project, run
+them with `uv run pytest`; before that, with `uv run --with pytest pytest`.
+They fail until the lesson is done.
 
 Every import of the project or the library is inside the test that needs it,
 so that before the install each test fails on its own, instead of the whole
@@ -38,6 +39,7 @@ def test_python_is_3_14() -> None:
         # The code checks, development dependencies from step 5.
         ("ruff", "0.16.10"),
         ("mypy", "2.4.0"),
+        ("pytest", "9.1.1"),
     ],
 )
 def test_versions_are_pinned(package: str, expected: str) -> None:

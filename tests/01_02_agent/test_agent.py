@@ -1,8 +1,8 @@
 """Checks that the project from the agent lesson is in place.
 
 Our checks for the agent lesson: they verify the lesson, and the student is
-not asked to run them. Run them with `uv run --with pytest pytest`. They
-fail until the lesson is done.
+not asked to run them. Run them with `uv run pytest`. They fail until the
+lesson is done.
 
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
