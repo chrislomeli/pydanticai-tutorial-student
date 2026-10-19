@@ -18,9 +18,6 @@ from pathlib import Path
 
 import pytest
 from pydantic_ai import models
-from pydantic_ai.messages import ModelMessage, ModelResponse, TextPart
-from pydantic_ai.models.function import AgentInfo, FunctionModel
-from pydantic_ai.tools import ToolDefinition
 
 # This file is tests/01_03_function_tools/test_function_tools.py: two
 # folders below the root.
@@ -58,20 +55,6 @@ def docstring_of(path: Path) -> str:
     return docstring
 
 
-def definitions_sent() -> dict[str, ToolDefinition]:
-    """The tool definitions the student's agent sends with its first request."""
-    from pydantic_tutor.agent import agent
-
-    sent: list[AgentInfo] = []
-
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        sent.append(info)
-        return ModelResponse(parts=[TextPart(content="ok")])
-
-    agent.run_sync(user_prompt="anything", model=FunctionModel(function=reply))
-    return {tool.name: tool for tool in sent[0].function_tools}
-
-
 # Three tests moved to tests/01_04_deps/test_deps.py, where the
 # dependencies lesson proves their points through the agent: once the
 # tools take the run's context, they are not called directly, and a run
@@ -81,31 +64,10 @@ def definitions_sent() -> dict[str, ToolDefinition]:
 # test_the_agent_runs_the_tool_and_sends_back_its_result.
 
 
-def test_the_model_is_sent_the_signature_and_docstring() -> None:
-    tools = definitions_sent()
-
-    assert sorted(tools) == ["list_modules", "read_docstring"]
-    read = tools["read_docstring"]
-    assert read.description, "read_docstring has no docstring summary"
-    assert "Args" not in read.description, "the Args: section was not parsed"
-    schema = read.parameters_json_schema
-    assert schema["required"] == ["module"]
-    assert schema["properties"]["module"]["type"] == "string"
-    assert schema["properties"]["module"].get("description"), (
-        "`module` has no Args: line"
-    )
-    assert tools["list_modules"].parameters_json_schema["properties"] == {}
-
-
-def test_show_tools_prints_what_the_model_is_told() -> None:
-    printed = run_script("scripts/show_tools.py")
-    tools = definitions_sent()
-
-    assert "list_modules" in printed and "read_docstring" in printed
-    for tool in tools.values():
-        assert tool.description is not None and tool.description in printed
-    module = tools["read_docstring"].parameters_json_schema["properties"]["module"]
-    assert module["description"] in printed
+# Two more moved to tests/01_05_instructions/test_instructions.py, for the
+# same reason, once the instructions read the deps: they were
+# test_the_model_is_sent_the_signature_and_docstring and
+# test_show_tools_prints_what_the_model_is_told.
 
 
 def test_tool_loop_prints_the_four_messages() -> None:
