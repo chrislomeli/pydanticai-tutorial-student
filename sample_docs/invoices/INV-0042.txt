@@ -1,0 +1,14 @@
+ACME PAPER CO.
+12 Mill Lane, Leeds LS1 4AB
+
+INVOICE                                  No. INV-0042
+Date: 30 September 2026
+Bill to: Tinyjobs Ltd, 4 Harbour Street, Hull HU1 2AA
+
+Description                     Qty    Unit price      Amount
+A4 paper, box of 5                3         24.50       73.50
+Stapler                           1         12.00       12.00
+
+Total due (GBP)                                         85.50
+
+Payment within 30 days. Thank you for your business.

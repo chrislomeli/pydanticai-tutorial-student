@@ -1,0 +1,11 @@
+Northwind Cleaning Services
+Unit 7, Riverside Park, Hull HU2 8TD
+
+Invoice number: NW-2026-117
+Invoice date: 2026-10-03
+Customer: Tinyjobs Ltd
+
+  Office cleaning, September          1 x 640.00  =  640.00
+  Window cleaning, both floors        2 x  85.00  =  170.00
+
+  TOTAL (GBP)                                        810.00

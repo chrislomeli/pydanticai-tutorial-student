@@ -1,0 +1,14 @@
+ACME PAPER CO.
+12 Mill Lane, Leeds LS1 4AB
+
+INVOICE                                  No. INV-0043
+Date: 14 October 2026
+Bill to: Tinyjobs Ltd, 4 Harbour Street, Hull HU1 2AA
+
+Description                     Qty    Unit price      Amount
+Envelopes C5, box of 500          4          9.75       39.00
+Printer toner, black              2         61.20      122.40
+
+Total due (GBP)                                        161.40
+
+Payment within 30 days. Thank you for your business.
