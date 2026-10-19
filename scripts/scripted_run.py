@@ -4,10 +4,13 @@ From the agent lesson (01-02). Kept working: a later lesson that changes
 the agent updates this script, or removes it and says why.
 """
 
+from pathlib import Path
+
 from pydantic_ai.messages import ModelMessage, ModelResponse, TextPart, UserPromptPart
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
+from pydantic_tutor.repo_tools import RepoDeps
 
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -33,6 +36,8 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
 
 # The model is given for this run only; the agent itself has none (step 1).
 result = agent.run_sync(
-    user_prompt="What does this repo do?", model=FunctionModel(function=reply)
+    user_prompt="What does this repo do?",
+    model=FunctionModel(function=reply),
+    deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
 )
 print(result.output)

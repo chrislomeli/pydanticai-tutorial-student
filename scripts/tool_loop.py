@@ -4,6 +4,8 @@ From the function tools lesson (01-03). Kept working: a later lesson that
 changes the agent updates this script, or removes it and says why.
 """
 
+from pathlib import Path
+
 from pydantic_ai.messages import (
     ModelMessage,
     ModelResponse,
@@ -14,6 +16,7 @@ from pydantic_ai.messages import (
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
+from pydantic_tutor.repo_tools import RepoDeps
 
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -35,7 +38,9 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
 
 
 result = agent.run_sync(
-    user_prompt="What does the jobs module do?", model=FunctionModel(function=reply)
+    user_prompt="What does the jobs module do?",
+    model=FunctionModel(function=reply),
+    deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
 )
 
 for message in result.all_messages():
