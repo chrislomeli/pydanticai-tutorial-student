@@ -29,7 +29,7 @@ def read_docstring(*, module: str) -> str:
     path = _modules().get(module)
     if path is None:
         raise ModelRetry(
-            f"There is no module {module!r}. Call list_modules to see them."
+            message=f"There is no module {module!r}. Call list_modules to see them."
         )
     # Bytes, so that `ast` reads the file's own encoding, not your system's.
     docstring = ast.get_docstring(node=ast.parse(source=path.read_bytes()))
