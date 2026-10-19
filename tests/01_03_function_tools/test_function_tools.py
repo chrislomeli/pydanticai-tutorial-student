@@ -17,15 +17,8 @@ import tomllib
 from pathlib import Path
 
 import pytest
-from pydantic_ai import ModelRetry, models
-from pydantic_ai.messages import (
-    ModelMessage,
-    ModelRequest,
-    ModelResponse,
-    TextPart,
-    ToolCallPart,
-    ToolReturnPart,
-)
+from pydantic_ai import models
+from pydantic_ai.messages import ModelMessage, ModelResponse, TextPart
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 from pydantic_ai.tools import ToolDefinition
 
@@ -33,13 +26,6 @@ from pydantic_ai.tools import ToolDefinition
 # folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 TINYJOBS: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs" / "src" / "tinyjobs"
-MODULES = [
-    "tinyjobs",
-    "tinyjobs.cli",
-    "tinyjobs.jobs",
-    "tinyjobs.log",
-    "tinyjobs.storage",
-]
 
 
 @pytest.fixture(autouse=True)
@@ -86,25 +72,13 @@ def definitions_sent() -> dict[str, ToolDefinition]:
     return {tool.name: tool for tool in sent[0].function_tools}
 
 
-def test_the_tools_read_the_sample_repo() -> None:
-    from pydantic_tutor.repo_tools import list_modules, read_docstring
-
-    assert list_modules() == MODULES
-    assert read_docstring(module="tinyjobs.jobs") == docstring_of(TINYJOBS / "jobs.py")
-    assert read_docstring(module="tinyjobs") == docstring_of(TINYJOBS / "__init__.py")
-
-
-@pytest.mark.parametrize(
-    argnames="name",
-    argvalues=["jobs", "tinyjobs.nope", "../../pyproject.toml", "tinyjobs/jobs.py"],
-)
-def test_a_name_that_is_not_a_module_is_sent_back_to_the_model(name: str) -> None:
-    from pydantic_tutor.repo_tools import read_docstring
-
-    # The model chose the argument: the tool looks it up, never opens it as
-    # a path, and tells the model what to do instead.
-    with pytest.raises(expected_exception=ModelRetry, match="list_modules"):
-        read_docstring(module=name)
+# Three tests moved to tests/01_04_deps/test_deps.py, where the
+# dependencies lesson proves their points through the agent: once the
+# tools take the run's context, they are not called directly, and a run
+# needs `deps=` (decisions.md, "A later lesson moves the earlier tests it
+# breaks"). They were test_the_tools_read_the_sample_repo,
+# test_a_name_that_is_not_a_module_is_sent_back_to_the_model and
+# test_the_agent_runs_the_tool_and_sends_back_its_result.
 
 
 def test_the_model_is_sent_the_signature_and_docstring() -> None:
@@ -121,41 +95,6 @@ def test_the_model_is_sent_the_signature_and_docstring() -> None:
         "`module` has no Args: line"
     )
     assert tools["list_modules"].parameters_json_schema["properties"] == {}
-
-
-def test_the_agent_runs_the_tool_and_sends_back_its_result() -> None:
-    from pydantic_tutor.agent import agent
-
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        request = messages[-1]
-        assert isinstance(request, ModelRequest)
-        if any(isinstance(part, ToolReturnPart) for part in request.parts):
-            return ModelResponse(parts=[TextPart(content="answered")])
-        return ModelResponse(
-            parts=[
-                ToolCallPart(
-                    tool_name="read_docstring", args={"module": "tinyjobs.jobs"}
-                )
-            ]
-        )
-
-    result = agent.run_sync(
-        user_prompt="What does the jobs module do?", model=FunctionModel(function=reply)
-    )
-    messages = result.all_messages()
-
-    assert [[part.part_kind for part in message.parts] for message in messages] == [
-        ["user-prompt"],
-        ["tool-call"],
-        ["tool-return"],
-        ["text"],
-    ]
-    call, returned = messages[1].parts[0], messages[2].parts[0]
-    assert isinstance(call, ToolCallPart) and isinstance(returned, ToolReturnPart)
-    # The agent, not the model, ran the student's tool on the sample repo.
-    assert returned.content == docstring_of(TINYJOBS / "jobs.py")
-    assert returned.tool_call_id == call.tool_call_id
-    assert result.usage.requests == 2
 
 
 def test_show_tools_prints_what_the_model_is_told() -> None:
