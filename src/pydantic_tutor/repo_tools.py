@@ -9,7 +9,7 @@ import ast
 from dataclasses import dataclass
 from pathlib import Path
 
-from pydantic_ai import ModelRetry, RunContext
+from pydantic_ai import ModelRetry, RunContext, ToolFailed
 
 
 @dataclass(frozen=True)
@@ -38,8 +38,16 @@ def read_docstring(ctx: RunContext[RepoDeps], *, module: str) -> str:
         raise ModelRetry(
             message=f"There is no module {module!r}. Call list_modules to see them."
         )
-    # Bytes, so that `ast` reads the file's own encoding, not your system's.
-    docstring = ast.get_docstring(node=ast.parse(source=path.read_bytes()))
+    try:
+        # Bytes, so that `ast` reads the file's own encoding, not your system's.
+        tree = ast.parse(source=path.read_bytes())
+    except SyntaxError as error:
+        # Asking again will not help: the file itself is broken. Say so, and
+        # the model can tell the user instead of retrying.
+        raise ToolFailed(
+            message=f"{module} cannot be read: {error.msg} on line {error.lineno}."
+        ) from error
+    docstring = ast.get_docstring(node=tree)
     return docstring or "(This module has no docstring.)"
 
 
