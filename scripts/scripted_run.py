@@ -34,7 +34,7 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
     raise ValueError("the request has no user prompt")
 
 
-# The model is given for this run only; the agent itself has none (step 1).
+# The model is given for this run only; the agent itself has none (agent.py).
 result = agent.run_sync(
     user_prompt="What does this repo do?",
     model=FunctionModel(function=reply),
