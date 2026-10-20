@@ -44,6 +44,14 @@ select = [
 ]
 ignore = ["E501"]  # line length is the formatter's job
 
+[tool.ruff.lint.per-file-ignores]
+# Same reason [tool.mypy]'s exclude gives: a lesson's own test imports code
+# that does not exist yet, on the start branch. Ruff sorts an import it
+# cannot resolve differently from one it can, in the same block -- I001
+# would otherwise flip depending on whether the student has done the
+# lesson. Scoped to the one file this affects, not all of tests/.
+"tests/02_04_chat/test_chat.py" = ["I001"]
+
 [tool.mypy]
 strict = true
 plugins = ["pydantic.mypy"]
