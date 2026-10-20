@@ -9,6 +9,19 @@ reach it.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+Four tests were moved by the models lesson (03-02), which moves the API
+keys into `Settings`, has `Settings` read `.env` itself, and takes
+`load_dotenv` out of `__main__.py`. Their points are now proved in
+`tests/03_02_models/test_models.py`:
+
+- settings hold values, not objects (now keys too, unset by default):
+  `test_settings_hold_values_not_objects`;
+- a missing key fails when the app is built, naming its variable:
+  `test_a_missing_key_fails_by_name_before_any_request`;
+- the entry point opens the chat with the built app, and stops by name
+  before it opens: `test_the_entry_point_opens_the_chat_with_the_built_app`
+  and `test_the_entry_point_stops_by_name_before_the_chat_opens`.
 """
 
 import os
@@ -34,12 +47,6 @@ def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
             monkeypatch.delenv(name)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     monkeypatch.setattr(target=models, name="ALLOW_MODEL_REQUESTS", value=False)
-
-
-def no_dotenv() -> bool:
-    # Stands in for `load_dotenv`, so a `.env` in the project cannot put a
-    # real key back into a test that removed it.
-    return False
 
 
 def scripted_model() -> FunctionModel:
@@ -71,14 +78,6 @@ def test_settings_read_the_prefixed_variables(monkeypatch: pytest.MonkeyPatch) -
     assert settings.chat_model == "test"
     assert settings.trace is True  # "1" became a bool, not the string "1"
     assert settings.repo_root == Path("elsewhere")
-
-
-def test_settings_hold_values_not_objects() -> None:
-    # The lesson's line: nothing in Settings is built from a value.
-    from pydantic_tutor.settings import Settings
-
-    for value in Settings().model_dump().values():
-        assert isinstance(value, str | bool | int | float | Path)
 
 
 def test_settings_cannot_be_changed_after_startup() -> None:
@@ -119,17 +118,6 @@ def test_build_app_builds_the_objects_from_the_settings() -> None:
     assert app.deps.root == Path("elsewhere")
 
 
-def test_a_missing_key_fails_when_the_app_is_built() -> None:
-    # In 02-04 this failed on the first prompt; built at startup, it fails
-    # before any run, naming the variable.
-    from pydantic_tutor.composition import build_app
-    from pydantic_tutor.settings import Settings
-
-    with pytest.raises(UserError) as excinfo:
-        build_app(settings=Settings())
-    assert "OPENAI_API_KEY" in str(excinfo.value)
-
-
 def test_an_unknown_model_fails_when_the_app_is_built() -> None:
     from pydantic_tutor.composition import build_app
     from pydantic_tutor.settings import Settings
@@ -162,59 +150,3 @@ def test_tracing_prints_spans_for_a_scripted_turn(
     capsys.readouterr()  # discard the "tracing on" line
     app.agent.run_sync(user_prompt="hello", model=scripted_model(), deps=app.deps)
     assert "repo_assistant run" in capsys.readouterr().out
-
-
-# The entry point reads no value and builds no object itself.
-
-
-def test_the_entry_point_opens_the_chat_with_the_built_app(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    # `to_cli_sync` is replaced on the project's one agent, so no chat
-    # waits for input, before the lesson or after it.
-    import pydantic_tutor.__main__ as entry
-    from pydantic_tutor import agent as agent_module
-    from pydantic_tutor.repo_tools import RepoDeps
-
-    opened: dict[str, object] = {}
-
-    def fake_to_cli_sync(**kwargs: object) -> None:
-        opened.update(kwargs)
-
-    monkeypatch.setattr(
-        target=agent_module.agent, name="to_cli_sync", value=fake_to_cli_sync
-    )
-    monkeypatch.setattr(target=entry, name="load_dotenv", value=no_dotenv)
-    monkeypatch.setenv(PREFIX + "CHAT_MODEL", "test")
-    entry.main()
-    assert isinstance(opened["model"], TestModel)  # chosen by the setting alone
-    assert opened["deps"] == RepoDeps(root=Path("sample_repos/tinyjobs"))
-
-
-@pytest.mark.parametrize(
-    argnames=("variable", "value", "named"),
-    argvalues=[
-        (PREFIX + "TRACE", "maybe", "trace"),
-        (PREFIX + "CHAT_MODEL", "nonsense:x", "nonsense:x"),
-        (PREFIX + "CHAT_MODEL", "openai:gpt-5-mini", "OPENAI_API_KEY"),
-    ],
-)
-def test_the_entry_point_stops_by_name_before_the_chat_opens(
-    monkeypatch: pytest.MonkeyPatch, variable: str, value: str, named: str
-) -> None:
-    import pydantic_tutor.__main__ as entry
-    from pydantic_tutor import agent as agent_module
-
-    def chat_must_not_open(**kwargs: object) -> None:
-        raise AssertionError("the chat opened")
-
-    monkeypatch.setattr(
-        target=agent_module.agent, name="to_cli_sync", value=chat_must_not_open
-    )
-    monkeypatch.setattr(target=entry, name="load_dotenv", value=no_dotenv)
-    monkeypatch.setenv(variable, value)
-    with pytest.raises(SystemExit) as excinfo:
-        entry.main()
-    message = str(excinfo.value.code)
-    assert message.startswith("pydantic-tutor cannot start:")
-    assert named in message
