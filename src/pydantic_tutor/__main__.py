@@ -5,7 +5,6 @@ no value and builds no object itself. Kept working: a later lesson that
 changes the agent updates this module, or removes it and says why.
 """
 
-from dotenv import load_dotenv
 from pydantic import ValidationError
 from pydantic_ai.exceptions import UserError
 
@@ -14,10 +13,7 @@ from pydantic_tutor.settings import Settings
 
 
 def main() -> None:
-    """Load `.env`, build the app from the settings, then open the chat."""
-    # Into the process environment, where `Settings` reads its values and
-    # the model's provider reads its API key.
-    load_dotenv()
+    """Build the app from the settings, then open the chat."""
     try:
         app = build_app(settings=Settings())
     except (ValidationError, UserError) as error:

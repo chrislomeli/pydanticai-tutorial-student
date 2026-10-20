@@ -1606,7 +1606,6 @@ dependencies = [
     { name = "pydantic-ai" },
     { name = "pydantic-ai-harness" },
     { name = "pydantic-settings" },
-    { name = "python-dotenv" },
 ]
 
 [package.dev-dependencies]
@@ -1622,7 +1621,6 @@ requires-dist = [
     { name = "pydantic-ai", specifier = "==2.56.0" },
     { name = "pydantic-ai-harness", specifier = "==0.56.0" },
     { name = "pydantic-settings", specifier = "==2.16.0" },
-    { name = "python-dotenv", specifier = "==1.2.4" },
 ]
 
 [package.metadata.requires-dev]
