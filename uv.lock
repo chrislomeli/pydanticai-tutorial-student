@@ -1602,8 +1602,10 @@ name = "pydantic-tutor"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "logfire" },
     { name = "pydantic-ai" },
     { name = "pydantic-ai-harness" },
+    { name = "python-dotenv" },
 ]
 
 [package.dev-dependencies]
@@ -1615,8 +1617,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "logfire", specifier = "==5.2.0" },
     { name = "pydantic-ai", specifier = "==2.56.0" },
     { name = "pydantic-ai-harness", specifier = "==0.56.0" },
+    { name = "python-dotenv", specifier = "==1.2.4" },
 ]
 
 [package.metadata.requires-dev]
