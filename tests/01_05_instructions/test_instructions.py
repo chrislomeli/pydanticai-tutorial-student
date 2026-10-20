@@ -2,8 +2,14 @@
 
 Our checks for the instructions lesson: they verify the lesson, and the
 student is not asked to run them. Run them with `uv run pytest`. They fail
-until the lesson is done, except the last two, moved here from the tools
-lesson, which pass before it too.
+until the lesson is done, except the last one, moved here from the tools
+lesson, which passes before it too.
+
+One test was moved by the file tools lesson (03-04), which gives the
+agent the library's file tools beside its own two: that the model is sent
+each tool's signature and docstring is now proved in
+`tests/03_04_files/test_files.py`, by
+`test_the_model_is_sent_our_signatures_beside_the_file_tools`.
 
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
@@ -185,30 +191,14 @@ def test_scripted_run_prints_what_the_function_decided() -> None:
     assert printed.strip() == expected
 
 
-# Moved from the tools lesson, where they ran the agent without deps. Their
-# point is that lesson's, so they pass before this lesson too.
+# Moved from the tools lesson, where it ran the agent without deps. Its
+# point is that lesson's, so it passes before this lesson too.
 
 
 def definitions_sent() -> dict[str, ToolDefinition]:
     """The tool definitions the student's agent sends with its first request."""
     recorder = run_recorded(root=TINYJOBS_ROOT)
     return {tool.name: tool for tool in recorder.infos[0].function_tools}
-
-
-def test_the_model_is_sent_the_signature_and_docstring() -> None:
-    tools = definitions_sent()
-
-    assert sorted(tools) == ["list_modules", "read_docstring"]
-    read = tools["read_docstring"]
-    assert read.description, "read_docstring has no docstring summary"
-    assert "Args" not in read.description, "the Args: section was not parsed"
-    schema = read.parameters_json_schema
-    assert schema["required"] == ["module"]
-    assert schema["properties"]["module"]["type"] == "string"
-    assert schema["properties"]["module"].get("description"), (
-        "`module` has no Args: line"
-    )
-    assert tools["list_modules"].parameters_json_schema["properties"] == {}
 
 
 def test_show_tools_prints_what_the_model_is_told() -> None:

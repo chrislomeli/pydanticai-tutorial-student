@@ -14,6 +14,12 @@ can reach a provider only by being passed in.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+One test was moved by the file tools lesson (03-04), whose `build_app`
+refuses a repository folder that is not there, as this file's empty
+folders are: that the entry point opens the chat with the built app, its
+key from `.env`, is now proved in `tests/03_04_files/test_files.py`, by
+`test_the_entry_point_opens_the_chat_with_the_built_app`.
 """
 
 import os
@@ -224,30 +230,6 @@ def test_a_provider_with_no_key_setting_is_refused(
 
 
 # The entry point reads `.env` through `Settings`, and nothing else.
-
-
-def test_the_entry_point_opens_the_chat_with_the_built_app(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    # Moved from 03-01. `to_cli_sync` is replaced on the project's one
-    # agent, so no chat waits for input, before the lesson or after it.
-    import pydantic_tutor.__main__ as entry
-    from pydantic_tutor import agent as agent_module
-
-    opened: dict[str, object] = {}
-
-    def fake_to_cli_sync(**kwargs: object) -> None:
-        opened.update(kwargs)
-
-    monkeypatch.setattr(
-        target=agent_module.agent, name="to_cli_sync", value=fake_to_cli_sync
-    )
-    write_dotenv("OPENAI_API_KEY=sk-from-dotenv")
-    entry.main()
-    model = opened["model"]
-    assert isinstance(model, OpenAIResponsesModel)
-    assert api_key_of(model) == "sk-from-dotenv"
-    assert "OPENAI_API_KEY" not in os.environ  # no load_dotenv any more
 
 
 @pytest.mark.parametrize(
