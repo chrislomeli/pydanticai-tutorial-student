@@ -1,8 +1,14 @@
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.capabilities import LocalWorkspace
 from pydantic_ai.settings import ModelSettings
+from pydantic_ai_harness import FileSystem
 
 from pydantic_tutor.repo_tools import RepoDeps, list_modules, read_docstring
+
+# Files the file tools may neither read nor write, at any depth: the
+# library's own secret patterns, which by default it only keeps from being
+# written. A leading `**/` means "in any folder, the top one included".
+SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
 
 
 def repo_workspace(ctx: RunContext[RepoDeps]) -> LocalWorkspace[RepoDeps]:
@@ -22,7 +28,13 @@ agent = Agent(
     deps_type=RepoDeps,
     instructions="You answer questions about a Python code repository. Answer briefly.",
     tools=[list_modules, read_docstring],
-    capabilities=[repo_workspace],
+    capabilities=[
+        repo_workspace,
+        # File tools in the run's workspace. They keep to its folder, and
+        # refuse the secret files; the default `read_only_patterns` still
+        # keeps `.git/` and the rest from being written.
+        FileSystem(denied_patterns=SECRET_PATTERNS),
+    ],
     # A tool call that takes longer is abandoned, and the model told so.
     tool_timeout=10,
     # Each attempt at a request that takes longer fails; most hosted

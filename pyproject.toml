@@ -29,7 +29,7 @@ dev = [
 ]
 
 [tool.ruff]
-extend-exclude = ["sample_repos"]  # code the agent reads, not code you write
+extend-exclude = ["sample_repos", "work"]  # code the agent reads, not code you write
 
 [tool.ruff.lint]
 select = [
@@ -60,7 +60,8 @@ plugins = ["pydantic.mypy"]
 exclude = [
     "^tests/",         # the series' lesson tests refer to code you have not written yet
     "^sample_repos/",  # code the agent reads, not code you write
+    "^work/",          # the same, in the agent's working copy
 ]
 
 [tool.pytest]
-addopts = ["--ignore=sample_repos"]  # the sample repo's tests are not ours
+addopts = ["--ignore=sample_repos", "--ignore=work"]  # the sample repo's tests, and its copy's, are not ours

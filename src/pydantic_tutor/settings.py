@@ -42,9 +42,11 @@ class Settings(BaseSettings):
     chat_model: str = "openai:gpt-5-mini"
     # Console tracing. Off unless set to a true value: 1, true, yes, on, t or y.
     trace: bool = False
-    # The repository the agent answers questions about. A relative path is
-    # read from the folder the app runs in: run it from the project root.
-    repo_root: Path = Path("sample_repos/tinyjobs")
+    # The repository the agent works on: its tools read it, and may change
+    # it. A relative path is read from the folder the app runs in: run it
+    # from the project root. The default is the working copy that
+    # scripts/fresh_copy.py makes, never the sample repo itself.
+    repo_root: Path = Path("work/tinyjobs")
     # One key per provider the composition root can build. SecretStr:
     # printing the settings shows `**********`, never the key.
     openai_api_key: SecretStr | None = Field(

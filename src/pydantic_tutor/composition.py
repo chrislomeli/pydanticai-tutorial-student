@@ -37,18 +37,24 @@ def build_app(*, settings: Settings) -> App:
 
     The model is built here, not on the first prompt, so a model string
     that names no known model, or a provider whose API key is not set,
-    fails now, before the chat opens.
+    fails now, before the chat opens. So does a repository folder that is
+    not there.
 
     Raises:
-        UserError: from `build_model`.
+        UserError: from `build_model`, or `repo_root` is not a folder.
     """
     if settings.trace:
         configure_tracing()
-    return App(
-        agent=agent,
-        model=build_model(settings=settings),
-        deps=RepoDeps(root=settings.repo_root),
-    )
+    model = build_model(settings=settings)
+    if not settings.repo_root.is_dir():
+        # Otherwise the chat opens, and the first question that reaches the
+        # workspace fails instead.
+        raise UserError(
+            message=f"The repository {str(settings.repo_root)!r} is not a "
+            "folder. Set PYDANTIC_TUTOR_REPO_ROOT to one, or make the default "
+            "with `uv run scripts/fresh_copy.py`."
+        )
+    return App(agent=agent, model=model, deps=RepoDeps(root=settings.repo_root))
 
 
 def build_model(*, settings: Settings) -> Model:
