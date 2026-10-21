@@ -169,7 +169,7 @@ def test_the_time_limits_are_on_the_model_and_the_toolset(
 ) -> None:
     # Moved from the limits lesson (01-08), which pinned the agent's
     # `tool_timeout=10`: the limit on our tools is now the toolset's.
-    from pydantic_tutor import repo_tools
+    from pydantic_tutor import repo, repo_tools
     from pydantic_tutor.agent import agent
 
     assert agent.model_settings == {"timeout": 60}
@@ -184,7 +184,8 @@ def test_the_time_limits_are_on_the_model_and_the_toolset(
         await asyncio.sleep(delay=2)
         return {}
 
-    monkeypatch.setattr(target=repo_tools, name="_modules", value=slow_modules)
+    # The tools find modules through the repo API: slow that down.
+    monkeypatch.setattr(target=repo, name="_workspace_modules", value=slow_modules)
     monkeypatch.setattr(target=repo_tools.repo_toolset, name="timeout", value=0.2)
     recorder = Recorder(calls=[ToolCallPart(tool_name="list_modules", args={})])
     agent.run_sync(
