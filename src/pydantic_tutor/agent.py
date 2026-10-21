@@ -4,6 +4,7 @@ from pydantic_ai.settings import ModelSettings
 from pydantic_ai_harness import FileSystem, Shell
 
 from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
+from pydantic_tutor.request_log import request_log
 
 # Files the file tools may neither read nor write, at any depth: the
 # library's own secret patterns, which by default it only keeps from being
@@ -46,6 +47,9 @@ agent = Agent(
         # allowed commands start; each is stopped after 30 seconds, the
         # default, or after the time the model asks for.
         Shell(allowed_commands=SHELL_COMMANDS),
+        # Logs each request. Last, so it logs the request as the agent's
+        # other capabilities leave it. A run's own capabilities come after.
+        request_log,
     ],
     # Each attempt at a request that takes longer fails; most hosted
     # models honour it, the scripted models in these lessons do not.
