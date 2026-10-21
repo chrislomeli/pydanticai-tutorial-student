@@ -1,7 +1,7 @@
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.capabilities import LocalWorkspace
 from pydantic_ai.settings import ModelSettings
-from pydantic_ai_harness import FileSystem
+from pydantic_ai_harness import FileSystem, Shell
 
 from pydantic_tutor.repo_tools import RepoDeps, list_modules, read_docstring
 
@@ -9,6 +9,12 @@ from pydantic_tutor.repo_tools import RepoDeps, list_modules, read_docstring
 # library's own secret patterns, which by default it only keeps from being
 # written. A leading `**/` means "in any folder, the top one included".
 SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
+
+# The only commands the shell may start: the agent runs the repository's
+# tests, and reads files with the file tools. A guard against mistakes, not
+# a boundary: only a command's first word is checked, and pytest runs any
+# code it is given.
+SHELL_COMMANDS = ("pytest",)
 
 
 def repo_workspace(ctx: RunContext[RepoDeps]) -> LocalWorkspace[RepoDeps]:
@@ -34,8 +40,14 @@ agent = Agent(
         # refuse the secret files; the default `read_only_patterns` still
         # keeps `.git/` and the rest from being written.
         FileSystem(denied_patterns=SECRET_PATTERNS),
+        # Commands in the run's workspace, on this machine. They keep to
+        # neither its folder nor the file tools' SECRET_PATTERNS. Only the
+        # allowed commands start; each is stopped after 30 seconds, the
+        # default, or after the time the model asks for.
+        Shell(allowed_commands=SHELL_COMMANDS),
     ],
-    # A tool call that takes longer is abandoned, and the model told so.
+    # A call to one of our own two tools that takes longer is abandoned, and
+    # the model told so. The capabilities' tools do not read it.
     tool_timeout=10,
     # Each attempt at a request that takes longer fails; most hosted
     # models honour it, the scripted models in these lessons do not.
