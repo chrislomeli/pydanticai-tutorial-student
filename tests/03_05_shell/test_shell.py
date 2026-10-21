@@ -16,6 +16,10 @@ the library closes one, its test fails, and the lesson must change.
 One test was moved here from the file tools lesson (03-04), which pinned
 the agent's tools before the shell was added. It says so.
 
+The memory lesson (04-05) moved that test on: it adds five memory tools.
+It is now `test_the_model_is_sent_our_signatures_beside_the_file_shell_and_memory_tools`,
+in `tests/04_05_memory/test_memory.py`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -155,39 +159,6 @@ def run_command(*, root: Path, command: str) -> ToolResult:
 
 
 # Goal 1: the agent has a shell, and runs the working copy's tests with it.
-
-
-def test_the_model_is_sent_our_signatures_beside_the_file_and_shell_tools() -> None:
-    # Moved from 03-04 (and before it 01-05), which pinned the agent's tools
-    # before the shell was added.
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
-
-    sent: list[AgentInfo] = []
-
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        sent.append(info)
-        return ModelResponse(parts=[TextPart(content="ok")])
-
-    agent.run_sync(
-        user_prompt="x",
-        model=FunctionModel(function=reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
-    )
-    tools = {tool.name: tool for tool in sent[0].function_tools}
-    assert sorted(tools) == sorted(
-        ["list_modules", "read_docstring", *FILE_TOOLS, *SHELL_TOOLS]
-    )
-    read = tools["read_docstring"]
-    assert read.description, "read_docstring has no docstring summary"
-    assert "Args" not in read.description, "the Args: section was not parsed"
-    schema = read.parameters_json_schema
-    assert schema["required"] == ["module"]
-    assert schema["properties"]["module"]["type"] == "string"
-    assert schema["properties"]["module"].get("description"), (
-        "`module` has no Args: line"
-    )
-    assert tools["list_modules"].parameters_json_schema["properties"] == {}
 
 
 def test_the_shell_runs_the_working_copys_tests(working_copy: Path) -> None:

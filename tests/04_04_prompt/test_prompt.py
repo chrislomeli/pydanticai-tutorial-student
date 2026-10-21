@@ -5,6 +5,11 @@ is not asked to run them. Run them with `uv run pytest`. They fail until
 the lesson is done. None of them needs an API key or makes a request:
 every run is on a scripted model.
 
+One test was moved by the memory lesson (04-05), which adds the memory's
+guidance after the prompt: what the model is sent is now proved in
+`tests/04_05_memory/test_memory.py`, by
+`test_the_model_is_sent_the_prompt_then_the_memory_then_the_repository`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -116,21 +121,6 @@ def test_the_agent_takes_its_prompt_from_the_file_first() -> None:
         "PendingMessageDrainCapability",
         "PromptFile",
     ]
-
-
-def test_the_model_is_sent_what_it_was_sent_before() -> None:
-    # Moving the prompt changes nothing the model is sent: the file's text,
-    # then the toolset's. A guard: passes before the lesson too.
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
-
-    model = Recorder()
-    agent.run_sync(
-        user_prompt="What does this repo do?",
-        model=FunctionModel(function=model.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
-    )
-    assert model.instructions == [f"{PROMPT}\n\nThe repository is tinyjobs."]
 
 
 def test_text_from_a_capability_comes_before_text_from_a_function(

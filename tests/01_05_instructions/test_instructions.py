@@ -12,6 +12,12 @@ tool's signature and docstring is now proved in
 `tests/03_05_shell/test_shell.py`, by
 `test_the_model_is_sent_our_signatures_beside_the_file_and_shell_tools`.
 
+Five tests were moved by the memory lesson (04-05), whose capability adds
+its guidance to the instructions: that the instructions name each run's
+repository, are rendered for every request and travel on the request,
+and what `inspect_run.py` and `scripted_run.py` print, are now proved in
+`tests/04_05_memory/test_memory.py`, by the tests of the same names.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -26,7 +32,6 @@ import pytest
 from pydantic_ai import models
 from pydantic_ai.messages import (
     ModelMessage,
-    ModelRequest,
     ModelResponse,
     TextPart,
     ToolCallPart,
@@ -108,39 +113,6 @@ def run_recorded(*, root: Path, call_tool: bool = False) -> Recorder:
     return recorder
 
 
-def test_the_instructions_name_the_repository_each_run_is_given(
-    other_repo: Path,
-) -> None:
-    # Goal 2: one agent, two runs, two renderings, each from its own deps.
-    tinyjobs = run_recorded(root=TINYJOBS_ROOT)
-    other = run_recorded(root=other_repo)
-
-    assert tinyjobs.infos[0].instructions == f"{STATIC}\n\nThe repository is tinyjobs."
-    assert other.infos[0].instructions == f"{STATIC}\n\nThe repository is otherrepo."
-
-
-def test_the_instructions_are_rendered_for_every_request() -> None:
-    recorder = run_recorded(root=TINYJOBS_ROOT, call_tool=True)
-
-    expected = f"{STATIC}\n\nThe repository is tinyjobs."
-    assert [info.instructions for info in recorder.infos] == [expected, expected]
-    # Each request in the run records the instructions it was sent.
-    requests = [m for m in recorder.messages[-1] if isinstance(m, ModelRequest)]
-    assert [request.instructions for request in requests] == [expected, expected]
-
-
-def test_the_agent_sends_instructions_and_no_system_prompt() -> None:
-    # Moved from the agent lesson, where it ran without deps: the
-    # instructions travel on the request, not as a part, and the agent has
-    # no system prompt. Now with this lesson's second paragraph.
-    recorder = run_recorded(root=TINYJOBS_ROOT)
-
-    [request] = recorder.messages[0]
-    assert isinstance(request, ModelRequest)
-    assert [part.part_kind for part in request.parts] == ["user-prompt"]
-    assert request.instructions == f"{STATIC}\n\nThe repository is tinyjobs."
-
-
 def test_a_run_without_deps_fails_before_the_model_is_asked() -> None:
     from pydantic_tutor.agent import agent
 
@@ -168,28 +140,6 @@ def test_prompt_vs_instructions_shows_which_one_replays() -> None:
         "  system prompt parts: ['You review Python code.']",
         "  instructions: Answer in detail.",
     ]
-
-
-def test_inspect_run_shows_the_rendered_instructions() -> None:
-    # Moved from the agent lesson, where it ran the agent without deps.
-    printed = run_script("scripts/inspect_run.py")
-
-    assert f"  instructions: {STATIC}\n\nThe repository is tinyjobs.\n" in printed
-    assert "user-prompt" in printed
-
-
-def test_scripted_run_prints_what_the_function_decided() -> None:
-    # Moved from the agent lesson, where it ran the agent without deps. The
-    # reply is built from the prompt and the instructions the model was
-    # sent, so it can only match if the function, not a canned answer,
-    # produced it.
-    printed = run_script("scripts/scripted_run.py")
-
-    expected = (
-        "You asked 'What does this repo do?', and my instructions say: "
-        f"{STATIC}\n\nThe repository is tinyjobs."
-    )
-    assert printed.strip() == expected
 
 
 # Moved from the tools lesson, where it ran the agent without deps. Its

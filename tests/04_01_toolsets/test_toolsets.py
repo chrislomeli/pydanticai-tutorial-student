@@ -9,6 +9,12 @@ One test was moved here from the limits lesson (01-08), which pinned the
 agent's `tool_timeout`. The time limit on our two tools is now the
 toolset's. It says so.
 
+Three tests were moved by the memory lesson (04-05), which adds the
+memory's guidance to the instructions and five tools to the agent: that
+the agent takes the toolset and has no tools of its own, that the
+toolset's text is sent once, and what `toolset_views.py` prints, are now
+proved in `tests/04_05_memory/test_memory.py`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -92,50 +98,6 @@ def test_the_repo_tools_are_one_function_toolset() -> None:
     assert toolset.tools["read_docstring"].function is repo_tools.read_docstring
 
 
-def test_the_agent_takes_the_toolset_and_has_no_tools_of_its_own() -> None:
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
-
-    assert any(toolset is repo_toolset for toolset in agent.toolsets)
-    # The agent's own toolset, the one `tools=` fills, comes first, and is
-    # empty: the tools are not registered twice. (Twice would fail anyway:
-    # a run refuses two tools of one name.)
-    own = agent.toolsets[0]
-    assert isinstance(own, FunctionToolset)
-    assert own.tools == {}
-
-    recorder = Recorder()
-    agent.run_sync(
-        user_prompt="x",
-        model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
-    )
-    names = [tool.name for tool in recorder.infos[0].function_tools]
-    assert names[:2] == ["list_modules", "read_docstring"]
-    assert len(names) == 14
-
-
-def test_the_instructions_are_the_toolsets_and_sent_once() -> None:
-    from pydantic_tutor import agent as agent_module
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps, name_the_repository
-
-    # The function moved to the toolset's module, and the agent's module no
-    # longer has it. The request carries its text once, after the agent's
-    # own, exactly as before the lesson.
-    assert name_the_repository.__module__ == "pydantic_tutor.repo_tools"
-    assert not hasattr(agent_module, "name_the_repository")
-    recorder = Recorder()
-    agent.run_sync(
-        user_prompt="x",
-        model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
-    )
-    instructions = recorder.requests[0].instructions
-    assert instructions == f"{STATIC}\n\nThe repository is tinyjobs."
-    assert instructions.count("The repository is") == 1
-
-
 def test_the_toolset_brings_its_tools_and_instructions_to_another_agent() -> None:
     from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
 
@@ -195,27 +157,3 @@ def test_the_time_limits_are_on_the_model_and_the_toolset(
     [retry] = recorder.requests[1].parts
     assert isinstance(retry, RetryPromptPart)
     assert retry.content == "Timed out after 0.2 seconds."
-
-
-def test_toolset_views_shows_the_toolset_given_prefixed_and_filtered() -> None:
-    printed = run_script("scripts/toolset_views.py")
-
-    lines = printed.splitlines()
-    assert lines[0] == "the repo assistant:"
-    assert lines[1].startswith("  tools: list_modules, read_docstring, read_file,")
-    assert lines[2] == f"  instructions: {f'{STATIC}\n\nThe repository is tinyjobs.'!r}"
-    assert lines[3:] == [
-        "a second agent, given the toolset:",
-        "  tools: list_modules, read_docstring",
-        "  instructions: 'The repository is tinyjobs.'",
-        "prefixed with 'repo':",
-        "  tools: repo_list_modules, repo_read_docstring",
-        "  instructions: 'The repository is tinyjobs.'",
-        "prefixed, calling read_docstring with a wrong module:",
-        # The prefix renames the tools the model sees, not the text that
-        # names them: this message still says `list_modules`.
-        "  asked to retry: There is no module 'jobs'. Call list_modules to see them.",
-        "filtered to list_modules:",
-        "  tools: list_modules",
-        "  instructions: 'The repository is tinyjobs.'",
-    ]

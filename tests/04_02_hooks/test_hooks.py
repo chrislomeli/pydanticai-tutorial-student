@@ -5,6 +5,11 @@ is not asked to run them. Run them with `uv run pytest`. They fail until
 the lesson is done. None of them needs an API key or makes a request:
 every run is on a scripted model.
 
+Two tests were moved by the memory lesson (04-05), which adds five tools:
+the request log's lines with the agent's tool count, and what
+`watch_requests.py` prints, are now proved in
+`tests/04_05_memory/test_memory.py`, by the tests of the same names.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -88,28 +93,6 @@ def test_the_request_log_is_a_hooks_capability_last_on_the_agent() -> None:
     assert module.logger.name == LOGGER
 
 
-def test_each_request_is_logged_with_its_step_messages_and_tools(
-    caplog: pytest.LogCaptureFixture,
-) -> None:
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
-
-    caplog.set_level(level=logging.INFO, logger=LOGGER)
-    recorder = Recorder()
-    agent.run_sync(
-        user_prompt="x",
-        model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
-    )
-    assert logged(caplog=caplog) == [
-        "request step=1 messages=1 tools=14",
-        "request step=2 messages=3 tools=14",
-    ]
-    # The hook only watches: the model got what the log describes.
-    assert recorder.message_counts == [1, 3]
-    assert recorder.tool_counts == [14, 14]
-
-
 def test_the_log_counts_the_tools_actually_sent(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
@@ -148,16 +131,6 @@ def test_nothing_is_logged_until_the_program_turns_it_on() -> None:
     result = run_script("scripts/inspect_run.py")
     assert "request step=" not in result.stdout
     assert "request step=" not in result.stderr
-
-
-def test_watch_requests_prints_the_log() -> None:
-    lines = run_script("scripts/watch_requests.py").stdout.splitlines()
-    assert lines[:2] == [
-        f"{LOGGER}: request step=1 messages=1 tools=14",
-        f"{LOGGER}: request step=2 messages=3 tools=14",
-    ]
-    assert lines[2].startswith("output: ")
-    assert lines[3].startswith("usage: ")
 
 
 def turn(*, step: int, logged: int, sent: int) -> list[str]:
