@@ -3,6 +3,7 @@ from pydantic_ai.capabilities import LocalWorkspace
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai_harness import FileSystem, Shell
 
+from pydantic_tutor.batch_limit import BatchLimit
 from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
 from pydantic_tutor.request_log import request_log
 
@@ -47,6 +48,10 @@ agent = Agent(
         # allowed commands start; each is stopped after 30 seconds, the
         # default, or after the time the model asks for.
         Shell(allowed_commands=SHELL_COMMANDS),
+        # At most three tool calls of each response run: enough for a
+        # listing and two reads, not for a runaway. The model is sent
+        # their results, and can ask again for the rest.
+        BatchLimit(max_tool_calls=3),
         # Logs each request. Last, so it logs the request as the agent's
         # other capabilities leave it. A run's own capabilities come after.
         request_log,
