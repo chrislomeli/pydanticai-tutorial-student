@@ -16,8 +16,8 @@ from pydantic_tutor.repo_tools import RepoDeps
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
     """Stand in for the model: print the tool definitions it is sent, then answer."""
-    # info.function_tools holds one definition per tool: all the model
-    # knows of it.
+    # info.function_tools holds one definition per tool: what the model
+    # is told about it.
     for tool in info.function_tools:
         print(tool.name)
         print("  description:", tool.description)
