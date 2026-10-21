@@ -1,9 +1,12 @@
+from pathlib import Path
+
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.capabilities import LocalWorkspace
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai_harness import FileSystem, Shell
 
 from pydantic_tutor.batch_limit import BatchLimit
+from pydantic_tutor.prompt_file import PromptFile
 from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
 from pydantic_tutor.request_log import request_log
 
@@ -17,6 +20,10 @@ SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
 # a boundary: only a command's first word is checked, and pytest runs any
 # code it is given.
 SHELL_COMMANDS = ("pytest",)
+
+# The agent's prompt, in a file of its own beside this module, so it is
+# found whichever folder the program runs from.
+PROMPT_PATH = Path(__file__).parent / "prompts" / "repo_assistant.md"
 
 
 def repo_workspace(ctx: RunContext[RepoDeps]) -> LocalWorkspace[RepoDeps]:
@@ -34,10 +41,13 @@ def repo_workspace(ctx: RunContext[RepoDeps]) -> LocalWorkspace[RepoDeps]:
 agent = Agent(
     name="repo_assistant",
     deps_type=RepoDeps,
-    instructions="You answer questions about a Python code repository. Answer briefly.",
     # Our two repository tools, with their instructions and time limit.
     toolsets=[repo_toolset],
     capabilities=[
+        # The agent's instructions, read from PROMPT_PATH once, when this
+        # module is imported. Text, so it is sent first, before the
+        # repository's name, which the toolset computes for each request.
+        PromptFile(path=PROMPT_PATH),
         repo_workspace,
         # File tools in the run's workspace. They keep to its folder, and
         # refuse the secret files; the default `read_only_patterns` still
