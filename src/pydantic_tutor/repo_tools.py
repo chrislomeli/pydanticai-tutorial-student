@@ -1,7 +1,7 @@
 """The agent's tools: each one calls the repo API for the model.
 
 Each is a plain function: the agent sends the model its name, its
-docstring and its parameters, and runs it when the model asks.
+description and its parameters, and runs it when the model asks.
 """
 
 from pathlib import Path
