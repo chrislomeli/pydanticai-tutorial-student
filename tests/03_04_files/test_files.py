@@ -12,11 +12,17 @@ Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
 
-Six tests here were moved from earlier lessons, which this lesson's
-changes break: one from the instructions lesson (01-05), four from the
-settings lesson (03-01) and one from the models lesson (03-02). Each says
-so. Four of them prove an earlier lesson's point, so they pass before
-this lesson too: the ones that build the app, or open the chat.
+Five tests here were moved from earlier lessons, which this lesson's
+changes break: four from the settings lesson (03-01) and one from the
+models lesson (03-02). Each says so. Four of them prove an earlier
+lesson's point, so they pass before this lesson too: the ones that build
+the app, or open the chat.
+
+One test was moved on by the shell lesson (03-05), which gives the agent
+a shell beside its file tools: that the model is sent our two tools'
+signatures beside the library's tools is now proved in
+`tests/03_05_shell/test_shell.py`, by
+`test_the_model_is_sent_our_signatures_beside_the_file_and_shell_tools`.
 """
 
 import os
@@ -48,16 +54,6 @@ PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
 FAKE_TOKEN = "tj-FAKE-0000-not-a-real-secret"
 PREFIX = "PYDANTIC_TUTOR_"
-FILE_TOOLS = [
-    "create_directory",
-    "edit_file",
-    "file_info",
-    "find_files",
-    "list_directory",
-    "read_file",
-    "search_files",
-    "write_file",
-]
 
 
 @pytest.fixture(autouse=True)
@@ -192,36 +188,6 @@ def test_the_working_copy_is_kept_out_of_git_and_the_tools() -> None:
     assert "work" in tool["ruff"]["extend-exclude"]
     assert "^work/" in tool["mypy"]["exclude"]
     assert "--ignore=work" in tool["pytest"]["addopts"]
-
-
-def test_the_model_is_sent_our_signatures_beside_the_file_tools() -> None:
-    # Moved from 01-05, where the agent had only our two tools.
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
-
-    sent: list[AgentInfo] = []
-
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        sent.append(info)
-        return ModelResponse(parts=[TextPart(content="ok")])
-
-    agent.run_sync(
-        user_prompt="x",
-        model=FunctionModel(function=reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
-    )
-    tools = {tool.name: tool for tool in sent[0].function_tools}
-    assert sorted(tools) == sorted(["list_modules", "read_docstring", *FILE_TOOLS])
-    read = tools["read_docstring"]
-    assert read.description, "read_docstring has no docstring summary"
-    assert "Args" not in read.description, "the Args: section was not parsed"
-    schema = read.parameters_json_schema
-    assert schema["required"] == ["module"]
-    assert schema["properties"]["module"]["type"] == "string"
-    assert schema["properties"]["module"].get("description"), (
-        "`module` has no Args: line"
-    )
-    assert tools["list_modules"].parameters_json_schema["properties"] == {}
 
 
 def test_the_file_tools_read_and_write_in_the_working_copy(working_copy: Path) -> None:

@@ -6,10 +6,11 @@ until the lesson is done, except the last one, moved here from the tools
 lesson, which passes before it too.
 
 One test was moved by the file tools lesson (03-04), which gives the
-agent the library's file tools beside its own two: that the model is sent
-each tool's signature and docstring is now proved in
-`tests/03_04_files/test_files.py`, by
-`test_the_model_is_sent_our_signatures_beside_the_file_tools`.
+agent the library's file tools beside its own two, and moved on by the
+shell lesson (03-05), which adds a shell: that the model is sent each
+tool's signature and docstring is now proved in
+`tests/03_05_shell/test_shell.py`, by
+`test_the_model_is_sent_our_signatures_beside_the_file_and_shell_tools`.
 
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
