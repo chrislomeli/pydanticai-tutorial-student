@@ -4,6 +4,11 @@ Our checks for the limits lesson: they verify the lesson, and the student
 is not asked to run them. Run them with `uv run pytest`. They fail until
 the lesson is done.
 
+One test was moved by the toolsets lesson (04-01), which moves our two
+tools, and their time limit, into a toolset: that the agent has its time
+limits is now proved in `tests/04_01_toolsets/test_toolsets.py`, by
+`test_the_time_limits_are_on_the_model_and_the_toolset`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -57,15 +62,6 @@ def run_script(name: str) -> str:
     )
     assert result.returncode == 0, f"{name} failed:\n{result.stderr}"
     return result.stdout
-
-
-def test_the_agent_has_time_limits() -> None:
-    from pydantic_tutor.agent import agent
-
-    assert agent.model_settings == {"timeout": 60}
-    # 2.56 keeps the tool timeout on a private attribute; there is no public
-    # one to read. slow_tool.py's test proves what a tool timeout does.
-    assert agent._tool_timeout == 10
 
 
 def test_a_module_that_does_not_parse_is_a_failed_tool_result(
