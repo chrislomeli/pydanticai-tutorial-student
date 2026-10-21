@@ -4,8 +4,10 @@ from pydantic_ai import Agent, RunContext
 from pydantic_ai.capabilities import LocalWorkspace
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai_harness import FileSystem, Shell
+from pydantic_ai_harness.memory import FileStore
 
 from pydantic_tutor.batch_limit import BatchLimit
+from pydantic_tutor.listable_memory import ListableMemory
 from pydantic_tutor.prompt_file import PromptFile
 from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
 from pydantic_tutor.request_log import request_log
@@ -58,6 +60,11 @@ agent = Agent(
         # allowed commands start; each is stopped after 30 seconds, the
         # default, or after the time the model asks for.
         Shell(allowed_commands=SHELL_COMMANDS),
+        # A notebook the model keeps across sessions, as Markdown files in
+        # `.agent-memory/` in the run's workspace: each repository has its
+        # own. Injection off: no request carries the notebook; the model
+        # lists and reads it with tools when it chooses to.
+        ListableMemory(store=FileStore(directory=".agent-memory"), inject_memory=False),
         # At most three tool calls of each response run: enough for a
         # listing and two reads, not for a runaway. The model is sent
         # their results, and can ask again for the rest.
