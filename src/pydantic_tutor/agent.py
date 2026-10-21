@@ -3,7 +3,7 @@ from pydantic_ai.capabilities import LocalWorkspace
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai_harness import FileSystem, Shell
 
-from pydantic_tutor.repo_tools import RepoDeps, list_modules, read_docstring
+from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
 
 # Files the file tools may neither read nor write, at any depth: the
 # library's own secret patterns, which by default it only keeps from being
@@ -33,7 +33,8 @@ agent = Agent(
     name="repo_assistant",
     deps_type=RepoDeps,
     instructions="You answer questions about a Python code repository. Answer briefly.",
-    tools=[list_modules, read_docstring],
+    # Our two repository tools, with their instructions and time limit.
+    toolsets=[repo_toolset],
     capabilities=[
         repo_workspace,
         # File tools in the run's workspace. They keep to its folder, and
@@ -46,17 +47,7 @@ agent = Agent(
         # default, or after the time the model asks for.
         Shell(allowed_commands=SHELL_COMMANDS),
     ],
-    # A call to one of our own two tools that takes longer is abandoned, and
-    # the model told so. The capabilities' tools do not read it.
-    tool_timeout=10,
     # Each attempt at a request that takes longer fails; most hosted
     # models honour it, the scripted models in these lessons do not.
     model_settings=ModelSettings(timeout=60),
 )
-
-
-@agent.instructions
-def name_the_repository(ctx: RunContext[RepoDeps]) -> str:
-    """Tell the model which repository this run reads."""
-    # Called for every request of a run, with that run's deps.
-    return f"The repository is {ctx.deps.root.resolve().name}."

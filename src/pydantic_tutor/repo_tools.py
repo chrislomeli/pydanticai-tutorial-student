@@ -1,9 +1,10 @@
-"""Tools that read a Python repository, for the agent to call.
+"""Tools that read a Python repository, and the toolset that carries them.
 
 Each tool takes the run's context first: the agent passes it, and the model
-never sees it. Since the workspace lesson (03-03), a tool reads the
-repository through the run's workspace, `ctx.workspace`, whose folder is
-the repository's root: the tool reads wherever the workspace is.
+never sees it. A tool reads the repository through the run's workspace,
+`ctx.workspace`, whose folder is the repository's root: the tool reads
+wherever the workspace is. An agent gets the tools as one object,
+`repo_toolset`.
 """
 
 import ast
@@ -11,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
 from pydantic_ai import ModelRetry, RunContext, ToolFailed
+from pydantic_ai.toolsets import FunctionToolset
 from pydantic_ai.workspaces import Workspace
 
 
@@ -89,3 +91,23 @@ async def _modules(*, workspace: Workspace) -> dict[str, str]:
                     parts = parts[:-1]
                 modules[".".join(parts)] = entry.path
     return modules
+
+
+def name_the_repository(ctx: RunContext[RepoDeps]) -> str:
+    """Tell the model which repository this run reads."""
+    # Called for every request of a run, with that run's deps.
+    return f"The repository is {ctx.deps.root.resolve().name}."
+
+
+# The repository tools as one object: an agent whose deps are `RepoDeps`
+# takes them with `toolsets=[repo_toolset]`, and gets their instructions
+# and their time limit with them. Not the workspace the tools read
+# through: the agent supplies that.
+repo_toolset: FunctionToolset[RepoDeps] = FunctionToolset(
+    tools=[list_modules, read_docstring],
+    # Sent with every request, beside the agent's own instructions.
+    instructions=name_the_repository,
+    # A call that takes longer is abandoned, and the model told so. Set
+    # here: an agent's `tool_timeout` covers only the tools in its `tools=`.
+    timeout=10,
+)
