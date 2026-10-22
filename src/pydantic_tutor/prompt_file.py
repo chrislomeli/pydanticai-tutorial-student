@@ -9,7 +9,7 @@ It knows nothing about the run's deps, so any agent can take it.
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from pydantic_ai.capabilities import AbstractCapability
+from pydantic_ai.capabilities import AbstractCapability, CapabilityOrdering
 
 
 @dataclass(kw_only=True)
@@ -33,3 +33,10 @@ class PromptFile[DepsT](AbstractCapability[DepsT]):
         # any it computes for a request, and does not ask for it again.
         # An edit to the file is read when the program next starts.
         return self.text
+
+    def get_ordering(self) -> CapabilityOrdering:
+        """Put this capability first, wherever it is listed."""
+        # The prompt says what the agent is for, so it is the first text the
+        # model is sent: of the instructions given as text, the agent sends
+        # those of the outermost capability first.
+        return CapabilityOrdering(position="outermost")

@@ -1,7 +1,8 @@
+from collections.abc import Sequence
 from pathlib import Path
 
 from pydantic_ai import Agent, RunContext
-from pydantic_ai.capabilities import LocalWorkspace
+from pydantic_ai.capabilities import AgentCapability, LocalWorkspace, Toolset
 from pydantic_ai.settings import ModelSettings
 from pydantic_ai_harness import FileSystem, Shell
 from pydantic_ai_harness.memory import FileStore
@@ -37,19 +38,20 @@ def repo_workspace(ctx: RunContext[RepoDeps]) -> LocalWorkspace[RepoDeps]:
     return LocalWorkspace(working_dir=ctx.deps.root)
 
 
-# No model here: each run says which model to use, so the same agent runs on
-# a test model now and a real one later. No repository either: each run
-# passes one, as `deps`, and gets a workspace there.
-agent = Agent(
-    name="repo_assistant",
-    deps_type=RepoDeps,
-    # Our two repository tools, with their instructions and time limit.
-    toolsets=[repo_toolset],
-    capabilities=[
-        # The agent's instructions, read from PROMPT_PATH once, when this
-        # module is imported. Text, so it is sent first, before the
-        # repository's name, which the toolset computes for each request.
+def repo_capabilities() -> list[AgentCapability[RepoDeps]]:
+    """Everything the agent does, as a list of capabilities, each one new.
+
+    The order is an arrangement, not a rule: a capability whose place
+    matters declares it (`PromptFile` first, `request_log` last), so these
+    may be listed, or added to, in any order.
+    """
+    return [
+        # The agent's instructions, read from PROMPT_PATH when this list is
+        # built. Text, so it is sent before the repository's name, which the
+        # toolset computes for each request.
         PromptFile(path=PROMPT_PATH),
+        # Our two repository tools, with their instructions and time limit.
+        Toolset(toolset=repo_toolset),
         repo_workspace,
         # File tools in the run's workspace. They keep to its folder, and
         # refuse the secret files; the default `read_only_patterns` still
@@ -69,11 +71,37 @@ agent = Agent(
         # listing and two reads, not for a runaway. The model is sent
         # their results, and can ask again for the rest.
         BatchLimit(max_tool_calls=3),
-        # Logs each request. Last, so it logs the request as the agent's
-        # other capabilities leave it. A run's own capabilities come after.
+        # Logs each request, as every other capability leaves it.
         request_log,
-    ],
-    # Each attempt at a request that takes longer fails; most hosted
-    # models honour it, the scripted models in these lessons do not.
-    model_settings=ModelSettings(timeout=60),
-)
+    ]
+
+
+def build_agent(
+    *, capabilities: Sequence[AgentCapability[RepoDeps]] | None = None
+) -> Agent[RepoDeps, str]:
+    """Build the repository assistant: what it is, here; what it does, in `capabilities`.
+
+    The constructor sets what no capability can, the agent's name and the
+    type of its deps and of its output, and its defaults for every
+    request, which are configuration, not behaviour, though a capability
+    could carry them. `capabilities` defaults to `repo_capabilities()`; pass
+    another list to build the same agent with its stack rearranged or
+    extended.
+    """
+    return Agent(
+        name="repo_assistant",
+        # The types the type checker holds every run and tool to.
+        deps_type=RepoDeps,
+        output_type=str,
+        # Each attempt at a request that takes longer fails; most hosted
+        # models honour it, the scripted models in these lessons do not.
+        model_settings=ModelSettings(timeout=60),
+        capabilities=repo_capabilities() if capabilities is None else capabilities,
+    )
+
+
+# The project's one agent, used by the app and the scripts. No model here:
+# each run says which model to use, so the same agent runs on a test model
+# now and a real one later. No repository either: each run passes one, as
+# `deps`, and gets a workspace there.
+agent = build_agent()
