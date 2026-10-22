@@ -6,9 +6,10 @@ last, and saves it after every turn; a turn that can't be saved, because
 another chat saved that conversation first, is not kept. With a step
 store, each run is recorded as it goes; if the last one never ended,
 because the process died, the chat says what is known of it, and /resume
-carries it on. `chat(app=...)`
-returns when you type /exit or input ends. A turn that fails ends that
-turn, never the chat.
+carries it on. After each turn, a status line says how full the last
+request's context was, and how many tokens the turn sent in all.
+`chat(app=...)` returns when you type /exit or input ends. A turn that
+fails ends that turn, never the chat.
 """
 
 import traceback
@@ -36,6 +37,7 @@ from pydantic_ai_harness.ask_user import (
 
 from pydantic_tutor.approval import approver
 from pydantic_tutor.composition import App
+from pydantic_tutor.context_gauge import ContextGauge
 from pydantic_tutor.conversations import ConversationConflictError
 from pydantic_tutor.recovery import Unfinished, last_unfinished, recorder
 from pydantic_tutor.repo_tools import RepoDeps
@@ -241,6 +243,9 @@ def chat(*, app: App) -> None:
             conversation, revision = None, 0
             print("A new conversation starts with your next line.")
             continue
+        # A new gauge for each turn: it reads every request this turn
+        # sends, and only those.
+        gauge = ContextGauge()
         # A turn is what fails, not the chat: whatever stops one (the
         # provider, a limit, a bug in a tool, Ctrl-C), the conversation
         # stays as it was before it, and the next line starts from there.
@@ -250,7 +255,7 @@ def chat(*, app: App) -> None:
                 model=app.model,
                 deps=app.deps,
                 conversation=start,
-                capabilities=capabilities,
+                capabilities=[*capabilities, gauge],
             )
             if store is not None:
                 # Inside the `try`: a turn that cannot be saved fails like
@@ -275,3 +280,7 @@ def chat(*, app: App) -> None:
         else:
             conversation = result.conversation
             print(result.output)
+        # After every turn that sent a request, failed or not: each one
+        # was sent, and counts.
+        if gauge.readings:
+            print(gauge.status_line())
