@@ -17,6 +17,7 @@ from pydantic_ai.models import Model, infer_model
 from pydantic_ai.providers import Provider
 from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.providers.openai import OpenAIProvider
+from pydantic_ai_harness.step_persistence import SqliteStepStore
 
 from pydantic_tutor.agent import agent
 from pydantic_tutor.conversations import ConversationStore
@@ -34,6 +35,9 @@ class App:
     # Where the chat saves its conversations. None: nothing is saved, and
     # every chat starts a new one, as the scripts' stand-in chats do.
     store: ConversationStore | None = None
+    # Where each of the chat's runs is recorded, step by step, so a run a
+    # crash stopped can be carried on. None: nothing is recorded.
+    steps: SqliteStepStore | None = None
 
 
 def build_app(*, settings: Settings) -> App:
@@ -63,6 +67,9 @@ def build_app(*, settings: Settings) -> App:
         model=model,
         deps=RepoDeps(root=settings.repo_root),
         store=ConversationStore(path=settings.database),
+        # The same file: its tables are made on first use, beside the
+        # conversations'.
+        steps=SqliteStepStore(database=settings.database),
     )
 
 

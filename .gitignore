@@ -17,3 +17,6 @@ wheels/
 
 # The app's database, with the chat's saved conversations: yours, not the project's.
 /pydantic-tutor.db
+
+# And the files SQLite keeps beside it while it writes, which a crash can leave.
+/pydantic-tutor.db-*

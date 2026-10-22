@@ -3,7 +3,10 @@
 In the chat, the model can also ask you a question, as a menu you answer
 at the keyboard. With a store, the chat carries on the conversation saved
 last, and saves it after every turn; a turn that can't be saved, because
-another chat saved that conversation first, is not kept. `chat(app=...)`
+another chat saved that conversation first, is not kept. With a step
+store, each run is recorded as it goes; if the last one never ended,
+because the process died, the chat says what is known of it, and /resume
+carries it on. `chat(app=...)`
 returns when you type /exit or input ends. A turn that fails ends that
 turn, never the chat.
 """
@@ -22,6 +25,7 @@ from pydantic_ai.tools import (
     ToolDefinition,
     ToolDenied,
 )
+from pydantic_ai.usage import RunUsage
 from pydantic_ai_harness import AskUser
 from pydantic_ai_harness.ask_user import (
     AskUserAnswer,
@@ -33,11 +37,13 @@ from pydantic_ai_harness.ask_user import (
 from pydantic_tutor.approval import approver
 from pydantic_tutor.composition import App
 from pydantic_tutor.conversations import ConversationConflictError
+from pydantic_tutor.recovery import Unfinished, last_unfinished, recorder
 from pydantic_tutor.repo_tools import RepoDeps
 
 PROMPT = "pydantic-tutor ➤ "
 EXIT = "/exit"
 NEW = "/new"
+RESUME = "/resume"
 
 
 def ask(*, prompt: str) -> str | None:
@@ -129,6 +135,46 @@ async def show_tool_call(
     return result
 
 
+def describe(*, unfinished: Unfinished) -> str:
+    """What the chat knows of a run that never ended, and what /resume would do."""
+    lines = [
+        "The last run did not finish: the process stopped during it.",
+        f"  Finished: {', '.join(unfinished.finished) or 'none'}",
+        f"  Finished, but its return was lost (the model may ask for it again): "
+        f"{', '.join(unfinished.unsaved) or 'none'}",
+        f"  Started, not finished (may or may not have done its work): "
+        f"{', '.join(unfinished.unknown) or 'none'}",
+        f"Type {RESUME} to carry it on from its last finished step, "
+        "or anything else to leave it.",
+    ]
+    return "\n".join(lines)
+
+
+def resume_point(
+    *, unfinished: Unfinished, conversation: Conversation | None, revision: int
+) -> tuple[Conversation, int]:
+    """The conversation to carry an unfinished run on in, and the revision to save it at.
+
+    Its messages are the run's, to its last settled step. If it is the
+    conversation the chat carries, its usage and revision go with it.
+    Otherwise both start at zero, as for a conversation never saved (one
+    that crashed in its first turn); if it was saved after all, its save
+    is refused as a conflict. The requests the stopped run made are
+    counted nowhere.
+    """
+    if conversation is not None and (
+        conversation.conversation_id == unfinished.conversation_id
+    ):
+        usage = conversation.usage
+    else:
+        usage, revision = RunUsage(), 0
+    return Conversation(
+        conversation_id=unfinished.conversation_id,
+        messages=unfinished.messages,
+        usage=usage,
+    ), revision
+
+
 def chat(*, app: App) -> None:
     """Chat with the agent until /exit: each line typed is one run."""
     # The chat owns this terminal: no first-run banner in its first answer.
@@ -143,6 +189,15 @@ def chat(*, app: App) -> None:
         AskUser(answerer=answer_at_keyboard),
         Hooks(after_tool_execute=show_tool_call),
     ]
+    unfinished: Unfinished | None = None
+    if app.steps is not None:
+        # Each run is recorded as it goes, so a crash leaves a record.
+        # After-hooks run in reverse order: a capability whose `after_run`
+        # rewrites the history must come after the recorder in this list,
+        # or the record misses the rewrite. None of the chat's or the
+        # agent's does.
+        capabilities.append(recorder(store=app.steps))
+        unfinished = last_unfinished(store=app.steps)
     store = app.store
     saved = None if store is None else store.latest()
     conversation: Conversation | None = None
@@ -156,12 +211,30 @@ def chat(*, app: App) -> None:
             f"usage.requests={conversation.usage.requests}. "
             f"Type {NEW} to start another."
         )
+    if unfinished is not None:
+        print(describe(unfinished=unfinished))
     while True:
         text = ask(prompt=PROMPT)
         if text is None or text == EXIT:
             return
         if not text:
             continue
+        prompt: str | None = text
+        start, start_revision = conversation, revision
+        if text == RESUME:
+            if unfinished is None:
+                print("There is no unfinished run to carry on.")
+                continue
+            # No prompt: the run picks up where the history stops, so the
+            # model is asked what to do next with every finished tool's
+            # return in front of it.
+            prompt = None
+            start, start_revision = resume_point(
+                unfinished=unfinished, conversation=conversation, revision=revision
+            )
+        # The offer lasts until the next line: the next run becomes the
+        # last one recorded, so the unfinished run is carried on now, or left.
+        unfinished = None
         if text == NEW:
             # The saved one stays saved; the next run starts a conversation,
             # with an id of its own.
@@ -173,17 +246,17 @@ def chat(*, app: App) -> None:
         # stays as it was before it, and the next line starts from there.
         try:
             result = app.agent.run_sync(
-                user_prompt=text,
+                user_prompt=prompt,
                 model=app.model,
                 deps=app.deps,
-                conversation=conversation,
+                conversation=start,
                 capabilities=capabilities,
             )
             if store is not None:
                 # Inside the `try`: a turn that cannot be saved fails like
                 # any other, so what the chat carries is what is saved.
                 revision = store.save(
-                    conversation=result.conversation, revision=revision
+                    conversation=result.conversation, revision=start_revision
                 )
         except ConversationConflictError as error:
             print(
