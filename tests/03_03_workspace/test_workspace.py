@@ -148,6 +148,27 @@ def test_list_modules_does_not_enter_a_linked_folder(tmp_path: Path) -> None:
     assert result.output == '["pkg","pkg.util"]'
 
 
+def test_a_linked_file_out_of_the_repository_is_not_read(tmp_path: Path) -> None:
+    from pydantic_tutor.agent import agent
+    from pydantic_tutor.repo_tools import RepoDeps
+
+    repo = make_repo(root=tmp_path / "repo", package="pkg")
+    (tmp_path / "far.py").write_text('"""Outside the repository."""\n')
+    (repo / "src" / "pkg" / "leak.py").symlink_to(target=tmp_path / "far.py")
+    listed = agent.run_sync(
+        user_prompt="x",
+        model=calls(tool_name="list_modules", args={}),
+        deps=RepoDeps(root=repo),
+    )
+    assert listed.output == '["pkg","pkg.util"]'
+    read = agent.run_sync(
+        user_prompt="x",
+        model=calls(tool_name="read_docstring", args={"module": "pkg.leak"}),
+        deps=RepoDeps(root=repo),
+    )
+    assert "Outside the repository" not in read.output
+
+
 def test_a_repository_without_src_has_no_modules(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
     from pydantic_tutor.repo_tools import RepoDeps
