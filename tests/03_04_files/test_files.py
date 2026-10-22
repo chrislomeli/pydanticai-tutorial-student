@@ -31,6 +31,12 @@ protection is kept, are now proved with the write approved, in
 `tests/05_01_approval/test_approval.py`, by
 `test_an_approved_write_is_written_in_the_working_copy` and
 `test_an_approved_write_still_keeps_the_default_protection`.
+
+One test was moved on by the chat loop lesson (05-02), which opens a chat
+loop of our own in place of `to_cli_sync`: that the entry point opens the
+chat with the app it built, its key read from `.env`, is now proved in
+`tests/05_02_chat_loop/test_chat_loop.py`, by
+`test_the_entry_point_opens_our_chat_with_the_built_app`.
 """
 
 import os
@@ -54,7 +60,6 @@ from pydantic_ai.messages import (
     ToolReturnPart,
 )
 from pydantic_ai.models.function import AgentInfo, FunctionModel
-from pydantic_ai.models.openai import OpenAIResponsesModel
 from pydantic_ai.models.test import TestModel
 
 # This file is tests/03_04_files/test_files.py: two folders below the root.
@@ -356,29 +361,3 @@ def test_tracing_prints_spans_for_a_scripted_turn(
         user_prompt="hello", model=FunctionModel(function=reply), deps=app.deps
     )
     assert "repo_assistant run" in capsys.readouterr().out
-
-
-def test_the_entry_point_opens_the_chat_with_the_built_app(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
-    # Moved from 03-02, which ran it in an empty folder: the default
-    # repository, `work/tinyjobs`, now has to be there.
-    import pydantic_tutor.__main__ as entry
-    from pydantic_tutor import agent as agent_module
-
-    monkeypatch.chdir(tmp_path)
-    (tmp_path / "work" / "tinyjobs").mkdir(parents=True)
-    Path(".env").write_text("OPENAI_API_KEY=sk-from-dotenv\n")
-    opened: dict[str, object] = {}
-
-    def fake_to_cli_sync(**kwargs: object) -> None:
-        opened.update(kwargs)
-
-    monkeypatch.setattr(
-        target=agent_module.agent, name="to_cli_sync", value=fake_to_cli_sync
-    )
-    entry.main()
-    model = opened["model"]
-    assert isinstance(model, OpenAIResponsesModel)
-    assert model.client.api_key == "sk-from-dotenv"
-    assert "OPENAI_API_KEY" not in os.environ  # read into Settings only
