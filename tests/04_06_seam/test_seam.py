@@ -113,7 +113,7 @@ def run_built(
 
     caplog.clear()
     recorder = Recorder()
-    build_agent(capabilities=capabilities).run_sync(  # type: ignore[arg-type]
+    build_agent(capabilities=capabilities).run_sync(
         user_prompt="What does this repo do?",
         model=FunctionModel(function=recorder.reply),
         deps=RepoDeps(root=TINYJOBS_ROOT),
