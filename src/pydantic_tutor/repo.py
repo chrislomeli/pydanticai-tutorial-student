@@ -14,6 +14,8 @@ It reads a repository in one of two ways, and both behave the same:
 
 A module is always named, never given as a path: a name such as
 `"../../.env"` is not one of `list_modules`' names, so it reads nothing.
+Nor does a link: a linked folder under `src/` is not entered, and a linked
+file that leads out of `src/` is not listed.
 """
 
 import ast
@@ -101,18 +103,25 @@ def _dotted(*, relative: PurePosixPath) -> str:
 
 
 def _modules(*, source: Path) -> dict[str, Path]:
-    """Every module under `source`, by dotted name. A linked folder is not entered."""
+    """Every module under `source`, by dotted name.
+
+    A linked folder is not entered (`Path.rglob` does not enter one), and a
+    linked file that leads out of `source` is left out.
+    """
+    inside = source.resolve()
     return {
         _dotted(relative=PurePosixPath(path.relative_to(other=source).as_posix())): path
         for path in source.rglob(pattern="*.py")
+        if path.resolve().is_relative_to(other=inside)
     }
 
 
 async def _workspace_modules(*, workspace: Workspace) -> dict[str, str]:
     """Every module under the workspace's `src/`, by dotted name, each with its absolute path.
 
-    A linked folder is not entered, as `Path.rglob` does not enter one: it
-    could lead back up and round forever.
+    As in the folder form, a linked folder is not entered (it could lead back
+    up and round forever), and a linked file that leads out of `src/` is
+    left out.
     """
     modules: dict[str, str] = {}
     if not await workspace.exists(path="src"):
@@ -125,11 +134,14 @@ async def _workspace_modules(*, workspace: Workspace) -> dict[str, str]:
         except OSError:
             continue  # a folder you may not read is skipped, as `Path.rglob` skips it
         for entry in entries:
+            # An entry's real path is its own path unless it is a link.
+            real = await workspace.realpath(path=entry.path)
             if entry.is_dir:
-                # A folder's real path is its own path unless it is a link.
-                if await workspace.realpath(path=entry.path) == entry.path:
+                if real == entry.path:
                     folders.append(entry.path)
             elif entry.name.endswith(".py"):
+                if not PurePosixPath(real).is_relative_to(other=source):
+                    continue  # a linked file that leads out of `src/`
                 relative = PurePosixPath(entry.path).relative_to(other=source)
                 modules[_dotted(relative=relative)] = entry.path
     return modules
