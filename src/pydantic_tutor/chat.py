@@ -1,8 +1,11 @@
 """The chat: read a line, run the agent on it, print the answer; you answer each held call.
 
 In the chat, the model can also ask you a question, as a menu you answer
-at the keyboard. `chat(app=...)` returns when you type /exit or input
-ends. A turn that fails ends that turn, never the chat.
+at the keyboard. With a store, the chat carries on the conversation saved
+last, and saves it after every turn; a turn that can't be saved, because
+another chat saved that conversation first, is not kept. `chat(app=...)`
+returns when you type /exit or input ends. A turn that fails ends that
+turn, never the chat.
 """
 
 import traceback
@@ -29,10 +32,12 @@ from pydantic_ai_harness.ask_user import (
 
 from pydantic_tutor.approval import approver
 from pydantic_tutor.composition import App
+from pydantic_tutor.conversations import ConversationConflictError
 from pydantic_tutor.repo_tools import RepoDeps
 
 PROMPT = "pydantic-tutor ➤ "
 EXIT = "/exit"
+NEW = "/new"
 
 
 def ask(*, prompt: str) -> str | None:
@@ -138,12 +143,30 @@ def chat(*, app: App) -> None:
         AskUser(answerer=answer_at_keyboard),
         Hooks(after_tool_execute=show_tool_call),
     ]
+    store = app.store
+    saved = None if store is None else store.latest()
     conversation: Conversation | None = None
+    # The revision of `conversation` in the store; 0: not saved yet.
+    revision = 0
+    if saved is not None:
+        conversation, revision = saved.conversation, saved.revision
+        print(
+            f"Carrying on conversation {conversation.conversation_id}: "
+            f"{len(conversation.messages)} messages, "
+            f"usage.requests={conversation.usage.requests}. "
+            f"Type {NEW} to start another."
+        )
     while True:
         text = ask(prompt=PROMPT)
         if text is None or text == EXIT:
             return
         if not text:
+            continue
+        if text == NEW:
+            # The saved one stays saved; the next run starts a conversation,
+            # with an id of its own.
+            conversation, revision = None, 0
+            print("A new conversation starts with your next line.")
             continue
         # A turn is what fails, not the chat: whatever stops one (the
         # provider, a limit, a bug in a tool, Ctrl-C), the conversation
@@ -155,6 +178,17 @@ def chat(*, app: App) -> None:
                 deps=app.deps,
                 conversation=conversation,
                 capabilities=capabilities,
+            )
+            if store is not None:
+                # Inside the `try`: a turn that cannot be saved fails like
+                # any other, so what the chat carries is what is saved.
+                revision = store.save(
+                    conversation=result.conversation, revision=revision
+                )
+        except ConversationConflictError as error:
+            print(
+                f"This turn was not kept: {error}. Another chat has this "
+                f"conversation. Type {NEW}, or restart to carry on from its last save."
             )
         except KeyboardInterrupt:
             print("Interrupted.")

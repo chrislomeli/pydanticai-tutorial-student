@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     # from the project root. The default is the working copy that
     # scripts/fresh_copy.py makes, never the sample repo itself.
     repo_root: Path = Path("work/tinyjobs")
+    # The SQLite file the app keeps its state in, such as the chat's saved
+    # conversations. Made on first use. Relative, like `repo_root`: from
+    # the folder the app runs in.
+    database: Path = Path("pydantic-tutor.db")
     # One key per provider the composition root can build. SecretStr:
     # printing the settings shows `**********`, never the key.
     openai_api_key: SecretStr | None = Field(

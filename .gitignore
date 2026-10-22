@@ -14,3 +14,6 @@ wheels/
 
 # Working copies the agent may change, made by scripts/fresh_copy.py.
 /work/
+
+# The app's database, with the chat's saved conversations: yours, not the project's.
+/pydantic-tutor.db

@@ -19,6 +19,7 @@ from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.providers.openai import OpenAIProvider
 
 from pydantic_tutor.agent import agent
+from pydantic_tutor.conversations import ConversationStore
 from pydantic_tutor.repo_tools import RepoDeps
 from pydantic_tutor.settings import Settings
 
@@ -30,6 +31,9 @@ class App:
     agent: Agent[RepoDeps, str]
     model: Model
     deps: RepoDeps
+    # Where the chat saves its conversations. None: nothing is saved, and
+    # every chat starts a new one, as the scripts' stand-in chats do.
+    store: ConversationStore | None = None
 
 
 def build_app(*, settings: Settings) -> App:
@@ -54,7 +58,12 @@ def build_app(*, settings: Settings) -> App:
             "folder. Set PYDANTIC_TUTOR_REPO_ROOT to one, or make the default "
             "with `uv run scripts/fresh_copy.py`."
         )
-    return App(agent=agent, model=model, deps=RepoDeps(root=settings.repo_root))
+    return App(
+        agent=agent,
+        model=model,
+        deps=RepoDeps(root=settings.repo_root),
+        store=ConversationStore(path=settings.database),
+    )
 
 
 def build_model(*, settings: Settings) -> Model:
