@@ -10,6 +10,11 @@ the instructions and five tools to the agent, and they pinned the
 instructions' text or the number of tools. Each says where it came from,
 and proves its point with the memory's part included.
 
+One of them was moved again by the seam lesson (04-06), which gives the
+agent the repository toolset as a capability, not on `toolsets=`: it is
+now `test_the_agent_takes_the_repo_toolset_as_a_capability` in
+`tests/04_06_seam/test_seam.py`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -443,24 +448,6 @@ def test_toolset_views_shows_the_agents_tools_and_instructions() -> None:
 
 
 # Moved: they pinned the number of tools before the memory's five.
-
-
-def test_the_agent_takes_the_toolset_and_has_no_tools_of_its_own() -> None:
-    # Moved from 04-01.
-    from pydantic_ai.toolsets import FunctionToolset
-
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import repo_toolset
-
-    assert any(toolset is repo_toolset for toolset in agent.toolsets)
-    own = agent.toolsets[0]
-    assert isinstance(own, FunctionToolset)
-    assert own.tools == {}
-    names = [
-        tool.name for tool in run_agent(root=TINYJOBS_ROOT).infos[0].function_tools
-    ]
-    assert names[:2] == ["list_modules", "read_docstring"]
-    assert len(names) == ALL_TOOLS
 
 
 def test_each_request_is_logged_with_its_step_messages_and_tools(

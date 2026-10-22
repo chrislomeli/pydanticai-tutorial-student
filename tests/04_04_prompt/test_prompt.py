@@ -10,6 +10,11 @@ guidance after the prompt: what the model is sent is now proved in
 `tests/04_05_memory/test_memory.py`, by
 `test_the_model_is_sent_the_prompt_then_the_memory_then_the_repository`.
 
+One more was moved by the seam lesson (04-06), whose prompt declares
+itself outermost and so sorts ahead of the two capabilities the library
+adds: it is now `test_the_agent_takes_its_prompt_from_the_file_first` in
+`tests/04_06_seam/test_seam.py`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -103,24 +108,6 @@ def test_a_missing_or_empty_prompt_file_fails_when_made(tmp_path: Path) -> None:
     empty.write_text("  \n", encoding="utf-8")
     with pytest.raises(ValueError, match="empty"):
         prompt_file.PromptFile(path=empty)
-
-
-def test_the_agent_takes_its_prompt_from_the_file_first() -> None:
-    from pydantic_tutor import prompt_file
-    from pydantic_tutor.agent import PROMPT_PATH, agent
-
-    assert PROMPT_PATH.resolve() == PROMPT_FILE.resolve()
-    capabilities = agent.root_capability.capabilities
-    prompts = [c for c in capabilities if isinstance(c, prompt_file.PromptFile)]
-    assert len(prompts) == 1
-    assert prompts[0].path == PROMPT_PATH
-    # First of those the agent was given. The two the library adds of its
-    # own, ToolSearch and PendingMessageDrainCapability, sit ahead of it.
-    assert [type(c).__name__ for c in capabilities[:3]] == [
-        "ToolSearch",
-        "PendingMessageDrainCapability",
-        "PromptFile",
-    ]
 
 
 def test_text_from_a_capability_comes_before_text_from_a_function(
