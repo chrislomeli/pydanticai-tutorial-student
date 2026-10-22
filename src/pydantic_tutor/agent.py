@@ -4,9 +4,10 @@ from pathlib import Path
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.capabilities import AgentCapability, LocalWorkspace, Toolset
 from pydantic_ai.settings import ModelSettings
-from pydantic_ai_harness import FileSystem, Shell
+from pydantic_ai_harness import FileSystem, Shell, ToolGuardrail
 from pydantic_ai_harness.memory import FileStore
 
+from pydantic_tutor.approval import approver, ask_first, refuse_unattended
 from pydantic_tutor.batch_limit import BatchLimit
 from pydantic_tutor.listable_memory import ListableMemory
 from pydantic_tutor.prompt_file import PromptFile
@@ -62,6 +63,11 @@ def repo_capabilities() -> list[AgentCapability[RepoDeps]]:
         # allowed commands start; each is stopped after 30 seconds, the
         # default, or after the time the model asks for.
         Shell(allowed_commands=SHELL_COMMANDS),
+        # Every call to an ASK_FIRST tool waits for approval before it runs.
+        ToolGuardrail(guard=ask_first),
+        # The answer when no one is there: each held call is refused, and
+        # the model told why. A run replaces it with its own `approver(...)`.
+        approver(answer=refuse_unattended),
         # A notebook the model keeps across sessions, as Markdown files in
         # `.agent-memory/` in the run's workspace: each repository has its
         # own. Injection off: no request carries the notebook; the model
