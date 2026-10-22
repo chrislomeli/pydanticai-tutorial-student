@@ -8,17 +8,21 @@ every run is on a scripted model.
 None of them touches your own `work/` folder: each makes a working copy of
 its own, with your `scripts/fresh_copy.py`, in a folder of its own.
 
-Three of them check that the shell's gaps are still there: that it checks
-only a command's first word, runs code the agent wrote, and reaches past
-the working copy. They pass today because the gaps exist. If a release of
-the library closes one, its test fails, and the lesson must change.
-
 One test was moved here from the file tools lesson (03-04), which pinned
 the agent's tools before the shell was added. It says so.
 
 The memory lesson (04-05) moved that test on: it adds five memory tools.
 It is now `test_the_model_is_sent_our_signatures_beside_the_file_shell_and_memory_tools`,
 in `tests/04_05_memory/test_memory.py`.
+
+Six tests (ten cases) were moved on by the approval lesson (05-01), which
+holds every command for a person's approval, and refuses it when no one
+answers. What the shell runs, refuses and lets through is now proved with
+each command approved, in `tests/05_01_approval/test_approval.py`, under
+the same names with `approved` in them
+(`test_an_approved_command_runs_the_working_copys_tests` and the rest).
+`scripts/shell_commands.py` approves its own commands from that lesson
+on, so the test of what it prints stays here.
 
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
@@ -29,21 +33,10 @@ import os
 import shutil
 import subprocess
 import sys
-from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
 from pydantic_ai import models
-from pydantic_ai.messages import (
-    ModelMessage,
-    ModelRequest,
-    ModelResponse,
-    RetryPromptPart,
-    TextPart,
-    ToolCallPart,
-    ToolReturnPart,
-)
-from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 # This file is tests/03_05_shell/test_shell.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
@@ -116,128 +109,9 @@ def working_copy(project: Path) -> Path:
     return project / "work" / "tinyjobs"
 
 
-@dataclass(frozen=True)
-class ToolResult:
-    """What one tool call gave the model."""
-
-    refused: bool  # True: a retry prompt, asking the model to try again
-    text: str
-
-
-def run_calls(*, root: Path, calls: list[ToolCallPart]) -> list[ToolResult]:
-    """Run the student's agent on `root`, with a model that makes `calls`, one per request."""
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
-
-    queue = list(calls)
-
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        if queue:
-            return ModelResponse(parts=[queue.pop(0)])
-        return ModelResponse(parts=[TextPart(content="done")])
-
-    result = agent.run_sync(
-        user_prompt="x", model=FunctionModel(function=reply), deps=RepoDeps(root=root)
-    )
-    results: list[ToolResult] = []
-    for message in result.all_messages():
-        if not isinstance(message, ModelRequest):
-            continue
-        for part in message.parts:
-            if isinstance(part, ToolReturnPart):
-                results.append(ToolResult(refused=False, text=str(part.content)))
-            if isinstance(part, RetryPromptPart):
-                results.append(ToolResult(refused=True, text=str(part.content)))
-    assert len(results) == len(calls), "a tool was never called"
-    return results
-
-
-def run_command(*, root: Path, command: str) -> ToolResult:
-    """Run one shell command through the student's agent; what the model got back."""
-    call = ToolCallPart(tool_name="run_command", args={"command": command})
-    return run_calls(root=root, calls=[call])[0]
-
-
-# Goal 1: the agent has a shell, and runs the working copy's tests with it.
-
-
-def test_the_shell_runs_the_working_copys_tests(working_copy: Path) -> None:
-    result = run_command(root=working_copy, command="pytest -q --tb=no")
-    assert not result.refused, result.text
-    # Found and run in the copy: its one planted failure, and the rest.
-    assert "FAILED tests/test_jobs.py::test_cancel" in result.text
-    assert "1 failed, 138 passed" in result.text
-    assert "[exit code: 1]" in result.text
-
-
-@pytest.mark.parametrize(
-    argnames="command",
-    argvalues=[
-        "rm README.md",
-        'sh -c "rm README.md"',
-        "cat .env",
-        "python -c \"print(open('.env').read())\"",
-        "uv run pytest",
-    ],
-)
-def test_the_shell_starts_only_pytest(working_copy: Path, command: str) -> None:
-    result = run_command(root=working_copy, command=command)
-    assert result.refused, f"{command!r} ran"
-    assert "is not in the allowed list" in result.text
-    assert (working_copy / "README.md").is_file()
-    assert FAKE_TOKEN not in result.text
-
-
-# Goal 2: the allow list is a guard against mistakes, not a boundary. These
-# three pass because the gaps are there; if one fails, the library closed it.
-
-
-def test_only_the_first_word_is_checked(working_copy: Path) -> None:
-    result = run_command(root=working_copy, command="pytest --version && cat .env")
-    assert not result.refused, result.text
-    assert FAKE_TOKEN in result.text
-
-
-def test_pytest_runs_code_the_agent_wrote(working_copy: Path) -> None:
-    peek = 'def test_peek() -> None:\n    print(open(".env").read())\n'
-    wrote, ran = run_calls(
-        root=working_copy,
-        calls=[
-            ToolCallPart(
-                tool_name="write_file",
-                args={"path": "tests/test_peek.py", "content": peek},
-            ),
-            ToolCallPart(
-                tool_name="run_command",
-                args={"command": "pytest -q -s tests/test_peek.py"},
-            ),
-        ],
-    )
-    assert not wrote.refused, wrote.text
-    assert not ran.refused, ran.text
-    assert FAKE_TOKEN in ran.text
-
-
-def test_the_shell_reaches_past_the_working_copy(working_copy: Path) -> None:
-    # The file tools refuse this path (03-04); the shell does not.
-    (working_copy.parent / "outside.txt").write_text("outside the working copy\n")
-    result = run_command(
-        root=working_copy, command="pytest --version && cat ../outside.txt"
-    )
-    assert not result.refused, result.text
-    assert "outside the working copy" in result.text
-
-
-def test_a_key_in_the_apps_environment_does_not_reach_commands(
-    working_copy: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    # A guard the workspace meets: a local workspace passes on only PATH,
-    # HOME and the locale variables.
-    monkeypatch.setenv("OPENAI_API_KEY", "sk-test-placeholder")
-    result = run_command(root=working_copy, command="pytest --version && env")
-    assert not result.refused, result.text
-    assert "PATH=" in result.text
-    assert "sk-test-placeholder" not in result.text
+# Goal 1: the agent has a shell, and runs the working copy's tests with it;
+# goal 2: the allow list is a guard against mistakes, not a boundary. The
+# script shows both.
 
 
 def test_shell_commands_prints_what_runs_and_is_refused(

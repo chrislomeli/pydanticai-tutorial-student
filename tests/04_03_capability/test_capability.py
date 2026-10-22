@@ -5,6 +5,12 @@ student is not asked to run them. Run them with `uv run pytest`. They fail
 until the lesson is done. None of them needs an API key or makes a
 request: every run is on a scripted model.
 
+One test was moved by the approval lesson (05-01), which adds a
+capability that also declares itself innermost, so the cap is no longer
+second to last: that the agent has the cap, before the request log, is
+now proved in `tests/05_01_approval/test_approval.py`, by
+`test_the_agent_takes_its_prompt_first_and_logs_after_the_cap`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -139,19 +145,6 @@ def test_the_first_calls_are_kept_in_order_and_text_stays() -> None:
 def test_a_response_within_the_cap_is_passed_on_as_it_came() -> None:
     given = response(calls=3)
     assert capped(limit=3, given=given) is given
-
-
-def test_the_agent_has_the_cap_before_the_request_log() -> None:
-    from pydantic_tutor import batch_limit
-    from pydantic_tutor.agent import agent
-    from pydantic_tutor.request_log import request_log
-
-    capabilities = agent.root_capability.capabilities
-    caps = [c for c in capabilities if isinstance(c, batch_limit.BatchLimit)]
-    assert len(caps) == 1
-    assert caps[0].max_tool_calls == 3
-    assert capabilities[-1] is request_log
-    assert capabilities[-2] is caps[0]
 
 
 def test_five_calls_in_one_response_reach_the_tools_as_three() -> None:

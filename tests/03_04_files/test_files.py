@@ -23,6 +23,14 @@ a shell beside its file tools: that the model is sent our two tools'
 signatures beside the library's tools is now proved in
 `tests/03_05_shell/test_shell.py`, by
 `test_the_model_is_sent_our_signatures_beside_the_file_and_shell_tools`.
+
+Two tests were moved on by the approval lesson (05-01), which holds every
+write for a person's approval, and refuses it when no one answers: that
+the file tools write in the working copy, and that the default write
+protection is kept, are now proved with the write approved, in
+`tests/05_01_approval/test_approval.py`, by
+`test_an_approved_write_is_written_in_the_working_copy` and
+`test_an_approved_write_still_keeps_the_default_protection`.
 """
 
 import os
@@ -190,19 +198,6 @@ def test_the_working_copy_is_kept_out_of_git_and_the_tools() -> None:
     assert "--ignore=work" in tool["pytest"]["addopts"]
 
 
-def test_the_file_tools_read_and_write_in_the_working_copy(working_copy: Path) -> None:
-    read = call(root=working_copy, tool_name="read_file", args={"path": "README.md"})
-    assert not read.refused
-    assert "# tinyjobs" in read.text
-    wrote = call(
-        root=working_copy,
-        tool_name="write_file",
-        args={"path": "notes.txt", "content": "from the agent\n"},
-    )
-    assert not wrote.refused, wrote.text
-    assert (working_copy / "notes.txt").read_text() == "from the agent\n"
-
-
 @pytest.mark.parametrize(
     argnames="path", argvalues=["../outside.txt", "ABSOLUTE", "escape.txt"]
 )
@@ -265,22 +260,6 @@ def test_a_search_does_not_reveal_a_secret(working_copy: Path) -> None:
         root=working_copy, tool_name="search_files", args={"pattern": "tj-FAKE"}
     )
     assert not mentions(messages=result.messages, text=FAKE_TOKEN)
-
-
-def test_the_default_write_protection_is_kept(working_copy: Path) -> None:
-    # A guard the stock file tools meet: setting `read_only_patterns`
-    # yourself would replace this list, and `.git/` would be writable.
-    (working_copy / ".git").mkdir()
-    (working_copy / ".git" / "config").write_text("[core]\n")
-    for path in (".git/config", ".env"):
-        result = call(
-            root=working_copy,
-            tool_name="write_file",
-            args={"path": path, "content": "x\n"},
-        )
-        assert result.refused, f"{path} was written"
-    assert (working_copy / ".git" / "config").read_text() == "[core]\n"
-    assert FAKE_TOKEN in (working_copy / ".env").read_text()
 
 
 def test_file_tools_prints_what_is_read_and_refused(

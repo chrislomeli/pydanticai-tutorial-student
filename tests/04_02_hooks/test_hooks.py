@@ -10,6 +10,12 @@ the request log's lines with the agent's tool count, and what
 `watch_requests.py` prints, are now proved in
 `tests/04_05_memory/test_memory.py`, by the tests of the same names.
 
+One test was moved by the approval lesson (05-01), which adds a
+capability that also declares itself innermost: that the request log is
+a `Hooks` on the agent, after every capability that changes a request,
+is now proved in `tests/05_01_approval/test_approval.py`, by
+`test_the_agent_takes_its_prompt_first_and_logs_after_the_cap`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -80,17 +86,6 @@ class Recorder:
 def logged(*, caplog: pytest.LogCaptureFixture) -> list[str]:
     """The messages our request log wrote during the test."""
     return [record.getMessage() for record in caplog.records if record.name == LOGGER]
-
-
-def test_the_request_log_is_a_hooks_capability_last_on_the_agent() -> None:
-    from pydantic_tutor import request_log as module
-    from pydantic_tutor.agent import agent
-
-    assert isinstance(module.request_log, Hooks)
-    # Last of the agent's own capabilities, so it sees each request as the
-    # others have left it.
-    assert agent.root_capability.capabilities[-1] is module.request_log
-    assert module.logger.name == LOGGER
 
 
 def test_the_log_counts_the_tools_actually_sent(

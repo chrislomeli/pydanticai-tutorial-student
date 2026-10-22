@@ -10,6 +10,14 @@ constructor's `toolsets=` (04-05), one pinned the prompt behind the two
 capabilities the library adds of its own (04-04). Each says where it came
 from, and proves its point as the agent is now built.
 
+Two tests were moved on by the approval lesson (05-01), which adds two
+capabilities to the stack, one of them declared innermost: that
+`repo_capabilities()` is new on each call and holds the whole stack, and
+that the prompt comes first and the log last, are now proved in
+`tests/05_01_approval/test_approval.py`, by
+`test_repo_capabilities_are_new_on_each_call_and_hold_the_whole_stack`
+and `test_the_agent_takes_its_prompt_first_and_logs_after_the_cap`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -162,31 +170,6 @@ def test_with_no_capabilities_the_agent_gives_the_model_nothing() -> None:
     assert (seen[0].model_settings or {}).get("timeout") == 60
 
 
-def test_repo_capabilities_are_new_on_each_call_and_hold_the_whole_stack() -> None:
-    from pydantic_ai.capabilities import Toolset
-    from pydantic_ai_harness import FileSystem, Shell
-
-    from pydantic_tutor.agent import repo_capabilities, repo_workspace
-    from pydantic_tutor.batch_limit import BatchLimit
-    from pydantic_tutor.listable_memory import ListableMemory
-    from pydantic_tutor.prompt_file import PromptFile
-    from pydantic_tutor.repo_tools import repo_toolset
-    from pydantic_tutor.request_log import request_log
-
-    first, second = repo_capabilities(), repo_capabilities()
-    kinds = (PromptFile, Toolset, FileSystem, Shell, ListableMemory, BatchLimit)
-    for kind in kinds:
-        ours = [c for c in first if isinstance(c, kind)]
-        assert len(ours) == 1, kind
-        theirs = [c for c in second if isinstance(c, kind)]
-        assert ours[0] is not theirs[0], kind  # built anew, not shared
-    assert repo_workspace in first
-    assert request_log in first
-    toolsets = [c for c in first if isinstance(c, Toolset)]
-    assert toolsets[0].toolset is repo_toolset
-    assert len(first) == 8
-
-
 def test_the_prompt_and_the_log_declare_their_places() -> None:
     from pydantic_tutor.agent import PROMPT_PATH
     from pydantic_tutor.prompt_file import PromptFile
@@ -282,25 +265,3 @@ def test_the_agent_takes_the_repo_toolset_as_a_capability() -> None:
     names = [tool.name for tool in seen[0].function_tools]
     assert names[:2] == ["list_modules", "read_docstring"]
     assert len(names) == ALL_TOOLS
-
-
-def test_the_agent_takes_its_prompt_from_the_file_first() -> None:
-    # Moved from 04-04, which found the prompt behind the two capabilities
-    # the library adds of its own, ToolSearch and
-    # PendingMessageDrainCapability: declared outermost, it now sorts ahead
-    # of them, and is the first capability of all.
-    from pydantic_tutor import prompt_file
-    from pydantic_tutor.agent import PROMPT_PATH, agent
-
-    assert PROMPT_PATH.resolve() == PROMPT_FILE.resolve()
-    capabilities = agent.root_capability.capabilities
-    prompts = [c for c in capabilities if isinstance(c, prompt_file.PromptFile)]
-    assert len(prompts) == 1
-    assert prompts[0].path == PROMPT_PATH
-    assert [type(c).__name__ for c in capabilities[:3]] == [
-        "PromptFile",
-        "ToolSearch",
-        "PendingMessageDrainCapability",
-    ]
-    # And the log, declared innermost, is last.
-    assert type(capabilities[-1]).__name__ == "Hooks"
