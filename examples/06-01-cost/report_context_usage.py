@@ -18,7 +18,7 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 from pydantic_ai_harness.compaction import ContextUsageEvent, ReportContextUsage
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -39,13 +39,13 @@ async def stream_reply(
 model = FunctionModel(
     function=reply, stream_function=stream_reply, model_name="a stand-in model"
 )
-deps = RepoDeps(root=Path("sample_repos/tinyjobs"))
+deps = CodebaseDeps(root=Path("sample_code/tinyjobs"))
 
-listener: Hooks[RepoDeps] = Hooks()
+listener: Hooks[CodebaseDeps] = Hooks()
 
 
 @listener.on.event(ContextUsageEvent)
-async def show_reading(ctx: RunContext[RepoDeps], event: ContextUsageEvent) -> None:
+async def show_reading(ctx: RunContext[CodebaseDeps], event: ContextUsageEvent) -> None:
     """Print each reading as it arrives."""
     print(
         f"  ContextUsageEvent: {event.used_tokens:,} of {event.window_tokens:,} "
