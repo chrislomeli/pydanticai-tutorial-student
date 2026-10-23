@@ -23,6 +23,12 @@ where it came from:
   itself innermost too, beside the log. Two tests here prove those four
   points as the agent is now built.
 
+One case was moved on by the lesson on loading tools on demand (06-02):
+`test_reads_and_the_notebook_do_not_ask` wrote to the notebook with
+nothing loaded. It is now
+`test_writing_to_the_loaded_notebook_does_not_ask` in
+`tests/06_02_deferred/test_deferred.py`.
+
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
@@ -328,7 +334,9 @@ def test_unattended_a_change_is_refused_and_the_model_told(
     argvalues=[
         ("read_file", {"path": "README.md", "limit": 1}),
         ("list_modules", {}),
-        ("write_memory", {"file": "MEMORY.md", "content": "- a note\n"}),
+        # The write_memory case was moved by 06-02, which loads the
+        # notebook on demand: `test_writing_to_the_loaded_notebook_does_not_ask`
+        # in tests/06_02_deferred/test_deferred.py.
     ],
 )
 def test_reads_and_the_notebook_do_not_ask(
