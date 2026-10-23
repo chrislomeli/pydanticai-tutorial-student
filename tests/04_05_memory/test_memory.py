@@ -11,8 +11,8 @@ instructions' text or the number of tools. Each says where it came from,
 and proves its point with the memory's part included.
 
 One of them was moved again by the seam lesson (04-06), which gives the
-agent the repository toolset as a capability, not on `toolsets=`: it is
-now `test_the_agent_takes_the_repo_toolset_as_a_capability` in
+agent the codebase toolset as a capability, not on `toolsets=`: it is
+now `test_the_agent_takes_the_codebase_toolset_as_a_capability` in
 `tests/04_06_seam/test_seam.py`.
 
 Fourteen were moved on by the lesson on loading tools on demand (06-02),
@@ -47,7 +47,7 @@ from pydantic_ai_harness.memory import FileStore, InMemoryStore
 
 # This file is tests/04_05_memory/test_memory.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 
 
 @pytest.fixture(autouse=True)
@@ -113,7 +113,7 @@ def test_the_agent_has_one_notebook_in_its_workspace_with_injection_off() -> Non
     assert memory.inject_memory is False
     assert isinstance(memory.store, FileStore)
     assert memory.store.directory == ".agent-memory"
-    assert memory.store.workspace is None  # the run's workspace: the repository
+    assert memory.store.workspace is None  # the run's workspace: the codebase
 
 
 def test_list_memory_lists_one_notebook_and_says_when_it_is_cut() -> None:
@@ -150,7 +150,7 @@ def test_list_memory_joins_memorys_own_toolset() -> None:
     assert getattr(toolset, "id", None) == "memory"
 
 
-def test_no_script_leaves_a_notebook_in_the_sample_repo() -> None:
-    # The scripts that run on the sample repo never write memory; the
-    # series keeps the sample repo as shipped.
+def test_no_script_leaves_a_notebook_in_the_sample_codebase() -> None:
+    # The scripts that run on the sample codebase never write memory; the
+    # series keeps the sample codebase as shipped.
     assert not (TINYJOBS_ROOT / ".agent-memory").exists()

@@ -18,14 +18,14 @@ point with the load included:
   text or the request log's tool count, or had the model call a memory
   tool with nothing loaded.
 - Three from the seam lesson (04-06): the stack's instructions and tools,
-  in any order, `stack_order.py`'s output, and the repository toolset
+  in any order, `stack_order.py`'s output, and the codebase toolset
   offered first.
 - One from the approval lesson (05-01), its `write_memory` case of
   `test_reads_and_the_notebook_do_not_ask`, now
   `test_writing_to_the_loaded_notebook_does_not_ask`.
 
 Three are proved by this lesson's own tests: 04-05's tools' signatures
-and its "the prompt, then the memory, then the repository" by
+and its "the prompt, then the memory, then the codebase" by
 `test_before_the_load_a_request_carries_the_catalog_not_the_notebook`, and
 04-02's "the log counts the tools actually sent" by
 `test_the_request_log_counts_the_tools_the_model_may_call`.
@@ -64,11 +64,11 @@ from pydantic_ai_harness import Memory
 
 # This file is tests/06_02_deferred/test_deferred.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 PREFIX = "PYDANTIC_TUTOR_"
 LOGGER = "pydantic_tutor.request_log"
 # The agent's prompt since the agent lesson, word for word.
-PROMPT = "You answer questions about a Python code repository. Answer briefly."
+PROMPT = "You answer questions about a Python codebase. Answer briefly."
 # The library's own text, at pydantic-ai 2.56.0, before its list of
 # capabilities that load on demand.
 CATALOG_PREFIX = (
@@ -135,9 +135,9 @@ def run_script(*, name: str, cwd: Path = PROJECT_ROOT, stdin: str = "") -> str:
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """A stand-in project folder: the sample repo and the scripts these tests run."""
+    """A stand-in project folder: the sample codebase and the scripts these tests run."""
     root = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_code" / "tinyjobs")
     (root / "scripts").mkdir()
     for script in (
         "fresh_copy.py",
@@ -151,7 +151,7 @@ def project(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def repo_with_notes(tmp_path: Path) -> Path:
+def codebase_with_notes(tmp_path: Path) -> Path:
     """A copy of tinyjobs whose notebook already holds two files."""
     root = tmp_path / "tinyjobs"
     shutil.copytree(src=TINYJOBS_ROOT, dst=root)
@@ -162,12 +162,12 @@ def repo_with_notes(tmp_path: Path) -> Path:
     return root
 
 
-def expected_instructions(repository: str) -> str:
-    """The prompt, the catalog of what loads on demand, then the repository's name."""
+def expected_instructions(codebase: str) -> str:
+    """The prompt, the catalog of what loads on demand, then the codebase's name."""
     from pydantic_tutor.agent import MEMORY_DESCRIPTION
 
     catalog = f"{CATALOG_PREFIX}\n- memory: {MEMORY_DESCRIPTION}"
-    return f"{PROMPT}\n\n{catalog}\n\nThe repository is {repository}."
+    return f"{PROMPT}\n\n{catalog}\n\nThe codebase is {codebase}."
 
 
 class Recorder:
@@ -220,13 +220,13 @@ def run_agent(
 ) -> Recorder:
     """Run the student's agent once on `root`; return what its model was given."""
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     recorder = Recorder(calls=calls)
     agent.run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=root),
+        deps=CodebaseDeps(root=root),
         capabilities=capabilities,
     )
     return recorder
@@ -256,7 +256,7 @@ def test_the_notebook_loads_on_demand_with_a_description() -> None:
 
 def test_before_the_load_a_request_carries_the_catalog_not_the_notebook() -> None:
     # The lesson's point. Also 04-05's "the prompt, then the memory, then
-    # the repository", now the prompt, the catalog, then the repository,
+    # the codebase", now the prompt, the catalog, then the codebase,
     # and its check of the tools' signatures.
     from pydantic_tutor.listable_memory import LISTING_GUIDANCE
 
@@ -301,20 +301,20 @@ def test_a_conversation_keeps_the_notebook_loaded_and_a_new_one_starts_without()
     None
 ):
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     first = Recorder(calls=[LOAD])
     result = agent.run_sync(
         user_prompt="Load your notebook.",
         model=FunctionModel(function=first.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     # The next turn of the same conversation: loaded from its first request.
     later = Recorder()
     agent.run_sync(
         user_prompt="And now?",
         model=FunctionModel(function=later.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
         conversation=result.conversation,
     )
     assert later.tools(request=0) == AFTER_LOAD
@@ -451,11 +451,11 @@ def test_notebook_prints_two_sessions(project: Path) -> None:
 # Moved from 04-05: the notebook's own points, with the load first.
 
 
-def test_no_request_carries_the_notebook(repo_with_notes: Path) -> None:
+def test_no_request_carries_the_notebook(codebase_with_notes: Path) -> None:
     # With injection off, the notebook's files are on disk, and no request
     # carries them, loaded or not. The model lists them when it asks.
     recorder = run_agent(
-        root=repo_with_notes,
+        root=codebase_with_notes,
         calls=[LOAD, ToolCallPart(tool_name="list_memory", args={}, tool_call_id="c1")],
     )
     assert recorder.tools(request=0) == BEFORE_LOAD
@@ -523,15 +523,17 @@ def test_a_memory_tool_called_before_the_load_is_refused(tmp_path: Path) -> None
     assert not (root / ".agent-memory").exists()
 
 
-def test_list_memory_names_only_files_read_memory_takes(repo_with_notes: Path) -> None:
+def test_list_memory_names_only_files_read_memory_takes(
+    codebase_with_notes: Path,
+) -> None:
     # A file in a folder below the notebook's, and one not in Markdown:
     # `read_memory` refuses both, so the listing must not offer them.
-    notes = repo_with_notes / ".agent-memory" / "main"
+    notes = codebase_with_notes / ".agent-memory" / "main"
     (notes / "team").mkdir()
     (notes / "team" / "deep.md").write_text("x\n")
     (notes / "draft.txt").write_text("x\n")
     recorder = run_agent(
-        root=repo_with_notes,
+        root=codebase_with_notes,
         calls=[LOAD, ToolCallPart(tool_name="list_memory", args={}, tool_call_id="c1")],
     )
     assert recorder.retries() == []
@@ -544,15 +546,15 @@ def test_list_memory_names_only_files_read_memory_takes(repo_with_notes: Path) -
 # the catalog in place of the notebook's guidance.
 
 
-def test_the_instructions_name_the_repository_each_run_is_given(tmp_path: Path) -> None:
+def test_the_instructions_name_the_codebase_each_run_is_given(tmp_path: Path) -> None:
     # One agent, two runs, two renderings, each from its deps.
-    other = tmp_path / "otherrepo"
+    other = tmp_path / "othercodebase"
     (other / "src" / "otherpkg").mkdir(parents=True)
     (other / "src" / "otherpkg" / "__init__.py").write_text('"""Another package."""\n')
 
     assert run_agent().infos[0].instructions == expected_instructions("tinyjobs")
     assert run_agent(root=other).infos[0].instructions == expected_instructions(
-        "otherrepo"
+        "othercodebase"
     )
 
 
@@ -564,7 +566,7 @@ def test_the_instructions_are_rendered_for_every_request_and_sent_once() -> None
     assert [info.instructions for info in recorder.infos] == [expected, expected]
     requests = [m for m in recorder.messages[-1] if isinstance(m, ModelRequest)]
     assert [request.instructions for request in requests] == [expected, expected]
-    assert expected.count("The repository is") == 1
+    assert expected.count("The codebase is") == 1
 
 
 def test_the_agent_sends_instructions_and_no_system_prompt() -> None:
@@ -587,7 +589,7 @@ def test_scripted_run_prints_what_the_function_decided() -> None:
     # was sent.
     printed = run_script(name="scripts/scripted_run.py")
     expected = (
-        "You asked 'What does this repo do?', and my instructions say: "
+        "You asked 'What does this codebase do?', and my instructions say: "
         f"{expected_instructions('tinyjobs')}"
     )
     assert printed.strip() == expected
@@ -597,7 +599,7 @@ def test_toolset_views_shows_the_agents_tools_and_instructions() -> None:
     # The agent's line: `load_capability` first, no memory tool; the rest
     # of that script's output is unchanged.
     lines = run_script(name="scripts/toolset_views.py").splitlines()
-    assert lines[0] == "the repo assistant:"
+    assert lines[0] == "the codebase assistant:"
     assert lines[1].startswith(
         "  tools: load_capability, list_modules, read_docstring, read_file,"
     )
@@ -606,15 +608,15 @@ def test_toolset_views_shows_the_agents_tools_and_instructions() -> None:
     assert lines[3:] == [
         "a second agent, given the toolset:",
         "  tools: list_modules, read_docstring",
-        "  instructions: 'The repository is tinyjobs.'",
-        "prefixed with 'repo':",
-        "  tools: repo_list_modules, repo_read_docstring",
-        "  instructions: 'The repository is tinyjobs.'",
+        "  instructions: 'The codebase is tinyjobs.'",
+        "prefixed with 'codebase':",
+        "  tools: codebase_list_modules, codebase_read_docstring",
+        "  instructions: 'The codebase is tinyjobs.'",
         "prefixed, calling read_docstring with a wrong module:",
         "  asked to retry: There is no module 'jobs'. Call list_modules to see them.",
         "filtered to list_modules:",
         "  tools: list_modules",
-        "  instructions: 'The repository is tinyjobs.'",
+        "  instructions: 'The codebase is tinyjobs.'",
     ]
 
 
@@ -670,16 +672,16 @@ def test_any_order_of_the_stack_sends_the_same_and_logs_what_is_sent(
 ) -> None:
     # With a capability that changes the request added last, in every
     # order tried: the instructions are the prompt, the catalog, then the
-    # repository's name; the same 15 tools; and the log counts the
+    # codebase's name; the same 15 tools; and the log counts the
     # messages the model is sent.
-    from pydantic_tutor.agent import build_agent, repo_capabilities
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.agent import build_agent, codebase_capabilities
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     caplog.set_level(level=logging.INFO, logger=LOGGER)
     catalog = expected_instructions("tinyjobs").split("\n\n")[1]
     shuffle = random.Random(4).shuffle  # fixed: the same orders every run
     for index in range(2 + 12):
-        stack: list[AgentCapability[object]] = [*repo_capabilities(), KeepLastTwo()]  # type: ignore[list-item]
+        stack: list[AgentCapability[object]] = [*codebase_capabilities(), KeepLastTwo()]  # type: ignore[list-item]
         if index == 1:
             stack.reverse()
         elif index > 1:
@@ -699,15 +701,15 @@ def test_any_order_of_the_stack_sends_the_same_and_logs_what_is_sent(
             return list_then_answer(messages, info)
 
         build_agent(capabilities=stack).run_sync(
-            user_prompt="What does this repo do?",
+            user_prompt="What does this codebase do?",
             model=FunctionModel(function=reply),
-            deps=RepoDeps(root=TINYJOBS_ROOT),
+            deps=CodebaseDeps(root=TINYJOBS_ROOT),
         )
         parts = infos[0].model_request_parameters.instruction_parts or []
         assert [part.content for part in parts] == [
             PROMPT,
             catalog,
-            "The repository is tinyjobs.",
+            "The codebase is tinyjobs.",
         ]
         names = [sorted(tool.name for tool in info.function_tools) for info in infos]
         assert names == [BEFORE_LOAD, BEFORE_LOAD]
@@ -726,14 +728,14 @@ def test_stack_order_prints_two_orders_alike() -> None:
         "  model: sent 1 message(s)",
         "    instructions: You answer questions about ...",
         "    instructions: The following capabilities are ...",
-        "    instructions: The repository is tinyjobs. ...",
+        "    instructions: The codebase is tinyjobs. ...",
         f"{LOGGER}: request step=2 messages=2 tools={len(BEFORE_LOAD)}",
         "  model: sent 2 message(s)",
     ]
     assert out == ["forwards", *request_lines, "reversed", *request_lines]
 
 
-def test_the_agent_takes_the_repo_toolset_as_a_capability() -> None:
+def test_the_agent_takes_the_codebase_toolset_as_a_capability() -> None:
     # Moved from 04-06 (from 04-01, by way of 04-05): the toolset reaches
     # the agent through `Toolset(...)` in the stack, and the model is
     # offered our two tools first of the stack's, after the library's
@@ -742,15 +744,15 @@ def test_the_agent_takes_the_repo_toolset_as_a_capability() -> None:
     from pydantic_ai.toolsets import FunctionToolset
 
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import repo_toolset
+    from pydantic_tutor.codebase_tools import codebase_toolset
 
-    assert not any(toolset is repo_toolset for toolset in agent.toolsets)
+    assert not any(toolset is codebase_toolset for toolset in agent.toolsets)
     own = agent.toolsets[0]
     assert isinstance(own, FunctionToolset)
     assert own.tools == {}  # no tools of its own: every one is from the stack
     capabilities = agent.root_capability.capabilities
     assert any(
-        isinstance(c, Toolset) and c.toolset is repo_toolset for c in capabilities
+        isinstance(c, Toolset) and c.toolset is codebase_toolset for c in capabilities
     )
     names = [tool.name for tool in run_agent().infos[0].function_tools]
     assert names[:3] == ["load_capability", "list_modules", "read_docstring"]

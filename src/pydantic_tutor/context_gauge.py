@@ -18,11 +18,11 @@ from pydantic_ai_harness.compaction import (
     resolve_context_window,
 )
 
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 
 @dataclass
-class ContextGauge(AbstractCapability[RepoDeps]):
+class ContextGauge(AbstractCapability[CodebaseDeps]):
     """One reading per request of the run it is given to: give each run a new one.
 
     A hook, not a listener for the harness's `ContextUsageEvent`: a run
@@ -39,7 +39,7 @@ class ContextGauge(AbstractCapability[RepoDeps]):
         return CapabilityOrdering(position="innermost")
 
     async def before_model_request(
-        self, ctx: RunContext[RepoDeps], request_context: ModelRequestContext
+        self, ctx: RunContext[CodebaseDeps], request_context: ModelRequestContext
     ) -> ModelRequestContext:
         """Read the request about to be sent, and pass it on unchanged."""
         used = estimate_context_tokens(
