@@ -1,4 +1,4 @@
-"""Give the repository toolset to a second agent, then prefix and filter it.
+"""Give the codebase toolset to a second agent, then prefix and filter it.
 
 From the toolsets lesson (04-01). Each run is on a stand-in model that
 prints what it is sent: the tools' names, and the instructions. Kept
@@ -20,10 +20,10 @@ from pydantic_ai.models.function import AgentInfo, FunctionDef, FunctionModel
 from pydantic_ai.tools import ToolDefinition
 from pydantic_ai.toolsets import AbstractToolset
 
-from pydantic_tutor.agent import agent, repo_workspace
-from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
+from pydantic_tutor.agent import agent, codebase_workspace
+from pydantic_tutor.codebase_tools import CodebaseDeps, codebase_toolset
 
-TINYJOBS = RepoDeps(root=Path("sample_repos/tinyjobs"))
+TINYJOBS = CodebaseDeps(root=Path("sample_code/tinyjobs"))
 
 
 def report(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -41,52 +41,54 @@ def ask_for_a_wrong_module(
         if isinstance(part, RetryPromptPart):
             print("  asked to retry:", part.content)
             return ModelResponse(parts=[TextPart(content="Done.")])
-    call = ToolCallPart(tool_name="repo_read_docstring", args={"module": "jobs"})
+    call = ToolCallPart(tool_name="codebase_read_docstring", args={"module": "jobs"})
     return ModelResponse(parts=[call])
 
 
-def only_listing(ctx: RunContext[RepoDeps], tool: ToolDefinition) -> bool:
+def only_listing(ctx: RunContext[CodebaseDeps], tool: ToolDefinition) -> bool:
     """Keep `list_modules`; hide every other tool, in every run."""
     return tool.name == "list_modules"
 
 
-def show(*, title: str, toolset: AbstractToolset[RepoDeps], reply: FunctionDef) -> None:
+def show(
+    *, title: str, toolset: AbstractToolset[CodebaseDeps], reply: FunctionDef
+) -> None:
     """Run a second agent, given `toolset`, on a model that answers with `reply`."""
-    # It must have a workspace: the repository tools read through it, and
+    # It must have a workspace: the codebase tools read through it, and
     # the toolset does not bring one.
     reader = Agent(
         name="reader",
-        deps_type=RepoDeps,
+        deps_type=CodebaseDeps,
         toolsets=[toolset],
-        capabilities=[repo_workspace],
+        capabilities=[codebase_workspace],
     )
     print(title)
     reader.run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=reply),
         deps=TINYJOBS,
     )
 
 
-print("the repo assistant:")
+print("the codebase assistant:")
 agent.run_sync(
-    user_prompt="What does this repo do?",
+    user_prompt="What does this codebase do?",
     model=FunctionModel(function=report),
     deps=TINYJOBS,
 )
-show(title="a second agent, given the toolset:", toolset=repo_toolset, reply=report)
+show(title="a second agent, given the toolset:", toolset=codebase_toolset, reply=report)
 show(
-    title="prefixed with 'repo':",
-    toolset=repo_toolset.prefixed(prefix="repo"),
+    title="prefixed with 'codebase':",
+    toolset=codebase_toolset.prefixed(prefix="codebase"),
     reply=report,
 )
 show(
     title="prefixed, calling read_docstring with a wrong module:",
-    toolset=repo_toolset.prefixed(prefix="repo"),
+    toolset=codebase_toolset.prefixed(prefix="codebase"),
     reply=ask_for_a_wrong_module,
 )
 show(
     title="filtered to list_modules:",
-    toolset=repo_toolset.filtered(filter_func=only_listing),
+    toolset=codebase_toolset.filtered(filter_func=only_listing),
     reply=report,
 )
