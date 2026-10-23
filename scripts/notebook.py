@@ -4,9 +4,9 @@ From the memory lesson (04-05). Runs the agent twice on `work/tinyjobs`,
 with no history between the runs, on a stand-in model that uses the memory
 tools as a model might. Prints each request the model is sent, and each
 tool call and its result. Run `scripts/fresh_copy.py` first: the notebook
-is kept in the copy, and grows with every run. Kept working: a later
-lesson that changes the agent updates this script, or removes it and says
-why.
+is kept in the copy, and grows with every run. The stand-in loads the
+notebook before it uses it (06-02). Kept working: a later lesson that
+changes the agent updates this script, or removes it and says why.
 """
 
 import json
@@ -35,22 +35,43 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
     print("  request", [part.part_kind for part in request.parts])
     for part in request.parts:
         if isinstance(part, UserPromptPart):
-            if str(part.content).startswith("Remember"):
-                note = "- Logging goes to stderr, so stdout stays pipeable.\n"
-                return call(
-                    tool="write_memory", args={"content": note, "file": "logging.md"}
-                )
-            return call(tool="list_memory", args={})
+            if "write_memory" not in {tool.name for tool in info.function_tools}:
+                # The notebook loads on demand: its tools weren't sent.
+                return call(tool="load_capability", args={"id": "memory"})
+            return first_call(prompt=str(part.content))
         if isinstance(part, ToolReturnPart):
             print("  result", part.model_response_str())
+            if part.tool_name == "load_capability":
+                # Loaded. Its tools are sent from this request on, not with
+                # the load's, so the prompt's first notebook call goes here.
+                return first_call(prompt=session_prompt(messages=messages))
             if part.tool_name == "list_memory":
                 # Read the first file the listing names, as a model would.
-                listing = MemoryListing.model_validate_json(part.model_response_str())
+                listing = MemoryListing.model_validate_json(
+                    json_data=part.model_response_str()
+                )
                 return call(tool="read_memory", args={"file": listing.files[0]})
             if part.tool_name == "read_memory":
                 return answer(text=f"We decided: {part.model_response_str().strip()}")
             return answer(text="Noted.")
     raise ValueError("a request this stand-in was not written for")
+
+
+def first_call(*, prompt: str) -> ModelResponse:
+    """The first notebook call a prompt needs: store a note, or list the files."""
+    if prompt.startswith("Remember"):
+        note = "- Logging goes to stderr, so stdout stays pipeable.\n"
+        return call(tool="write_memory", args={"content": note, "file": "logging.md"})
+    return call(tool="list_memory", args={})
+
+
+def session_prompt(*, messages: list[ModelMessage]) -> str:
+    """The prompt this session opened with: each session is a run of its own."""
+    return next(
+        str(part.content)
+        for part in messages[0].parts
+        if isinstance(part, UserPromptPart)
+    )
 
 
 def call(*, tool: str, args: dict[str, str]) -> ModelResponse:

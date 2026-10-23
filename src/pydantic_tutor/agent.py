@@ -25,6 +25,13 @@ SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
 # code it is given.
 SHELL_COMMANDS = ("pytest",)
 
+# The notebook's line in the catalog: all the model reads about it until
+# it loads it, so it must say when loading is worth it.
+MEMORY_DESCRIPTION = (
+    "Your notebook, kept across sessions on this repository: load it to "
+    "remember something for later, or to look up what was noted before."
+)
+
 # The agent's prompt, in a file of its own beside this module, so it is
 # found whichever folder the program runs from.
 PROMPT_PATH = Path(__file__).parent / "prompts" / "repo_assistant.md"
@@ -71,8 +78,15 @@ def repo_capabilities() -> list[AgentCapability[RepoDeps]]:
         # A notebook the model keeps across sessions, as Markdown files in
         # `.agent-memory/` in the run's workspace: each repository has its
         # own. Injection off: no request carries the notebook; the model
-        # lists and reads it with tools when it chooses to.
-        ListableMemory(store=FileStore(directory=".agent-memory"), inject_memory=False),
+        # lists and reads it with tools when it chooses to. Loaded on
+        # demand: until the model loads it, by its id, `memory`, a request
+        # carries MEMORY_DESCRIPTION in place of its tools and guidance.
+        ListableMemory(
+            store=FileStore(directory=".agent-memory"),
+            inject_memory=False,
+            defer_loading=True,
+            description=MEMORY_DESCRIPTION,
+        ),
         # At most three tool calls of each response run: enough for a
         # listing and two reads, not for a runaway. The model is sent
         # their results, and can ask again for the rest.

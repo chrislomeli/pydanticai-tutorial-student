@@ -76,10 +76,18 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         f"tool definitions {tools:,} ({len(info.function_tools)}) · "
         f"messages {history:,} ({len(messages)})"
     )
+    # The request that opens this turn: a prompt and no tool return. (A
+    # tool a load reveals is announced to this stand-in as a prompt too.)
     start = max(
         index
         for index, message in enumerate(messages)
         if any(isinstance(part, UserPromptPart) for part in message.parts)
+        and not any(isinstance(part, ToolReturnPart) for part in message.parts)
+    )
+    prompt = "".join(
+        str(part.content)
+        for part in messages[start].parts
+        if isinstance(part, UserPromptPart)
     )
     returned = {
         part.tool_name: part.model_response_str()
@@ -87,10 +95,20 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         for part in message.parts
         if isinstance(part, ToolReturnPart)
     }
-    if "list_modules" not in returned:
-        parts: list[ToolCallPart | TextPart] = [
-            ToolCallPart(tool_name="list_modules", args={})
-        ]
+    sent_tools = {tool.name for tool in info.function_tools}
+    parts: list[ToolCallPart | TextPart]
+    if prompt.startswith("Remember that "):
+        # Asked to remember: load the notebook if its tools weren't sent,
+        # write the note, then answer.
+        if "write_memory" not in sent_tools:
+            parts = [ToolCallPart(tool_name="load_capability", args={"id": "memory"})]
+        elif "write_memory" not in returned:
+            note = f"- {prompt.removeprefix('Remember that ')}\n"
+            parts = [ToolCallPart(tool_name="write_memory", args={"content": note})]
+        else:
+            parts = [TextPart(content="Noted.")]
+    elif "list_modules" not in returned:
+        parts = [ToolCallPart(tool_name="list_modules", args={})]
     elif "read_docstring" not in returned:
         parts = [
             ToolCallPart(tool_name="read_docstring", args={"module": "tinyjobs.jobs"})
