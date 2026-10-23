@@ -1,6 +1,6 @@
 """Ask for two modules the tool cannot read: one misspelt, one broken.
 
-From the limits lesson (01-08). It makes a small repository of its own, in
+From the limits lesson (01-08). It makes a small codebase of its own, in
 a temporary folder, with a module that does not parse. Kept working: a
 later lesson that changes the tools updates this script, or removes it
 and says why.
@@ -20,7 +20,7 @@ from pydantic_ai.messages import (
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 # The modules the model asks for, in order: a misspelling, then the real one.
 ASKS = ("brokn", "broken")
@@ -51,6 +51,6 @@ with tempfile.TemporaryDirectory() as folder:
     result = agent.run_sync(
         user_prompt="What does the broken module do?",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=Path(folder)),
+        deps=CodebaseDeps(root=Path(folder)),
     )
 print("output:", result.output)
