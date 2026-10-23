@@ -14,9 +14,9 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
 from pydantic_tutor.chat import chat
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.composition import App
 from pydantic_tutor.conversations import ConversationStore
-from pydantic_tutor.repo_tools import RepoDeps
 
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -36,7 +36,7 @@ chat(
     app=App(
         agent=agent,
         model=FunctionModel(function=reply, model_name="a stand-in model"),
-        deps=RepoDeps(root=Path("work/tinyjobs")),
+        deps=CodebaseDeps(root=Path("work/tinyjobs")),
         store=ConversationStore(path=Path("work/conversations.db")),
     )
 )

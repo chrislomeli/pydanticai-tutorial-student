@@ -44,8 +44,8 @@ from pydantic_ai.workspaces import Workspace
 
 # This file is tests/04_01_toolsets/test_toolsets.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
-STATIC = "You answer questions about a Python code repository. Answer briefly."
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
+STATIC = "You answer questions about a Python codebase. Answer briefly."
 
 
 @pytest.fixture(autouse=True)
@@ -87,25 +87,25 @@ class Recorder:
         return ModelResponse(parts=[TextPart(content="ok")])
 
 
-def test_the_repo_tools_are_one_function_toolset() -> None:
-    from pydantic_tutor import repo_tools
+def test_the_codebase_tools_are_one_function_toolset() -> None:
+    from pydantic_tutor import codebase_tools
 
-    toolset = repo_tools.repo_toolset
+    toolset = codebase_tools.codebase_toolset
     assert isinstance(toolset, FunctionToolset)
     assert sorted(toolset.tools) == ["list_modules", "read_docstring"]
     # The same functions, moved as they are: not copies, not wrappers.
-    assert toolset.tools["list_modules"].function is repo_tools.list_modules
-    assert toolset.tools["read_docstring"].function is repo_tools.read_docstring
+    assert toolset.tools["list_modules"].function is codebase_tools.list_modules
+    assert toolset.tools["read_docstring"].function is codebase_tools.read_docstring
 
 
 def test_the_toolset_brings_its_tools_and_instructions_to_another_agent() -> None:
-    from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
+    from pydantic_tutor.codebase_tools import CodebaseDeps, codebase_toolset
 
     # A second agent with no instructions and no tools of its own: only a
     # workspace, which the tools read through and the toolset does not bring.
     other = Agent(
-        deps_type=RepoDeps,
-        toolsets=[repo_toolset],
+        deps_type=CodebaseDeps,
+        toolsets=[codebase_toolset],
         capabilities=[LocalWorkspace(working_dir=TINYJOBS_ROOT)],
     )
     recorder = Recorder(
@@ -114,10 +114,10 @@ def test_the_toolset_brings_its_tools_and_instructions_to_another_agent() -> Non
     other.run_sync(
         user_prompt="x",
         model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
 
-    assert recorder.requests[0].instructions == "The repository is tinyjobs."
+    assert recorder.requests[0].instructions == "The codebase is tinyjobs."
     names = [tool.name for tool in recorder.infos[0].function_tools]
     assert names == ["list_modules", "read_docstring"]
     # And the tools run there: the call came back with the modules.
@@ -131,11 +131,11 @@ def test_the_time_limits_are_on_the_model_and_the_toolset(
 ) -> None:
     # Moved from the limits lesson (01-08), which pinned the agent's
     # `tool_timeout=10`: the limit on our tools is now the toolset's.
-    from pydantic_tutor import repo, repo_tools
+    from pydantic_tutor import codebase, codebase_tools
     from pydantic_tutor.agent import agent
 
     assert agent.model_settings == {"timeout": 60}
-    assert repo_tools.repo_toolset.timeout == 10
+    assert codebase_tools.codebase_toolset.timeout == 10
     # 2.56 keeps the agent's tool timeout on a private attribute; there is no
     # public one to read. It is gone: it would cover no tool.
     assert agent._tool_timeout is None
@@ -146,14 +146,16 @@ def test_the_time_limits_are_on_the_model_and_the_toolset(
         await asyncio.sleep(delay=2)
         return {}
 
-    # The tools find modules through the repo API: slow that down.
-    monkeypatch.setattr(target=repo, name="_workspace_modules", value=slow_modules)
-    monkeypatch.setattr(target=repo_tools.repo_toolset, name="timeout", value=0.2)
+    # The tools find modules through the codebase API: slow that down.
+    monkeypatch.setattr(target=codebase, name="_workspace_modules", value=slow_modules)
+    monkeypatch.setattr(
+        target=codebase_tools.codebase_toolset, name="timeout", value=0.2
+    )
     recorder = Recorder(calls=[ToolCallPart(tool_name="list_modules", args={})])
     agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=recorder.reply),
-        deps=repo_tools.RepoDeps(root=TINYJOBS_ROOT),
+        deps=codebase_tools.CodebaseDeps(root=TINYJOBS_ROOT),
     )
     [retry] = recorder.requests[1].parts
     assert isinstance(retry, RetryPromptPart)

@@ -30,9 +30,9 @@ from pydantic_ai.tools import (
 
 from pydantic_tutor.agent import agent
 from pydantic_tutor.approval import approver
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
-REPO = Path("work/tinyjobs")
+CODEBASE = Path("work/tinyjobs")
 TEST_PATH = "tests/test_verbose.py"
 # The test the stand-in model writes. It fails until the flag exists.
 TEST = (
@@ -62,7 +62,7 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
 
 
 def at_the_desk(
-    ctx: RunContext[RepoDeps], requests: DeferredToolRequests
+    ctx: RunContext[CodebaseDeps], requests: DeferredToolRequests
 ) -> DeferredToolResults:
     """Stand in for a person: approve the write, refuse the command."""
     answers: dict[str, ToolApproved | ToolDenied] = {}
@@ -80,8 +80,8 @@ def at_the_desk(
 agent.run_sync(
     user_prompt="Add a --verbose flag to the CLI, and a test for it.",
     model=FunctionModel(function=reply),
-    deps=RepoDeps(root=REPO),
+    deps=CodebaseDeps(root=CODEBASE),
     # Replaces the agent's answerer, for this run only: they share an `id`.
     capabilities=[approver(answer=at_the_desk)],
 )
-print(f"{TEST_PATH} written: {(REPO / TEST_PATH).exists()}")
+print(f"{TEST_PATH} written: {(CODEBASE / TEST_PATH).exists()}")

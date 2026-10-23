@@ -37,7 +37,7 @@ from pydantic_ai.usage import RequestUsage
 
 # This file is tests/06_01_cost/test_cost.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 PREFIX = "PYDANTIC_TUTOR_"
 SESSION = "scripts/cost_session.py"
 
@@ -78,9 +78,9 @@ def run_script(*, name: str, cwd: Path, stdin: str = "") -> str:
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """A stand-in project folder: the sample repo and the lesson's scripts, nothing else."""
+    """A stand-in project folder: the sample codebase and the lesson's scripts, nothing else."""
     root = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_code" / "tinyjobs")
     (root / "scripts").mkdir()
     for script in ("fresh_copy.py", "cost_session.py"):
         # Before the lesson there is no cost_session.py: the test that runs
@@ -143,13 +143,13 @@ def test_the_gauge_reads_each_request_and_counts_what_the_provider_reported() ->
     # gauge doesn't make the run stream.
     from pydantic_tutor import context_gauge
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     gauge = context_gauge.ContextGauge()
     agent.run_sync(
         user_prompt="What modules are there?",
         model=FunctionModel(function=list_then_answer),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
         capabilities=[gauge],
     )
     assert len(gauge.readings) == 2
@@ -166,7 +166,7 @@ def test_the_gauge_reads_the_request_as_the_model_is_sent_it() -> None:
     # capability listed after it has cut the history down.
     from pydantic_tutor import context_gauge
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     last: list[int] = []
     for extra in ([], [KeepLastMessage()]):
@@ -189,7 +189,7 @@ def test_the_gauge_reads_the_request_as_the_model_is_sent_it() -> None:
         agent.run_sync(
             user_prompt="What modules are there?",
             model=FunctionModel(function=list_twice),
-            deps=RepoDeps(root=TINYJOBS_ROOT),
+            deps=CodebaseDeps(root=TINYJOBS_ROOT),
             capabilities=[gauge, *extra],
         )
         last.append(gauge.readings[-1].used_tokens)
@@ -269,8 +269,8 @@ def test_a_failed_turn_still_says_what_it_sent(
 ) -> None:
     from pydantic_tutor.agent import agent
     from pydantic_tutor.chat import chat
+    from pydantic_tutor.codebase_tools import CodebaseDeps
     from pydantic_tutor.composition import App
-    from pydantic_tutor.repo_tools import RepoDeps
 
     def refuse(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         raise UnexpectedModelBehavior(message="the provider refused")
@@ -282,7 +282,7 @@ def test_a_failed_turn_still_says_what_it_sent(
         app=App(
             agent=agent,
             model=FunctionModel(function=refuse, model_name="stand-in"),
-            deps=RepoDeps(root=working_copy),
+            deps=CodebaseDeps(root=working_copy),
         )
     )
     out = capsys.readouterr().out

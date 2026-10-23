@@ -52,7 +52,7 @@ from pydantic_ai.tools import DeferredToolRequests, DeferredToolResults, ToolDen
 
 # This file is tests/05_01_approval/test_approval.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 FAKE_TOKEN = "tj-FAKE-0000-not-a-real-secret"
 PREFIX = "PYDANTIC_TUTOR_"
 # Of the tools the agent offers, the ones that ask, by the lesson's policy.
@@ -98,9 +98,9 @@ def run_script(*, name: str, cwd: Path) -> str:
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """A stand-in project folder: the sample repo and the lesson's scripts, nothing else."""
+    """A stand-in project folder: the sample codebase and the lesson's scripts, nothing else."""
     root = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_code" / "tinyjobs")
     (root / "scripts").mkdir()
     for script in ("fresh_copy.py", "approve_changes.py"):
         # Before the lesson there is no approve_changes.py: the test that
@@ -150,7 +150,7 @@ def run_agent(
     """
     from pydantic_tutor import approval
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     queue = list(responses)
 
@@ -162,7 +162,7 @@ def run_agent(
     result = agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=root),
+        deps=CodebaseDeps(root=root),
         capabilities=[approval.approver(answer=approval.approve_all)]
         if approved
         else [],
@@ -218,7 +218,7 @@ def test_the_policy_holds_the_writes_and_commands_and_nothing_else(
 
     from pydantic_tutor import approval
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     offered: list[str] = []
 
@@ -229,7 +229,7 @@ def test_the_policy_holds_the_writes_and_commands_and_nothing_else(
     agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=working_copy),
+        deps=CodebaseDeps(root=working_copy),
     )
     # Of the tools the agent offers, the writes and commands ask, and the
     # rest run. `Shell`'s opt-in `shell` tool, which the agent does not
@@ -251,14 +251,14 @@ def test_unattended_the_shells_opt_in_tool_is_refused_too(working_copy: Path) ->
     from pydantic_ai_harness.shell import SHELL_TOOL_NAMES
 
     from pydantic_tutor import approval
-    from pydantic_tutor.agent import SHELL_COMMANDS, build_agent, repo_capabilities
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.agent import SHELL_COMMANDS, build_agent, codebase_capabilities
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     stack = [
         Shell(allowed_commands=SHELL_COMMANDS, tools=SHELL_TOOL_NAMES)
         if isinstance(c, Shell)
         else c
-        for c in repo_capabilities()
+        for c in codebase_capabilities()
     ]
     agent = build_agent(capabilities=stack)
     calls = [
@@ -278,7 +278,7 @@ def test_unattended_the_shells_opt_in_tool_is_refused_too(working_copy: Path) ->
     agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=working_copy),
+        deps=CodebaseDeps(root=working_copy),
     )
     assert [(p.tool_name, p.outcome, p.content) for p in seen] == [
         ("shell", "denied", approval.UNATTENDED)
@@ -346,11 +346,11 @@ def test_with_no_answerer_the_run_stops_before_anything_runs(
     # output is text.
     from pydantic_ai.capabilities import HandleDeferredToolCalls
 
-    from pydantic_tutor.agent import build_agent, repo_capabilities
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.agent import build_agent, codebase_capabilities
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     stack = [
-        c for c in repo_capabilities() if not isinstance(c, HandleDeferredToolCalls)
+        c for c in codebase_capabilities() if not isinstance(c, HandleDeferredToolCalls)
     ]
     agent = build_agent(capabilities=stack)
     calls = [
@@ -364,7 +364,7 @@ def test_with_no_answerer_the_run_stops_before_anything_runs(
         agent.run_sync(
             user_prompt="x",
             model=FunctionModel(function=reply),
-            deps=RepoDeps(root=working_copy),
+            deps=CodebaseDeps(root=working_copy),
         )
     assert not (working_copy / "notes.txt").exists()
 
@@ -378,9 +378,9 @@ def test_the_agent_carries_the_guardrail_and_an_answerer() -> None:
     from pydantic_ai_harness import ToolGuardrail
 
     from pydantic_tutor import approval
-    from pydantic_tutor.agent import agent, repo_capabilities
+    from pydantic_tutor.agent import agent, codebase_capabilities
 
-    stack = repo_capabilities()
+    stack = codebase_capabilities()
     guards = [c for c in stack if isinstance(c, ToolGuardrail)]
     assert len(guards) == 1
     assert guards[0].guard is approval.ask_first
@@ -422,12 +422,12 @@ def test_a_runs_answerer_replaces_the_agents(working_copy: Path) -> None:
 def test_each_call_gets_its_own_answer(working_copy: Path) -> None:
     from pydantic_tutor import approval
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     asked: list[list[str]] = []
 
     def write_only(
-        ctx: RunContext[RepoDeps], requests: DeferredToolRequests
+        ctx: RunContext[CodebaseDeps], requests: DeferredToolRequests
     ) -> DeferredToolResults:
         asked.append([call.tool_name for call in requests.approvals])
         return requests.build_results(
@@ -462,7 +462,7 @@ def test_each_call_gets_its_own_answer(working_copy: Path) -> None:
     agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=working_copy),
+        deps=CodebaseDeps(root=working_copy),
         capabilities=[approval.approver(answer=write_only)],
     )
     # Both calls of the one response are asked about together, once.
@@ -501,20 +501,20 @@ def test_approve_changes_prints_what_was_asked_and_what_the_model_got(
 # Moved from earlier lessons: proved as the agent is now built.
 
 
-def test_repo_capabilities_are_new_on_each_call_and_hold_the_whole_stack() -> None:
+def test_codebase_capabilities_are_new_on_each_call_and_hold_the_whole_stack() -> None:
     # Moved from 04-06, which counted eight: the guardrail and the
     # answerer make ten.
     from pydantic_ai.capabilities import HandleDeferredToolCalls, Toolset
     from pydantic_ai_harness import FileSystem, Shell, ToolGuardrail
 
-    from pydantic_tutor.agent import repo_capabilities, repo_workspace
+    from pydantic_tutor.agent import codebase_capabilities, codebase_workspace
     from pydantic_tutor.batch_limit import BatchLimit
+    from pydantic_tutor.codebase_tools import codebase_toolset
     from pydantic_tutor.listable_memory import ListableMemory
     from pydantic_tutor.prompt_file import PromptFile
-    from pydantic_tutor.repo_tools import repo_toolset
     from pydantic_tutor.request_log import request_log
 
-    first, second = repo_capabilities(), repo_capabilities()
+    first, second = codebase_capabilities(), codebase_capabilities()
     kinds = (
         PromptFile,
         Toolset,
@@ -530,10 +530,10 @@ def test_repo_capabilities_are_new_on_each_call_and_hold_the_whole_stack() -> No
         assert len(ours) == 1, kind
         theirs = [c for c in second if isinstance(c, kind)]
         assert ours[0] is not theirs[0], kind  # built anew, not shared
-    assert repo_workspace in first
+    assert codebase_workspace in first
     assert request_log in first
     toolsets = [c for c in first if isinstance(c, Toolset)]
-    assert toolsets[0].toolset is repo_toolset
+    assert toolsets[0].toolset is codebase_toolset
     assert len(first) == 10
 
 
