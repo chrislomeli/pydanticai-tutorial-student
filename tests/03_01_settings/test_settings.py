@@ -58,7 +58,7 @@ def test_settings_have_the_defaults_the_chat_used() -> None:
     settings = Settings()
     assert settings.chat_model == "openai:gpt-5-mini"
     assert settings.trace is False
-    assert settings.repo_root == Path("sample_repos/tinyjobs")
+    assert settings.codebase_root == Path("sample_code/tinyjobs")
 
 
 def test_settings_read_the_prefixed_variables(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -66,11 +66,11 @@ def test_settings_read_the_prefixed_variables(monkeypatch: pytest.MonkeyPatch) -
 
     monkeypatch.setenv(PREFIX + "CHAT_MODEL", "test")
     monkeypatch.setenv(PREFIX + "TRACE", "1")
-    monkeypatch.setenv(PREFIX + "REPO_ROOT", "elsewhere")
+    monkeypatch.setenv(PREFIX + "CODEBASE_ROOT", "elsewhere")
     settings = Settings()
     assert settings.chat_model == "test"
     assert settings.trace is True  # "1" became a bool, not the string "1"
-    assert settings.repo_root == Path("elsewhere")
+    assert settings.codebase_root == Path("elsewhere")
 
 
 def test_settings_hold_values_not_objects() -> None:
@@ -111,7 +111,7 @@ def test_build_app_builds_the_objects_from_the_settings() -> None:
 
     app = composition.build_app(
         settings=settings_module.Settings(
-            chat_model="test", repo_root=Path("elsewhere")
+            chat_model="test", codebase_root=Path("elsewhere")
         )
     )
     assert app.agent is agent_module.agent  # the project's one agent, not a second
@@ -161,7 +161,7 @@ def test_tracing_prints_spans_for_a_scripted_turn(
     app = build_app(settings=Settings(chat_model="test", trace=True))
     capsys.readouterr()  # discard the "tracing on" line
     app.agent.run_sync(user_prompt="hello", model=scripted_model(), deps=app.deps)
-    assert "repo_assistant run" in capsys.readouterr().out
+    assert "assistant run" in capsys.readouterr().out
 
 
 # The entry point reads no value and builds no object itself.
@@ -174,7 +174,7 @@ def test_the_entry_point_opens_the_chat_with_the_built_app(
     # waits for input, before the lesson or after it.
     import pydantic_tutor.__main__ as entry
     from pydantic_tutor import agent as agent_module
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     opened: dict[str, object] = {}
 
@@ -188,7 +188,7 @@ def test_the_entry_point_opens_the_chat_with_the_built_app(
     monkeypatch.setenv(PREFIX + "CHAT_MODEL", "test")
     entry.main()
     assert isinstance(opened["model"], TestModel)  # chosen by the setting alone
-    assert opened["deps"] == RepoDeps(root=Path("sample_repos/tinyjobs"))
+    assert opened["deps"] == CodebaseDeps(root=Path("sample_code/tinyjobs"))
 
 
 @pytest.mark.parametrize(

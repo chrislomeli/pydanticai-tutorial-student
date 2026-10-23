@@ -26,6 +26,6 @@ class Settings(BaseSettings):
     chat_model: str = "openai:gpt-5-mini"
     # Console tracing. Off unless set to a true value: 1, true, yes, on, t or y.
     trace: bool = False
-    # The repository the agent answers questions about. A relative path is
+    # The codebase the agent answers questions about. A relative path is
     # read from the folder the app runs in: run it from the project root.
-    repo_root: Path = Path("sample_repos/tinyjobs")
+    codebase_root: Path = Path("sample_code/tinyjobs")
