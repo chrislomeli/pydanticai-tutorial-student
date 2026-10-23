@@ -5,17 +5,17 @@ is not asked to run them. Run them with `uv run pytest`. They fail until
 the lesson is done. None of them needs an API key or makes a request:
 every run is on a scripted model.
 
-Two tests were moved here: one pinned the repository toolset on the
+Two tests were moved here: one pinned the codebase toolset on the
 constructor's `toolsets=` (04-05), one pinned the prompt behind the two
 capabilities the library adds of its own (04-04). Each says where it came
 from, and proves its point as the agent is now built.
 
 Two tests were moved on by the approval lesson (05-01), which adds two
 capabilities to the stack, one of them declared innermost: that
-`repo_capabilities()` is new on each call and holds the whole stack, and
+`codebase_capabilities()` is new on each call and holds the whole stack, and
 that the prompt comes first and the log last, are now proved in
 `tests/05_01_approval/test_approval.py`, by
-`test_repo_capabilities_are_new_on_each_call_and_hold_the_whole_stack`
+`test_codebase_capabilities_are_new_on_each_call_and_hold_the_whole_stack`
 and `test_the_agent_takes_its_prompt_first_and_logs_after_the_cap`.
 
 Every import of the project is inside the test that needs it, so that
@@ -45,12 +45,10 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 # This file is tests/04_06_seam/test_seam.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
-PROMPT_FILE: Path = (
-    PROJECT_ROOT / "src" / "pydantic_tutor" / "prompts" / "repo_assistant.md"
-)
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
+PROMPT_FILE: Path = PROJECT_ROOT / "src" / "pydantic_tutor" / "prompts" / "assistant.md"
 # The agent's prompt since the agent lesson, word for word.
-PROMPT = "You answer questions about a Python code repository. Answer briefly."
+PROMPT = "You answer questions about a Python codebase. Answer briefly."
 LOGGER = "pydantic_tutor.request_log"
 ALL_TOOLS = 19  # ours 2, the file tools 8, the shell's 4, the memory's 5
 # How many orders of the stack the order test tries, beyond the two the
@@ -117,14 +115,14 @@ def run_built(
     """Build the agent with `capabilities`, run it once; return the model's
     view and the message counts the request log logged."""
     from pydantic_tutor.agent import build_agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     caplog.clear()
     recorder = Recorder()
     build_agent(capabilities=capabilities).run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     logged = [
         int(record.getMessage().split("messages=")[1].split()[0])
@@ -136,13 +134,13 @@ def run_built(
 
 def test_build_agent_builds_a_new_agent_on_what_only_the_constructor_sets() -> None:
     from pydantic_tutor.agent import agent, build_agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     first, second = build_agent(), build_agent()
     assert first is not second
     for built in (first, second, agent):
-        assert built.name == "repo_assistant"
-        assert built.deps_type is RepoDeps
+        assert built.name == "assistant"
+        assert built.deps_type is CodebaseDeps
         assert built.output_type is str
         assert built.model_settings == {"timeout": 60}
 
@@ -152,7 +150,7 @@ def test_with_no_capabilities_the_agent_gives_the_model_nothing() -> None:
     # the stack. The constructor alone sends no instructions and no tools,
     # but its request settings still apply.
     from pydantic_tutor.agent import build_agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     seen: list[AgentInfo] = []
 
@@ -163,7 +161,7 @@ def test_with_no_capabilities_the_agent_gives_the_model_nothing() -> None:
     build_agent(capabilities=[]).run_sync(
         user_prompt="hello",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     assert not seen[0].model_request_parameters.instruction_parts
     assert seen[0].function_tools == []
@@ -188,16 +186,16 @@ def test_any_order_of_the_stack_sends_the_same_and_logs_what_is_sent(
 ) -> None:
     # The lesson's second point. With a capability that changes the
     # request added last, in every order tried: the instructions are the
-    # prompt, the memory's guidance, then the repository's name; the same
+    # prompt, the memory's guidance, then the codebase's name; the same
     # 19 tools; and the log counts the messages the model is sent.
-    from pydantic_tutor.agent import repo_capabilities
+    from pydantic_tutor.agent import codebase_capabilities
     from pydantic_tutor.listable_memory import LISTING_GUIDANCE
 
     caplog.set_level(level=logging.INFO, logger=LOGGER)
     shuffle = random.Random(4).shuffle  # fixed: the same orders every run
     orders: list[list[AgentCapability[object]]] = []
     for index in range(2 + SHUFFLES):
-        stack: list[AgentCapability[object]] = [*repo_capabilities(), KeepLastTwo()]  # type: ignore[list-item]
+        stack: list[AgentCapability[object]] = [*codebase_capabilities(), KeepLastTwo()]  # type: ignore[list-item]
         if index == 1:
             stack.reverse()
         elif index > 1:
@@ -208,7 +206,7 @@ def test_any_order_of_the_stack_sends_the_same_and_logs_what_is_sent(
         assert recorder.instructions() == [
             PROMPT,
             LISTING_GUIDANCE,
-            "The repository is tinyjobs.",
+            "The codebase is tinyjobs.",
         ]
         names = [
             sorted(tool.name for tool in info.function_tools) for info in recorder.infos
@@ -226,14 +224,14 @@ def test_stack_order_prints_two_orders_alike() -> None:
         "  model: sent 1 message(s)",
         "    instructions: You answer questions about ...",
         "    instructions: You have a persistent ...",
-        "    instructions: The repository is tinyjobs. ...",
+        "    instructions: The codebase is tinyjobs. ...",
         f"{LOGGER}: request step=2 messages=2 tools=19",
         "  model: sent 2 message(s)",
     ]
     assert out == ["forwards", *request_lines, "reversed", *request_lines]
 
 
-def test_the_agent_takes_the_repo_toolset_as_a_capability() -> None:
+def test_the_agent_takes_the_codebase_toolset_as_a_capability() -> None:
     # Moved from 04-01, by way of 04-05: both found the toolset on the
     # constructor's `toolsets=`. It now reaches the agent through `Toolset(...)` in the
     # stack, and the model is still offered our two tools first.
@@ -241,15 +239,15 @@ def test_the_agent_takes_the_repo_toolset_as_a_capability() -> None:
     from pydantic_ai.toolsets import FunctionToolset
 
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
+    from pydantic_tutor.codebase_tools import CodebaseDeps, codebase_toolset
 
-    assert not any(toolset is repo_toolset for toolset in agent.toolsets)
+    assert not any(toolset is codebase_toolset for toolset in agent.toolsets)
     own = agent.toolsets[0]
     assert isinstance(own, FunctionToolset)
     assert own.tools == {}  # no tools of its own: every one is from the stack
     capabilities = agent.root_capability.capabilities
     assert any(
-        isinstance(c, Toolset) and c.toolset is repo_toolset for c in capabilities
+        isinstance(c, Toolset) and c.toolset is codebase_toolset for c in capabilities
     )
     seen: list[AgentInfo] = []
 
@@ -260,7 +258,7 @@ def test_the_agent_takes_the_repo_toolset_as_a_capability() -> None:
     agent.run_sync(
         user_prompt="hello",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     names = [tool.name for tool in seen[0].function_tools]
     assert names[:2] == ["list_modules", "read_docstring"]

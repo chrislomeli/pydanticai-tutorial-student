@@ -19,7 +19,7 @@ from pydantic_ai.messages import (
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 # What list_modules returns, checked as the stand-in model reads it.
 MODULE_NAMES = TypeAdapter(list[str])
@@ -56,7 +56,7 @@ def read_all_at_once(messages: list[ModelMessage], info: AgentInfo) -> ModelResp
 result = agent.run_sync(
     user_prompt="Read every module and summarise each.",
     model=FunctionModel(function=read_all_at_once),
-    deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+    deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
 )
 print("the run's history, response by response:")
 for message in result.all_messages():
