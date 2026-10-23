@@ -7,9 +7,9 @@ from pydantic_ai_harness import FileSystem, Shell
 from pydantic_ai_harness.memory import FileStore
 
 from pydantic_tutor.batch_limit import BatchLimit
+from pydantic_tutor.codebase_tools import CodebaseDeps, codebase_toolset
 from pydantic_tutor.listable_memory import ListableMemory
 from pydantic_tutor.prompt_file import PromptFile
-from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
 from pydantic_tutor.request_log import request_log
 
 # Files the file tools may neither read nor write, at any depth: the
@@ -17,7 +17,7 @@ from pydantic_tutor.request_log import request_log
 # written. A leading `**/` means "in any folder, the top one included".
 SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
 
-# The only commands the shell may start: the agent runs the repository's
+# The only commands the shell may start: the agent runs the codebase's
 # tests, and reads files with the file tools. A guard against mistakes, not
 # a boundary: only a command's first word is checked, and pytest runs any
 # code it is given.
@@ -25,32 +25,32 @@ SHELL_COMMANDS = ("pytest",)
 
 # The agent's prompt, in a file of its own beside this module, so it is
 # found whichever folder the program runs from.
-PROMPT_PATH = Path(__file__).parent / "prompts" / "repo_assistant.md"
+PROMPT_PATH = Path(__file__).parent / "prompts" / "assistant.md"
 
 
-def repo_workspace(ctx: RunContext[RepoDeps]) -> LocalWorkspace[RepoDeps]:
-    """Give each run a workspace on this machine, in the repository it reads."""
+def codebase_workspace(ctx: RunContext[CodebaseDeps]) -> LocalWorkspace[CodebaseDeps]:
+    """Give each run a workspace on this machine, in the codebase it reads."""
     # Called once per run, with that run's deps: the workspace follows the
-    # repository the run is given. Its folder is where relative paths
+    # codebase the run is given. Its folder is where relative paths
     # start, not a boundary: `..` and absolute paths reach past it.
     # Keep it to building the capability from deps: no I/O, no state.
     return LocalWorkspace(working_dir=ctx.deps.root)
 
 
 # No model here: each run says which model to use, so the same agent runs on
-# a test model now and a real one later. No repository either: each run
+# a test model now and a real one later. No codebase either: each run
 # passes one, as `deps`, and gets a workspace there.
 agent = Agent(
-    name="repo_assistant",
-    deps_type=RepoDeps,
-    # Our two repository tools, with their instructions and time limit.
-    toolsets=[repo_toolset],
+    name="assistant",
+    deps_type=CodebaseDeps,
+    # Our two codebase tools, with their instructions and time limit.
+    toolsets=[codebase_toolset],
     capabilities=[
         # The agent's instructions, read from PROMPT_PATH once, when this
         # module is imported. Text, so it is sent first, before the
-        # repository's name, which the toolset computes for each request.
+        # codebase's name, which the toolset computes for each request.
         PromptFile(path=PROMPT_PATH),
-        repo_workspace,
+        codebase_workspace,
         # File tools in the run's workspace. They keep to its folder, and
         # refuse the secret files; the default `read_only_patterns` still
         # keeps `.git/` and the rest from being written.
@@ -61,7 +61,7 @@ agent = Agent(
         # default, or after the time the model asks for.
         Shell(allowed_commands=SHELL_COMMANDS),
         # A notebook the model keeps across sessions, as Markdown files in
-        # `.agent-memory/` in the run's workspace: each repository has its
+        # `.agent-memory/` in the run's workspace: each codebase has its
         # own. Injection off: no request carries the notebook; the model
         # lists and reads it with tools when it chooses to.
         ListableMemory(store=FileStore(directory=".agent-memory"), inject_memory=False),

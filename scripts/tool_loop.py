@@ -17,7 +17,7 @@ from pydantic_ai.messages import (
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -46,7 +46,7 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
 result = agent.run_sync(
     user_prompt="What does the jobs module do?",
     model=FunctionModel(function=reply),
-    deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+    deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
 )
 
 for message in result.all_messages():
