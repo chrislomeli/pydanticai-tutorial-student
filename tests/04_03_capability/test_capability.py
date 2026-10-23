@@ -32,7 +32,7 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 # This file is tests/04_03_capability/test_capability.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 MODULES = [
     "tinyjobs",
     "tinyjobs.cli",
@@ -156,13 +156,13 @@ def test_the_agent_has_the_cap_before_the_request_log() -> None:
 
 def test_five_calls_in_one_response_reach_the_tools_as_three() -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     model = FiveReads()
     result = agent.run_sync(
         user_prompt="Read every module.",
         model=FunctionModel(function=model.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     # Three tools ran, and the model was sent their three results.
     assert result.usage.tool_calls == 3
@@ -178,17 +178,19 @@ def test_five_calls_in_one_response_reach_the_tools_as_three() -> None:
 def test_without_the_cap_all_five_would_run() -> None:
     # A guard on the test above: the same model, on an agent without the
     # cap, runs all five. Passes before the lesson too.
-    from pydantic_tutor.agent import repo_workspace
-    from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
+    from pydantic_tutor.agent import codebase_workspace
+    from pydantic_tutor.codebase_tools import CodebaseDeps, codebase_toolset
 
     model = FiveReads()
     bare = Agent(
-        deps_type=RepoDeps, toolsets=[repo_toolset], capabilities=[repo_workspace]
+        deps_type=CodebaseDeps,
+        toolsets=[codebase_toolset],
+        capabilities=[codebase_workspace],
     )
     result = bare.run_sync(
         user_prompt="Read every module.",
         model=FunctionModel(function=model.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     assert result.usage.tool_calls == 5
     assert model.returns_received == [5]
