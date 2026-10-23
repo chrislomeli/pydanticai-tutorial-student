@@ -19,7 +19,7 @@ from pydantic_ai.providers.anthropic import AnthropicProvider
 from pydantic_ai.providers.openai import OpenAIProvider
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.settings import Settings
 
 
@@ -27,9 +27,9 @@ from pydantic_tutor.settings import Settings
 class App:
     """Everything the chat needs, built and ready to run."""
 
-    agent: Agent[RepoDeps, str]
+    agent: Agent[CodebaseDeps, str]
     model: Model
-    deps: RepoDeps
+    deps: CodebaseDeps
 
 
 def build_app(*, settings: Settings) -> App:
@@ -47,7 +47,7 @@ def build_app(*, settings: Settings) -> App:
     return App(
         agent=agent,
         model=build_model(settings=settings),
-        deps=RepoDeps(root=settings.repo_root),
+        deps=CodebaseDeps(root=settings.codebase_root),
     )
 
 
