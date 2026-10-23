@@ -36,8 +36,8 @@ def no_real_model(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def broken_repo(tmp_path: Path) -> Path:
-    """A repository in the src layout whose one module does not parse."""
+def broken_codebase(tmp_path: Path) -> Path:
+    """A codebase in the src layout whose one module does not parse."""
     package = tmp_path / "src" / "broken"
     package.mkdir(parents=True)
     (package / "__init__.py").write_text(data="def half_written(:\n")
@@ -69,10 +69,10 @@ def test_the_agent_has_time_limits() -> None:
 
 
 def test_a_module_that_does_not_parse_is_a_failed_tool_result(
-    broken_repo: Path,
+    broken_codebase: Path,
 ) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     seen: list[ModelMessage] = []
 
@@ -86,7 +86,7 @@ def test_a_module_that_does_not_parse_is_a_failed_tool_result(
     result = agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=broken_repo),
+        deps=CodebaseDeps(root=broken_codebase),
     )
 
     # The run goes on: the model is told the call failed, and answers.
