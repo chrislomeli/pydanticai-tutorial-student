@@ -63,7 +63,7 @@ def test_the_instructions_travel_on_the_request_not_in_a_part() -> None:
         return ModelResponse(parts=[TextPart(content="ok")])
 
     agent.run_sync(
-        user_prompt="What does this repo do?", model=FunctionModel(function=reply)
+        user_prompt="What does this codebase do?", model=FunctionModel(function=reply)
     )
 
     [request] = sent
@@ -104,5 +104,5 @@ def test_scripted_run_prints_what_the_function_decided() -> None:
     # The reply is built from the prompt and the instructions the model was
     # sent, so it can only match if the function, not a canned answer,
     # produced it.
-    expected = f"You asked 'What does this repo do?', and my instructions say: {instructions[0]}"
+    expected = f"You asked 'What does this codebase do?', and my instructions say: {instructions[0]}"
     assert printed.strip().splitlines()[-1] == expected

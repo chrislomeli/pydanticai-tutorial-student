@@ -10,7 +10,7 @@ from pydantic_ai.models.test import TestModel
 from pydantic_tutor.agent import agent
 
 # TestModel answers at once, inside this program: no key, no cost.
-result = agent.run_sync(user_prompt="What does this repo do?", model=TestModel())
+result = agent.run_sync(user_prompt="What does this codebase do?", model=TestModel())
 
 # Every message of the run, in order: requests to the model, responses back.
 for message in result.all_messages():

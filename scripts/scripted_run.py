@@ -33,6 +33,6 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
 
 # The model is given for this run only; the agent itself has none (agent.py).
 result = agent.run_sync(
-    user_prompt="What does this repo do?", model=FunctionModel(function=reply)
+    user_prompt="What does this codebase do?", model=FunctionModel(function=reply)
 )
 print(result.output)
