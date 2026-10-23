@@ -11,7 +11,7 @@ from pydantic_ai import Agent
 from pydantic_ai.models import Model, infer_model
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.settings import Settings
 
 
@@ -19,9 +19,9 @@ from pydantic_tutor.settings import Settings
 class App:
     """Everything the chat needs, built and ready to run."""
 
-    agent: Agent[RepoDeps, str]
+    agent: Agent[CodebaseDeps, str]
     model: Model
-    deps: RepoDeps
+    deps: CodebaseDeps
 
 
 def build_app(*, settings: Settings) -> App:
@@ -39,7 +39,7 @@ def build_app(*, settings: Settings) -> App:
     return App(
         agent=agent,
         model=infer_model(model=settings.chat_model),
-        deps=RepoDeps(root=settings.repo_root),
+        deps=CodebaseDeps(root=settings.codebase_root),
     )
 
 
