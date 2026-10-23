@@ -1,10 +1,10 @@
-"""Read a Python repository: the example's API, given to you.
+"""Read a Python codebase: the example's API, given to you.
 
 You call it; you do not need to read it. The agent's tools use it to answer
-questions about a repository's modules. A repository's modules are under
-its `src/` folder, the layout every repository in this series uses.
+questions about a codebase's modules. A codebase's modules are under
+its `src/` folder, the layout every codebase in this series uses.
 
-It reads a repository in one of two ways, and both behave the same:
+It reads a codebase in one of two ways, and both behave the same:
 
 - from a folder on this machine: `list_modules(root=...)` and
   `read_docstring(root=..., module=...)`;
@@ -25,7 +25,7 @@ from pydantic_ai.workspaces import Workspace
 
 
 class UnknownModuleError(Exception):
-    """Raised for a module name the repository does not have."""
+    """Raised for a module name the codebase does not have."""
 
 
 class UnreadableModuleError(Exception):
@@ -33,7 +33,7 @@ class UnreadableModuleError(Exception):
 
 
 def list_modules(*, root: Path) -> list[str]:
-    """Every module in the repository at `root`, by dotted name, sorted."""
+    """Every module in the codebase at `root`, by dotted name, sorted."""
     return sorted(_modules(source=root / "src"))
 
 
@@ -55,7 +55,7 @@ def read_docstring(*, root: Path, module: str) -> str:
 
 
 async def list_modules_in(*, workspace: Workspace) -> list[str]:
-    """Every module in the repository at the workspace's folder, by dotted name, sorted."""
+    """Every module in the codebase at the workspace's folder, by dotted name, sorted."""
     return sorted(await _workspace_modules(workspace=workspace))
 
 
@@ -125,7 +125,7 @@ async def _workspace_modules(*, workspace: Workspace) -> dict[str, str]:
     """
     modules: dict[str, str] = {}
     if not await workspace.exists(path="src"):
-        return modules  # a repository with no `src/` has no modules
+        return modules  # a codebase with no `src/` has no modules
     source = await workspace.realpath(path="src")
     folders = [source]
     while folders:

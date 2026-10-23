@@ -1,6 +1,6 @@
 """Where a capability's hooks run: before the request in list order, after it in reverse.
 
-From the capability lesson (04-03). A second agent, given the repository
+From the capability lesson (04-03). A second agent, given the codebase
 toolset, has `BatchLimit` between two capabilities that only print what
 they see; a stand-in model asks for five tool calls at once. Kept
 working: a later lesson that changes `BatchLimit` updates this script,
@@ -21,11 +21,11 @@ from pydantic_ai.messages import (
 )
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
-from pydantic_tutor.agent import repo_workspace
+from pydantic_tutor.agent import codebase_workspace
 from pydantic_tutor.batch_limit import BatchLimit
-from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
+from pydantic_tutor.codebase_tools import CodebaseDeps, codebase_toolset
 
-# The five modules of sample_repos/tinyjobs, as list_modules gives them.
+# The five modules of sample_code/tinyjobs, as list_modules gives them.
 MODULES = (
     "tinyjobs",
     "tinyjobs.cli",
@@ -36,14 +36,14 @@ MODULES = (
 
 
 @dataclass(kw_only=True)
-class Watch(AbstractCapability[RepoDeps]):
+class Watch(AbstractCapability[CodebaseDeps]):
     """Print each request going out and each response coming back, unchanged."""
 
     # Printed at the start of each line, to tell two of them apart.
     name: str
 
     async def before_model_request(
-        self, ctx: RunContext[RepoDeps], request_context: ModelRequestContext
+        self, ctx: RunContext[CodebaseDeps], request_context: ModelRequestContext
     ) -> ModelRequestContext:
         """Say that a request is about to go out, and pass it on."""
         print(f"{self.name}: before the request")
@@ -51,7 +51,7 @@ class Watch(AbstractCapability[RepoDeps]):
 
     async def after_model_request(
         self,
-        ctx: RunContext[RepoDeps],
+        ctx: RunContext[CodebaseDeps],
         *,
         request_context: ModelRequestContext,
         response: ModelResponse,
@@ -80,10 +80,10 @@ def five_reads_then_answer(
 
 reader = Agent(
     name="reader",
-    deps_type=RepoDeps,
-    toolsets=[repo_toolset],
+    deps_type=CodebaseDeps,
+    toolsets=[codebase_toolset],
     capabilities=[
-        repo_workspace,
+        codebase_workspace,
         Watch(name="first"),
         BatchLimit(max_tool_calls=3),
         Watch(name="last"),
@@ -92,5 +92,5 @@ reader = Agent(
 reader.run_sync(
     user_prompt="Read every module and summarise each.",
     model=FunctionModel(function=five_reads_then_answer),
-    deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+    deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
 )
