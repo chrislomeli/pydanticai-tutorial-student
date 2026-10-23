@@ -10,7 +10,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 # Ours, not the library's: a string naming the provider and the model, read
 # by `to_cli_sync` on each call. The key it needs comes from the
@@ -47,7 +47,7 @@ def main() -> None:
     configure_tracing()
     agent.to_cli_sync(
         model=DEFAULT_MODEL,
-        deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+        deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
         prog_name="pydantic-tutor",
     )
 
