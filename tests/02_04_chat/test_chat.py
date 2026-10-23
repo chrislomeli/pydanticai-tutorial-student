@@ -51,7 +51,7 @@ def test_configure_tracing_prints_spans_for_a_scripted_turn(
     # terminal -- no key, no network call, nothing sent anywhere.
     from pydantic_tutor.__main__ import TRACE_VAR, configure_tracing
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     monkeypatch.setenv(TRACE_VAR, "1")
     configure_tracing()
@@ -60,10 +60,10 @@ def test_configure_tracing_prints_spans_for_a_scripted_turn(
     agent.run_sync(
         user_prompt="hello",
         model=scripted_model(),
-        deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+        deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
     )
 
-    assert "repo_assistant run" in capsys.readouterr().out
+    assert "assistant run" in capsys.readouterr().out
 
 
 def test_a_missing_key_fails_by_name(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -74,7 +74,7 @@ def test_a_missing_key_fails_by_name(monkeypatch: pytest.MonkeyPatch) -> None:
 
     from pydantic_tutor.__main__ import DEFAULT_MODEL
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
@@ -82,7 +82,7 @@ def test_a_missing_key_fails_by_name(monkeypatch: pytest.MonkeyPatch) -> None:
         agent.run_sync(
             user_prompt="hello",
             model=DEFAULT_MODEL,
-            deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+            deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
         )
     assert "OPENAI_API_KEY" in str(excinfo.value)
 
@@ -94,13 +94,13 @@ def test_the_entry_point_uses_the_project_s_one_agent() -> None:
     # scripted model substituted here to prove the wiring without a key.
     from pydantic_tutor import agent as agent_module
     from pydantic_tutor.__main__ import DEFAULT_MODEL
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     assert DEFAULT_MODEL.startswith("openai:")
 
     result = agent_module.agent.run_sync(
         user_prompt="hello",
         model=scripted_model(),
-        deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+        deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
     )
     assert result.output == "hi there"
