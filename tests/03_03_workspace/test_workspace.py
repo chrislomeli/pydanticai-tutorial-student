@@ -41,8 +41,8 @@ def no_real_model(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(target=models, name="ALLOW_MODEL_REQUESTS", value=False)
 
 
-def make_repo(*, root: Path, package: str) -> Path:
-    """A repository in the src layout, with one package and one module."""
+def make_codebase(*, root: Path, package: str) -> Path:
+    """A codebase in the src layout, with one package and one module."""
     source = root / "src" / package
     source.mkdir(parents=True)
     (source / "__init__.py").write_text(f'"""The {package} package."""\n')
@@ -78,37 +78,37 @@ async def first_line(ctx: RunContext[object], *, path: str) -> str:
     return (await ctx.workspace.read_text(path=path)).splitlines()[0]
 
 
-# Goal 1: the agent has a workspace, in the repository each run is given.
+# Goal 1: the agent has a workspace, in the codebase each run is given.
 
 
-def test_a_run_has_a_workspace_in_its_repository(tmp_path: Path) -> None:
+def test_a_run_has_a_workspace_in_its_codebase(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     for name in ("one", "two"):
-        repo = make_repo(root=tmp_path / name, package=name)
+        codebase = make_codebase(root=tmp_path / name, package=name)
         result = agent.run_sync(
             user_prompt="x",
             model=calls(tool_name="working_dir", args={}),
-            deps=RepoDeps(root=repo),
+            deps=CodebaseDeps(root=codebase),
             toolsets=[FunctionToolset(tools=[working_dir])],
         )
-        # The workspace's folder is the run's repository, as an absolute path.
-        assert result.output == str(repo.resolve())
+        # The workspace's folder is the run's codebase, as an absolute path.
+        assert result.output == str(codebase.resolve())
 
 
 def test_list_modules_reads_through_the_workspace(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    given = make_repo(root=tmp_path / "given", package="given")
-    other = make_repo(root=tmp_path / "other", package="other")
+    given = make_codebase(root=tmp_path / "given", package="given")
+    other = make_codebase(root=tmp_path / "other", package="other")
     # A workspace passed to the run wins over the agent's own. If the tool
     # still read `deps.root` from disk, it would list `given`.
     result = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="list_modules", args={}),
-        deps=RepoDeps(root=given),
+        deps=CodebaseDeps(root=given),
         workspace=LocalWorkspaceBackend(other),
     )
     assert result.output == '["other","other.util"]'
@@ -116,14 +116,14 @@ def test_list_modules_reads_through_the_workspace(tmp_path: Path) -> None:
 
 def test_read_docstring_reads_through_the_workspace(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    given = make_repo(root=tmp_path / "given", package="given")
-    other = make_repo(root=tmp_path / "other", package="other")
+    given = make_codebase(root=tmp_path / "given", package="given")
+    other = make_codebase(root=tmp_path / "other", package="other")
     result = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="read_docstring", args={"module": "other.util"}),
-        deps=RepoDeps(root=given),
+        deps=CodebaseDeps(root=given),
         workspace=LocalWorkspaceBackend(other),
     )
     assert result.output == "Helpers for other."
@@ -131,52 +131,52 @@ def test_read_docstring_reads_through_the_workspace(tmp_path: Path) -> None:
 
 def test_list_modules_does_not_enter_a_linked_folder(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    repo = make_repo(root=tmp_path / "repo", package="pkg")
+    codebase = make_codebase(root=tmp_path / "codebase", package="pkg")
     outside = tmp_path / "outside"
     outside.mkdir()
-    (outside / "far.py").write_text('"""Outside the repository."""\n')
-    # One link back up (a loop, if entered) and one out of the repository.
-    (repo / "src" / "pkg" / "up").symlink_to(target="..")
-    (repo / "src" / "pkg" / "out").symlink_to(target=outside)
+    (outside / "far.py").write_text('"""Outside the codebase."""\n')
+    # One link back up (a loop, if entered) and one out of the codebase.
+    (codebase / "src" / "pkg" / "up").symlink_to(target="..")
+    (codebase / "src" / "pkg" / "out").symlink_to(target=outside)
     result = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="list_modules", args={}),
-        deps=RepoDeps(root=repo),
+        deps=CodebaseDeps(root=codebase),
     )
     assert result.output == '["pkg","pkg.util"]'
 
 
-def test_a_linked_file_out_of_the_repository_is_not_read(tmp_path: Path) -> None:
+def test_a_linked_file_out_of_the_codebase_is_not_read(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    repo = make_repo(root=tmp_path / "repo", package="pkg")
-    (tmp_path / "far.py").write_text('"""Outside the repository."""\n')
-    (repo / "src" / "pkg" / "leak.py").symlink_to(target=tmp_path / "far.py")
+    codebase = make_codebase(root=tmp_path / "codebase", package="pkg")
+    (tmp_path / "far.py").write_text('"""Outside the codebase."""\n')
+    (codebase / "src" / "pkg" / "leak.py").symlink_to(target=tmp_path / "far.py")
     listed = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="list_modules", args={}),
-        deps=RepoDeps(root=repo),
+        deps=CodebaseDeps(root=codebase),
     )
     assert listed.output == '["pkg","pkg.util"]'
     read = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="read_docstring", args={"module": "pkg.leak"}),
-        deps=RepoDeps(root=repo),
+        deps=CodebaseDeps(root=codebase),
     )
-    assert "Outside the repository" not in read.output
+    assert "Outside the codebase" not in read.output
 
 
-def test_a_repository_without_src_has_no_modules(tmp_path: Path) -> None:
+def test_a_codebase_without_src_has_no_modules(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     result = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="list_modules", args={}),
-        deps=RepoDeps(root=tmp_path),
+        deps=CodebaseDeps(root=tmp_path),
     )
     # Read the tool's own return: an empty list reads as no text at all.
     returns = [
@@ -190,10 +190,10 @@ def test_a_repository_without_src_has_no_modules(tmp_path: Path) -> None:
 
 def test_a_folder_that_cannot_be_read_is_skipped(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    repo = make_repo(root=tmp_path / "repo", package="pkg")
-    shut = repo / "src" / "pkg" / "shut"
+    codebase = make_codebase(root=tmp_path / "codebase", package="pkg")
+    shut = codebase / "src" / "pkg" / "shut"
     shut.mkdir()
     (shut / "hidden.py").write_text('"""Cannot be listed."""\n')
     shut.chmod(mode=0)
@@ -201,7 +201,7 @@ def test_a_folder_that_cannot_be_read_is_skipped(tmp_path: Path) -> None:
         result = agent.run_sync(
             user_prompt="x",
             model=calls(tool_name="list_modules", args={}),
-            deps=RepoDeps(root=repo),
+            deps=CodebaseDeps(root=codebase),
         )
     finally:
         shut.chmod(mode=0o755)  # so that pytest can remove it
@@ -213,15 +213,15 @@ def test_a_module_that_cannot_be_opened_fails_the_tool_not_the_run(
     tmp_path: Path,
 ) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    repo = make_repo(root=tmp_path / "repo", package="pkg")
+    codebase = make_codebase(root=tmp_path / "codebase", package="pkg")
     # Listed, as `Path.rglob` listed it, but there is nothing to open.
-    (repo / "src" / "pkg" / "broken.py").symlink_to(target="nowhere.py")
+    (codebase / "src" / "pkg" / "broken.py").symlink_to(target="nowhere.py")
     result = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="read_docstring", args={"module": "pkg.broken"}),
-        deps=RepoDeps(root=repo),
+        deps=CodebaseDeps(root=codebase),
     )
     # The model is told, and answers; the run is not ended by the error.
     assert "pkg.broken cannot be opened" in result.output
@@ -234,32 +234,37 @@ def test_a_module_that_cannot_be_opened_fails_the_tool_not_the_run(
 
 def test_the_workspace_is_not_a_boundary(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    repo = make_repo(root=tmp_path / "repo", package="pkg")
-    (tmp_path / "outside.txt").write_text("outside the repository\n")
+    codebase = make_codebase(root=tmp_path / "codebase", package="pkg")
+    (tmp_path / "outside.txt").write_text("outside the codebase\n")
     result = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="first_line", args={"path": "../outside.txt"}),
-        deps=RepoDeps(root=repo),
+        deps=CodebaseDeps(root=codebase),
         toolsets=[FunctionToolset(tools=[first_line])],
     )
-    assert result.output == "outside the repository"
+    assert result.output == "outside the codebase"
 
 
 def test_a_conversation_stays_in_its_workspace(tmp_path: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    first = make_repo(root=tmp_path / "first", package="first")
-    second = make_repo(root=tmp_path / "second", package="second")
+    first = make_codebase(root=tmp_path / "first", package="first")
+    second = make_codebase(root=tmp_path / "second", package="second")
     model = calls(tool_name="list_modules", args={})
-    turn_one = agent.run_sync(user_prompt="x", model=model, deps=RepoDeps(root=first))
+    turn_one = agent.run_sync(
+        user_prompt="x", model=model, deps=CodebaseDeps(root=first)
+    )
     history = turn_one.all_messages()
 
-    # The same repository carries on.
+    # The same codebase carries on.
     agent.run_sync(
-        user_prompt="y", model=model, deps=RepoDeps(root=first), message_history=history
+        user_prompt="y",
+        model=model,
+        deps=CodebaseDeps(root=first),
+        message_history=history,
     )
     # Another one is refused: the history names the first workspace.
     with pytest.raises(
@@ -268,7 +273,7 @@ def test_a_conversation_stays_in_its_workspace(tmp_path: Path) -> None:
         agent.run_sync(
             user_prompt="y",
             model=model,
-            deps=RepoDeps(root=second),
+            deps=CodebaseDeps(root=second),
             message_history=history,
         )
 
