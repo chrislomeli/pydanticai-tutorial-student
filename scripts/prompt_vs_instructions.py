@@ -37,7 +37,7 @@ first = Agent(system_prompt="You review Python code.", instructions="Answer brie
 second = Agent(instructions="Answer in detail.")
 
 print("The first agent, a new run:")
-first_run = first.run_sync(user_prompt="What does this repo do?", model=model)
+first_run = first.run_sync(user_prompt="What does this codebase do?", model=model)
 
 print("The second agent, continuing the first run's messages:")
 second.run_sync(
