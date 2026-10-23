@@ -1,4 +1,4 @@
-"""Run one agent on two repositories: only the run's dependencies change.
+"""Run one agent on two codebases: only the run's dependencies change.
 
 From the dependencies lesson (01-04). Kept working: a later lesson that
 changes the agent updates this script, or removes it and says why.
@@ -16,7 +16,7 @@ from pydantic_ai.messages import (
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -28,12 +28,12 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
 
 
 model = FunctionModel(function=reply)
-# Two repositories, relative to the project root, where you run this from:
-# the sample repo, and this project itself.
-for root in [Path("sample_repos/tinyjobs"), Path(".")]:
+# Two codebases, relative to the project root, where you run this from:
+# the sample codebase, and this project itself.
+for root in [Path("sample_code/tinyjobs"), Path(".")]:
     result = agent.run_sync(
-        user_prompt="Which modules does this repository have?",
+        user_prompt="Which modules does this codebase have?",
         model=model,
-        deps=RepoDeps(root=root),
+        deps=CodebaseDeps(root=root),
     )
     print(f"{root}: {result.output}")
