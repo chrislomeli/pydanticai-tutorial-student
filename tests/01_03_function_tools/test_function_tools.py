@@ -32,7 +32,7 @@ from pydantic_ai.tools import ToolDefinition
 # This file is tests/01_03_function_tools/test_function_tools.py: two
 # folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs" / "src" / "tinyjobs"
+TINYJOBS: Path = PROJECT_ROOT / "sample_code" / "tinyjobs" / "src" / "tinyjobs"
 MODULES = [
     "tinyjobs",
     "tinyjobs.cli",
@@ -44,7 +44,7 @@ MODULES = [
 
 @pytest.fixture(autouse=True)
 def from_the_project_root(monkeypatch: pytest.MonkeyPatch) -> None:
-    # The lesson's tools read the sample repo relative to where they run,
+    # The lesson's tools read the sample codebase relative to where they run,
     # which the lesson says is the project root.
     monkeypatch.chdir(path=PROJECT_ROOT)
     # Any request to a real model raises instead of reaching a provider.
@@ -86,8 +86,8 @@ def definitions_sent() -> dict[str, ToolDefinition]:
     return {tool.name: tool for tool in sent[0].function_tools}
 
 
-def test_the_tools_read_the_sample_repo() -> None:
-    from pydantic_tutor.repo_tools import list_modules, read_docstring
+def test_the_tools_read_the_sample_codebase() -> None:
+    from pydantic_tutor.codebase_tools import list_modules, read_docstring
 
     assert list_modules() == MODULES
     assert read_docstring(module="tinyjobs.jobs") == docstring_of(TINYJOBS / "jobs.py")
@@ -99,7 +99,7 @@ def test_the_tools_read_the_sample_repo() -> None:
     argvalues=["jobs", "tinyjobs.nope", "../../pyproject.toml", "tinyjobs/jobs.py"],
 )
 def test_a_name_that_is_not_a_module_is_sent_back_to_the_model(name: str) -> None:
-    from pydantic_tutor.repo_tools import read_docstring
+    from pydantic_tutor.codebase_tools import read_docstring
 
     # The model chose the argument: the tool looks it up, never opens it as
     # a path, and tells the model what to do instead.
@@ -152,7 +152,7 @@ def test_the_agent_runs_the_tool_and_sends_back_its_result() -> None:
     ]
     call, returned = messages[1].parts[0], messages[2].parts[0]
     assert isinstance(call, ToolCallPart) and isinstance(returned, ToolReturnPart)
-    # The agent, not the model, ran the student's tool on the sample repo.
+    # The agent, not the model, ran the student's tool on the sample codebase.
     assert returned.content == docstring_of(TINYJOBS / "jobs.py")
     assert returned.tool_call_id == call.tool_call_id
     assert result.usage.requests == 2
@@ -181,9 +181,9 @@ def test_tool_loop_prints_the_four_messages() -> None:
     assert first_line in printed
 
 
-def test_pytest_skips_the_sample_repo() -> None:
+def test_pytest_skips_the_sample_codebase() -> None:
     settings = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
 
-    # Without this, pytest also collects the sample repo's tests, which
+    # Without this, pytest also collects the sample codebase's tests, which
     # cannot import tinyjobs, and one of which fails on purpose.
-    assert "--ignore=sample_repos" in settings["tool"]["pytest"]["addopts"]
+    assert "--ignore=sample_code" in settings["tool"]["pytest"]["addopts"]
