@@ -23,12 +23,10 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 # This file is tests/04_04_prompt/test_prompt.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
-PROMPT_FILE: Path = (
-    PROJECT_ROOT / "src" / "pydantic_tutor" / "prompts" / "repo_assistant.md"
-)
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
+PROMPT_FILE: Path = PROJECT_ROOT / "src" / "pydantic_tutor" / "prompts" / "assistant.md"
 # The agent's prompt since the agent lesson, word for word.
-PROMPT = "You answer questions about a Python code repository. Answer briefly."
+PROMPT = "You answer questions about a Python codebase. Answer briefly."
 
 
 @pytest.fixture(autouse=True)
@@ -122,15 +120,15 @@ def test_the_model_is_sent_what_it_was_sent_before() -> None:
     # Moving the prompt changes nothing the model is sent: the file's text,
     # then the toolset's. A guard: passes before the lesson too.
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     model = Recorder()
     agent.run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=model.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
-    assert model.instructions == [f"{PROMPT}\n\nThe repository is tinyjobs."]
+    assert model.instructions == [f"{PROMPT}\n\nThe codebase is tinyjobs."]
 
 
 def test_text_from_a_capability_comes_before_text_from_a_function(
@@ -163,5 +161,5 @@ def test_instruction_order_prints_static_then_dynamic() -> None:
         " static: From the run, text.",
         "dynamic: From the constructor, a function.",
         "dynamic: From a capability, a function.",
-        "dynamic: The repository is tinyjobs.",
+        "dynamic: The codebase is tinyjobs.",
     ]
