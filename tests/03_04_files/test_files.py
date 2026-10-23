@@ -45,7 +45,7 @@ from pydantic_ai.models.test import TestModel
 
 # This file is tests/03_04_files/test_files.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 FAKE_TOKEN = "tj-FAKE-0000-not-a-real-secret"
 PREFIX = "PYDANTIC_TUTOR_"
 FILE_TOOLS = [
@@ -87,9 +87,9 @@ def run_script(*, name: str, cwd: Path) -> str:
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """A stand-in project folder: the sample repo and the lesson's scripts, nothing else."""
+    """A stand-in project folder: the sample codebase and the lesson's scripts, nothing else."""
     root = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_code" / "tinyjobs")
     (root / "scripts").mkdir()
     for script in ("fresh_copy.py", "file_tools.py"):
         shutil.copy(src=PROJECT_ROOT / "scripts" / script, dst=root / "scripts")
@@ -116,7 +116,7 @@ class ToolResult:
 def call(*, root: Path, tool_name: str, args: dict[str, object]) -> ToolResult:
     """Run the student's agent on `root`, with a model that makes one tool call."""
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         request = messages[-1]
@@ -127,7 +127,9 @@ def call(*, root: Path, tool_name: str, args: dict[str, object]) -> ToolResult:
         return ModelResponse(parts=[ToolCallPart(tool_name=tool_name, args=args)])
 
     result = agent.run_sync(
-        user_prompt="x", model=FunctionModel(function=reply), deps=RepoDeps(root=root)
+        user_prompt="x",
+        model=FunctionModel(function=reply),
+        deps=CodebaseDeps(root=root),
     )
     messages = result.all_messages()
     for message in messages:
@@ -155,7 +157,7 @@ def test_fresh_copy_makes_a_working_copy_with_a_fake_env(project: Path) -> None:
     printed = run_script(name="scripts/fresh_copy.py", cwd=project)
     working_copy = project / "work" / "tinyjobs"
     assert printed.strip() == (
-        "work/tinyjobs: a fresh copy of sample_repos/tinyjobs, with a fake .env"
+        "work/tinyjobs: a fresh copy of sample_code/tinyjobs, with a fake .env"
     )
     assert (working_copy / "src" / "tinyjobs" / "jobs.py").read_text() == (
         TINYJOBS_ROOT / "src" / "tinyjobs" / "jobs.py"
@@ -197,7 +199,7 @@ def test_the_working_copy_is_kept_out_of_git_and_the_tools() -> None:
 def test_the_model_is_sent_our_signatures_beside_the_file_tools() -> None:
     # Moved from 01-05, where the agent had only our two tools.
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     sent: list[AgentInfo] = []
 
@@ -208,7 +210,7 @@ def test_the_model_is_sent_our_signatures_beside_the_file_tools() -> None:
     agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     tools = {tool.name: tool for tool in sent[0].function_tools}
     assert sorted(tools) == sorted(["list_modules", "read_docstring", *FILE_TOOLS])
@@ -344,7 +346,7 @@ def test_file_tools_prints_what_is_read_and_refused(
 def test_settings_default_to_the_working_copy(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
-    # Moved from 03-01, where the default was the sample repo itself. Run in
+    # Moved from 03-01, where the default was the sample codebase itself. Run in
     # an empty folder, so that your own `.env`, if you have one, is not read.
     from pydantic_tutor.settings import Settings
 
@@ -352,30 +354,30 @@ def test_settings_default_to_the_working_copy(
     settings = Settings()
     assert settings.chat_model == "openai:gpt-5-mini"
     assert settings.trace is False
-    assert settings.repo_root == Path("work/tinyjobs")
+    assert settings.codebase_root == Path("work/tinyjobs")
 
 
-def test_the_app_will_not_start_without_its_repository(tmp_path: Path) -> None:
+def test_the_app_will_not_start_without_its_codebase(tmp_path: Path) -> None:
     from pydantic_tutor.composition import build_app
     from pydantic_tutor.settings import Settings
 
     missing = tmp_path / "nowhere"
     with pytest.raises(UserError) as excinfo:
-        build_app(settings=Settings(chat_model="test", repo_root=missing))
+        build_app(settings=Settings(chat_model="test", codebase_root=missing))
     message = str(excinfo.value)
     assert str(missing) in message
-    assert "PYDANTIC_TUTOR_REPO_ROOT" in message
+    assert "PYDANTIC_TUTOR_CODEBASE_ROOT" in message
     assert "scripts/fresh_copy.py" in message
 
 
 def test_build_app_builds_the_objects_from_the_settings(tmp_path: Path) -> None:
-    # Moved from 03-01: its repository, "elsewhere", now has to exist.
+    # Moved from 03-01: its codebase, "elsewhere", now has to exist.
     from pydantic_tutor import agent as agent_module
     from pydantic_tutor import composition
     from pydantic_tutor import settings as settings_module
 
     app = composition.build_app(
-        settings=settings_module.Settings(chat_model="test", repo_root=tmp_path)
+        settings=settings_module.Settings(chat_model="test", codebase_root=tmp_path)
     )
     assert app.agent is agent_module.agent  # the project's one agent, not a second
     assert isinstance(app.model, TestModel)  # an object, built from the string
@@ -385,18 +387,18 @@ def test_build_app_builds_the_objects_from_the_settings(tmp_path: Path) -> None:
 def test_tracing_stays_off_without_the_setting(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    # Moved from 03-01, which built the app on the default repository.
+    # Moved from 03-01, which built the app on the default codebase.
     from pydantic_tutor.composition import build_app
     from pydantic_tutor.settings import Settings
 
-    build_app(settings=Settings(chat_model="test", repo_root=TINYJOBS_ROOT))
+    build_app(settings=Settings(chat_model="test", codebase_root=TINYJOBS_ROOT))
     assert capsys.readouterr().out == ""
 
 
 def test_tracing_prints_spans_for_a_scripted_turn(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    # Moved from 03-01, which built the app on the default repository.
+    # Moved from 03-01, which built the app on the default codebase.
     from pydantic_tutor.composition import build_app
     from pydantic_tutor.settings import Settings
 
@@ -404,20 +406,20 @@ def test_tracing_prints_spans_for_a_scripted_turn(
         return ModelResponse(parts=[TextPart(content="hi there")])
 
     app = build_app(
-        settings=Settings(chat_model="test", trace=True, repo_root=TINYJOBS_ROOT)
+        settings=Settings(chat_model="test", trace=True, codebase_root=TINYJOBS_ROOT)
     )
     capsys.readouterr()  # discard the "tracing on" line
     app.agent.run_sync(
         user_prompt="hello", model=FunctionModel(function=reply), deps=app.deps
     )
-    assert "repo_assistant run" in capsys.readouterr().out
+    assert "assistant run" in capsys.readouterr().out
 
 
 def test_the_entry_point_opens_the_chat_with_the_built_app(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
     # Moved from 03-02, which ran it in an empty folder: the default
-    # repository, `work/tinyjobs`, now has to be there.
+    # codebase, `work/tinyjobs`, now has to be there.
     import pydantic_tutor.__main__ as entry
     from pydantic_tutor import agent as agent_module
 
