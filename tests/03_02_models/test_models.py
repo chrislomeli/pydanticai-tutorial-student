@@ -16,7 +16,7 @@ before the lesson each test fails on its own, instead of the whole file
 failing to load.
 
 One test was moved by the file tools lesson (03-04), whose `build_app`
-refuses a repository folder that is not there, as this file's empty
+refuses a codebase folder that is not there, as this file's empty
 folders are: that the entry point opens the chat with the built app, its
 key from `.env`, is now proved in `tests/03_04_files/test_files.py`, by
 `test_the_entry_point_opens_the_chat_with_the_built_app`.
