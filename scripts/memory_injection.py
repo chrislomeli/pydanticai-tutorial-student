@@ -24,8 +24,8 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 from pydantic_ai_harness import Memory
 from pydantic_ai_harness.memory import FileStore
 
-from pydantic_tutor.agent import repo_workspace
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.agent import codebase_workspace
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -52,15 +52,15 @@ def text_of(*, part: ModelRequestPart | ModelResponsePart) -> str:
 # The same notebook as the project's agent: the same folder in the same
 # workspace. Only `inject_memory` differs.
 injecting = Agent(
-    deps_type=RepoDeps,
+    deps_type=CodebaseDeps,
     capabilities=[
-        repo_workspace,
+        codebase_workspace,
         Memory(store=FileStore(directory=".agent-memory"), inject_memory=True),
     ],
 )
 
 model = FunctionModel(function=reply)
-deps = RepoDeps(root=Path("work/tinyjobs"))
+deps = CodebaseDeps(root=Path("work/tinyjobs"))
 history: list[ModelMessage] = []
 for prompt in ["What does tinyjobs do?", "And how is it tested?"]:
     print(f"turn: {prompt}")

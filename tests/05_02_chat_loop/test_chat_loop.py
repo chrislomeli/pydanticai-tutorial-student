@@ -41,7 +41,7 @@ from pydantic_ai.models.openai import OpenAIResponsesModel
 
 # This file is tests/05_02_chat_loop/test_chat_loop.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 PREFIX = "PYDANTIC_TUTOR_"
 TEST_PATH = "tests/test_verbose.py"
 COMMAND = f"pytest -q {TEST_PATH}"
@@ -80,9 +80,9 @@ def run_script(*, name: str, cwd: Path, stdin: str = "") -> str:
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """A stand-in project folder: the sample repo and the lesson's scripts, nothing else."""
+    """A stand-in project folder: the sample codebase and the lesson's scripts, nothing else."""
     root = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_code" / "tinyjobs")
     (root / "scripts").mkdir()
     for script in ("fresh_copy.py", "chat_session.py"):
         # Before the lesson there is no chat_session.py: the test that runs
@@ -177,14 +177,14 @@ def open_chat(*, working_copy: Path, model: Model) -> None:
     # `chat.py`, and Ruff sorts a name it cannot find differently.
     from pydantic_tutor import chat
     from pydantic_tutor.agent import agent
+    from pydantic_tutor.codebase_tools import CodebaseDeps
     from pydantic_tutor.composition import App
-    from pydantic_tutor.repo_tools import RepoDeps
 
     chat.chat(
         app=App(
             agent=agent,
             model=FunctionModel(function=model, model_name="stand-in"),
-            deps=RepoDeps(root=working_copy),
+            deps=CodebaseDeps(root=working_copy),
         )
     )
 
@@ -360,7 +360,7 @@ def test_outside_the_chat_the_agent_still_refuses(
     # unchanged, and a run with no one to ask still refuses.
     from pydantic_tutor.agent import agent
     from pydantic_tutor.approval import UNATTENDED
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     type_lines(monkeypatch=monkeypatch, lines=["go", "y", "y", "/exit"])
     open_chat(working_copy=working_copy, model=Model())
@@ -368,7 +368,7 @@ def test_outside_the_chat_the_agent_still_refuses(
     agent.run_sync(
         user_prompt="go",
         model=FunctionModel(function=model),
-        deps=RepoDeps(root=working_copy),
+        deps=CodebaseDeps(root=working_copy),
     )
     assert model.returned["write_file"].outcome == "denied"
     assert model.returned["write_file"].content == UNATTENDED

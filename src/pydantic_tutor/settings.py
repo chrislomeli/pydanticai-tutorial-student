@@ -42,13 +42,13 @@ class Settings(BaseSettings):
     chat_model: str = "openai:gpt-5-mini"
     # Console tracing. Off unless set to a true value: 1, true, yes, on, t or y.
     trace: bool = False
-    # The repository the agent works on: its tools read it, and may change
+    # The codebase the agent works on: its tools read it, and may change
     # it. A relative path is read from the folder the app runs in: run it
     # from the project root. The default is the working copy that
-    # scripts/fresh_copy.py makes, never the sample repo itself.
-    repo_root: Path = Path("work/tinyjobs")
+    # scripts/fresh_copy.py makes, never the sample codebase itself.
+    codebase_root: Path = Path("work/tinyjobs")
     # The SQLite file the app keeps its state in, such as the chat's saved
-    # conversations. Made on first use. Relative, like `repo_root`: from
+    # conversations. Made on first use. Relative, like `codebase_root`: from
     # the folder the app runs in.
     database: Path = Path("pydantic-tutor.db")
     # One key per provider the composition root can build. SecretStr:
