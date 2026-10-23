@@ -21,7 +21,7 @@ from pydantic_ai.messages import (
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 # Each one is a prompt, and the command the stand-in model runs for it.
 COMMANDS = [
@@ -57,7 +57,7 @@ for command in COMMANDS:
         user_prompt=command,
         model=FunctionModel(function=reply),
         # The working copy, which scripts/fresh_copy.py makes.
-        deps=RepoDeps(root=Path("work/tinyjobs")),
+        deps=CodebaseDeps(root=Path("work/tinyjobs")),
     )
     print(f"$ {command}")
     print(textwrap.indent(text=result.output.rstrip(), prefix="  "))
