@@ -5,23 +5,23 @@ is not asked to run them. Run them with `uv run pytest`. They fail until
 the lesson is done. None of them needs an API key or makes a request:
 every run is on a scripted model.
 
-Two tests were moved here: one pinned the repository toolset on the
+Two tests were moved here: one pinned the codebase toolset on the
 constructor's `toolsets=` (04-05), one pinned the prompt behind the two
 capabilities the library adds of its own (04-04). Each says where it came
 from, and proves its point as the agent is now built.
 
 Two tests were moved on by the approval lesson (05-01), which adds two
 capabilities to the stack, one of them declared innermost: that
-`repo_capabilities()` is new on each call and holds the whole stack, and
+`codebase_capabilities()` is new on each call and holds the whole stack, and
 that the prompt comes first and the log last, are now proved in
 `tests/05_01_approval/test_approval.py`, by
-`test_repo_capabilities_are_new_on_each_call_and_hold_the_whole_stack`
+`test_codebase_capabilities_are_new_on_each_call_and_hold_the_whole_stack`
 and `test_the_agent_takes_its_prompt_first_and_logs_after_the_cap`.
 
 Three were moved on by the lesson on loading tools on demand (06-02),
 which puts a catalog line in the instructions and `load_capability` among
 the tools: that any order of the stack sends the same, what
-`stack_order.py` prints, and that the agent takes the repository toolset
+`stack_order.py` prints, and that the agent takes the codebase toolset
 as a capability are proved in `tests/06_02_deferred/test_deferred.py`, by
 the tests of the same names.
 
@@ -43,7 +43,7 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 # This file is tests/04_06_seam/test_seam.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 
 
 @pytest.fixture(autouse=True)
@@ -54,13 +54,13 @@ def no_real_model(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_build_agent_builds_a_new_agent_on_what_only_the_constructor_sets() -> None:
     from pydantic_tutor.agent import agent, build_agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     first, second = build_agent(), build_agent()
     assert first is not second
     for built in (first, second, agent):
-        assert built.name == "repo_assistant"
-        assert built.deps_type is RepoDeps
+        assert built.name == "assistant"
+        assert built.deps_type is CodebaseDeps
         assert built.output_type is str
         assert built.model_settings == {"timeout": 60}
 
@@ -70,7 +70,7 @@ def test_with_no_capabilities_the_agent_gives_the_model_nothing() -> None:
     # the stack. The constructor alone sends no instructions and no tools,
     # but its request settings still apply.
     from pydantic_tutor.agent import build_agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     seen: list[AgentInfo] = []
 
@@ -81,7 +81,7 @@ def test_with_no_capabilities_the_agent_gives_the_model_nothing() -> None:
     build_agent(capabilities=[]).run_sync(
         user_prompt="hello",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     assert not seen[0].model_request_parameters.instruction_parts
     assert seen[0].function_tools == []

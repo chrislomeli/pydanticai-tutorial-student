@@ -20,8 +20,8 @@ from pydantic_ai_harness.ask_user import TOOL_NAME, Question, QuestionOption
 
 from pydantic_tutor.agent import agent
 from pydantic_tutor.chat import chat
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.composition import App
-from pydantic_tutor.repo_tools import RepoDeps
 
 # The question the stand-in model asks, in the harness's own model of
 # one: an edit that breaks the tool's limits fails here, not mid-chat.
@@ -54,6 +54,6 @@ chat(
     app=App(
         agent=agent,
         model=FunctionModel(function=reply, model_name="a stand-in model"),
-        deps=RepoDeps(root=Path("work/tinyjobs")),
+        deps=CodebaseDeps(root=Path("work/tinyjobs")),
     )
 )

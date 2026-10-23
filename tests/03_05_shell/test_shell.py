@@ -40,7 +40,7 @@ from pydantic_ai import models
 
 # This file is tests/03_05_shell/test_shell.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 FAKE_TOKEN = "tj-FAKE-0000-not-a-real-secret"
 PREFIX = "PYDANTIC_TUTOR_"
 FILE_TOOLS = [
@@ -88,9 +88,9 @@ def run_script(*, name: str, cwd: Path) -> str:
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """A stand-in project folder: the sample repo and the lesson's scripts, nothing else."""
+    """A stand-in project folder: the sample codebase and the lesson's scripts, nothing else."""
     root = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_code" / "tinyjobs")
     (root / "scripts").mkdir()
     for script in ("fresh_copy.py", "shell_commands.py"):
         # Before the lesson there is no shell_commands.py: the test that runs

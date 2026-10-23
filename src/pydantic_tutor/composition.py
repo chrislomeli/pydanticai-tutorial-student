@@ -20,8 +20,8 @@ from pydantic_ai.providers.openai import OpenAIProvider
 from pydantic_ai_harness.step_persistence import SqliteStepStore
 
 from pydantic_tutor.agent import agent
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.conversations import ConversationStore
-from pydantic_tutor.repo_tools import RepoDeps
 from pydantic_tutor.settings import Settings
 
 
@@ -29,9 +29,9 @@ from pydantic_tutor.settings import Settings
 class App:
     """Everything the chat needs, built and ready to run."""
 
-    agent: Agent[RepoDeps, str]
+    agent: Agent[CodebaseDeps, str]
     model: Model
-    deps: RepoDeps
+    deps: CodebaseDeps
     # Where the chat saves its conversations. None: nothing is saved, and
     # every chat starts a new one, as the scripts' stand-in chats do.
     store: ConversationStore | None = None
@@ -45,27 +45,27 @@ def build_app(*, settings: Settings) -> App:
 
     The model is built here, not on the first prompt, so a model string
     that names no known model, or a provider whose API key is not set,
-    fails now, before the chat opens. So does a repository folder that is
+    fails now, before the chat opens. So does a codebase folder that is
     not there.
 
     Raises:
-        UserError: from `build_model`, or `repo_root` is not a folder.
+        UserError: from `build_model`, or `codebase_root` is not a folder.
     """
     if settings.trace:
         configure_tracing()
     model = build_model(settings=settings)
-    if not settings.repo_root.is_dir():
+    if not settings.codebase_root.is_dir():
         # Otherwise the chat opens, and the first question that reaches the
         # workspace fails instead.
         raise UserError(
-            message=f"The repository {str(settings.repo_root)!r} is not a "
-            "folder. Set PYDANTIC_TUTOR_REPO_ROOT to one, or make the default "
+            message=f"The codebase {str(settings.codebase_root)!r} is not a "
+            "folder. Set PYDANTIC_TUTOR_CODEBASE_ROOT to one, or make the default "
             "with `uv run scripts/fresh_copy.py`."
         )
     return App(
         agent=agent,
         model=model,
-        deps=RepoDeps(root=settings.repo_root),
+        deps=CodebaseDeps(root=settings.codebase_root),
         store=ConversationStore(path=settings.database),
         # The same file: its tables are made on first use, beside the
         # conversations'.

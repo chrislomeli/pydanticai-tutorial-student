@@ -23,8 +23,8 @@ from pydantic_ai.messages import (
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.listable_memory import MemoryListing
-from pydantic_tutor.repo_tools import RepoDeps
 
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -86,7 +86,7 @@ def answer(*, text: str) -> ModelResponse:
 
 
 model = FunctionModel(function=reply)
-deps = RepoDeps(root=Path("work/tinyjobs"))
+deps = CodebaseDeps(root=Path("work/tinyjobs"))
 for prompt in ["Remember that we log to stderr.", "What did we decide about logging?"]:
     # A new run with no message_history: a new session, as far as the
     # model can tell. Only the notebook's files carry over.

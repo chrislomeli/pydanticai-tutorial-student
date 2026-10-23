@@ -28,8 +28,8 @@ from pydantic_ai.usage import RequestUsage
 
 from pydantic_tutor.agent import agent
 from pydantic_tutor.chat import chat
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.composition import App
-from pydantic_tutor.repo_tools import RepoDeps
 
 # The usual rule of thumb for English text and code; a real model's
 # tokenizer counts its own way.
@@ -131,6 +131,6 @@ chat(
     app=App(
         agent=agent,
         model=FunctionModel(function=reply, model_name="a stand-in model"),
-        deps=RepoDeps(root=Path("work/tinyjobs")),
+        deps=CodebaseDeps(root=Path("work/tinyjobs")),
     )
 )

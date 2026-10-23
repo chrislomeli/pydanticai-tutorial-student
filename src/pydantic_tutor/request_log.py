@@ -12,13 +12,13 @@ import logging
 from pydantic_ai import ModelRequestContext, RunContext
 from pydantic_ai.capabilities import CapabilityOrdering, Hooks
 
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 logger = logging.getLogger(name=__name__)
 
 
 async def log_request(
-    ctx: RunContext[RepoDeps], request_context: ModelRequestContext
+    ctx: RunContext[CodebaseDeps], request_context: ModelRequestContext
 ) -> ModelRequestContext:
     """Log the request about to be sent, and pass it on unchanged."""
     # Called before each request of a run, after every other capability's
@@ -41,7 +41,7 @@ async def log_request(
 # The hook as a capability: an agent takes it in `capabilities=[...]`.
 # Innermost, wherever it is listed: last before the model, so it logs the
 # request every other capability has finished changing.
-request_log: Hooks[RepoDeps] = Hooks(
+request_log: Hooks[CodebaseDeps] = Hooks(
     before_model_request=log_request,
     ordering=CapabilityOrdering(position="innermost"),
 )
