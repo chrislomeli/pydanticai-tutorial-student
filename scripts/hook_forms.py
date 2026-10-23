@@ -1,7 +1,7 @@
 """The request log written as a class, and why its place in the list matters.
 
 From the hooks lesson (04-02). Each run is a second agent, given the
-repository toolset, on a stand-in model that prints how many messages and
+codebase toolset, on a stand-in model that prints how many messages and
 tools it receives. Kept working: a later lesson that changes the request
 log updates this script, or removes it and says why.
 """
@@ -22,8 +22,8 @@ from pydantic_ai.messages import (
 )
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
-from pydantic_tutor.agent import repo_workspace
-from pydantic_tutor.repo_tools import RepoDeps, repo_toolset
+from pydantic_tutor.agent import codebase_workspace
+from pydantic_tutor.codebase_tools import CodebaseDeps, codebase_toolset
 from pydantic_tutor.request_log import log_request
 
 # As in watch_requests.py: the request log on, on stdout.
@@ -31,18 +31,18 @@ logging.basicConfig(stream=sys.stdout, format="%(name)s: %(message)s")
 logging.getLogger(name="pydantic_tutor.request_log").setLevel(level=logging.INFO)
 
 
-class RequestLog(AbstractCapability[RepoDeps]):
+class RequestLog(AbstractCapability[CodebaseDeps]):
     """The request log as a class: the hook is a method of the same name."""
 
     async def before_model_request(
-        self, ctx: RunContext[RepoDeps], request_context: ModelRequestContext
+        self, ctx: RunContext[CodebaseDeps], request_context: ModelRequestContext
     ) -> ModelRequestContext:
         """Log the request about to be sent, as `request_log` does."""
         return await log_request(ctx=ctx, request_context=request_context)
 
 
 def trim_history(
-    ctx: RunContext[RepoDeps], request_context: ModelRequestContext
+    ctx: RunContext[CodebaseDeps], request_context: ModelRequestContext
 ) -> ModelRequestContext:
     """Send the question and the latest exchange only: a stand-in for a history trimmer."""
     messages = request_context.messages
@@ -75,19 +75,19 @@ def two_tools_then_answer(
     return ModelResponse(parts=[TextPart(content="Done.")])
 
 
-def show(*, title: str, capabilities: list[AbstractCapability[RepoDeps]]) -> None:
+def show(*, title: str, capabilities: list[AbstractCapability[CodebaseDeps]]) -> None:
     """Run a second agent with these capabilities after its workspace, and print what happens."""
     reader = Agent(
         name="reader",
-        deps_type=RepoDeps,
-        toolsets=[repo_toolset],
-        capabilities=[repo_workspace, *capabilities],
+        deps_type=CodebaseDeps,
+        toolsets=[codebase_toolset],
+        capabilities=[codebase_workspace, *capabilities],
     )
     print(title)
     reader.run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=two_tools_then_answer),
-        deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+        deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
     )
 
 

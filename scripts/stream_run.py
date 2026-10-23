@@ -23,7 +23,7 @@ from pydantic_ai.models.function import (
 )
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 PROMPT = "What does the jobs module do, in one short sentence?"
 ANSWER_WORDS = ["The ", "jobs ", "module ", "manages ", "a ", "queue ", "of ", "jobs."]
@@ -64,8 +64,8 @@ async def stream_reply(
     }
 
 
-def deps() -> RepoDeps:
-    return RepoDeps(root=Path("sample_repos/tinyjobs"))
+def deps() -> CodebaseDeps:
+    return CodebaseDeps(root=Path("sample_code/tinyjobs"))
 
 
 async def stream_the_answer() -> None:
