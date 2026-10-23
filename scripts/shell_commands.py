@@ -22,7 +22,7 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
 from pydantic_tutor.approval import approve_all, approver
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 # Each one is a prompt, and the command the stand-in model runs for it.
 COMMANDS = [
@@ -58,7 +58,7 @@ for command in COMMANDS:
         user_prompt=command,
         model=FunctionModel(function=reply),
         # The working copy, which scripts/fresh_copy.py makes.
-        deps=RepoDeps(root=Path("work/tinyjobs")),
+        deps=CodebaseDeps(root=Path("work/tinyjobs")),
         # Every call approved: this script shows what the tools themselves
         # allow and refuse, once a person has said yes.
         capabilities=[approver(answer=approve_all)],

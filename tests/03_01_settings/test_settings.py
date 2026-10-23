@@ -25,7 +25,7 @@ keys into `Settings`, has `Settings` read `.env` itself, and takes
 
 Four more were moved by the file tools lesson (03-04), which points the
 app at a working copy, `work/tinyjobs`, and has `build_app` refuse a
-repository folder that is not there. Their points are now proved in
+codebase folder that is not there. Their points are now proved in
 `tests/03_04_files/test_files.py`:
 
 - the defaults: `test_settings_default_to_the_working_copy`;
@@ -66,11 +66,11 @@ def test_settings_read_the_prefixed_variables(monkeypatch: pytest.MonkeyPatch) -
 
     monkeypatch.setenv(PREFIX + "CHAT_MODEL", "test")
     monkeypatch.setenv(PREFIX + "TRACE", "1")
-    monkeypatch.setenv(PREFIX + "REPO_ROOT", "elsewhere")
+    monkeypatch.setenv(PREFIX + "CODEBASE_ROOT", "elsewhere")
     settings = Settings()
     assert settings.chat_model == "test"
     assert settings.trace is True  # "1" became a bool, not the string "1"
-    assert settings.repo_root == Path("elsewhere")
+    assert settings.codebase_root == Path("elsewhere")
 
 
 def test_settings_cannot_be_changed_after_startup() -> None:
