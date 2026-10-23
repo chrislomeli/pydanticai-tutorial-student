@@ -11,7 +11,7 @@ from pathlib import Path
 from pydantic_ai.models.test import TestModel
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 # The program that runs the agent decides which logs are shown, and where.
 # Here: each line as its logger's name and its message, on stdout, so it
@@ -21,9 +21,9 @@ logging.getLogger(name="pydantic_tutor.request_log").setLevel(level=logging.INFO
 
 # TestModel calls list_modules, then answers: a run of two requests.
 result = agent.run_sync(
-    user_prompt="What does this repo do?",
+    user_prompt="What does this codebase do?",
     model=TestModel(call_tools=["list_modules"]),
-    deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+    deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
 )
 print("output:", result.output)
 print("usage:", result.usage)

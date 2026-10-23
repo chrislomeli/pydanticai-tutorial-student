@@ -1,6 +1,6 @@
-"""Make a fresh working copy of the sample repo, for the agent to change.
+"""Make a fresh working copy of the sample codebase, for the agent to change.
 
-From the file tools lesson (03-04). Copies `sample_repos/tinyjobs` to
+From the file tools lesson (03-04). Copies `sample_code/tinyjobs` to
 `work/tinyjobs`, replacing any copy already there, and writes a fake
 `.env` into it: a stand-in secret, to see whether the agent can read it.
 Run it from the project root, and again whenever you want the copy as it
@@ -10,7 +10,7 @@ started. Kept working: later lessons run it to reset the copy.
 import shutil
 from pathlib import Path
 
-SOURCE = Path("sample_repos/tinyjobs")
+SOURCE = Path("sample_code/tinyjobs")
 COPY = Path("work/tinyjobs")
 # FAKE VALUES, in the shape of a real `.env`. Never put a real secret here.
 FAKE_ENV = (
