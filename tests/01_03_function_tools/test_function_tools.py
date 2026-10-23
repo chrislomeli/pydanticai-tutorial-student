@@ -25,12 +25,12 @@ from pydantic_ai.tools import ToolDefinition
 # This file is tests/01_03_function_tools/test_function_tools.py: two
 # folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs" / "src" / "tinyjobs"
+TINYJOBS: Path = PROJECT_ROOT / "sample_code" / "tinyjobs" / "src" / "tinyjobs"
 
 
 @pytest.fixture(autouse=True)
 def from_the_project_root(monkeypatch: pytest.MonkeyPatch) -> None:
-    # The lesson's tools read the sample repo relative to where they run,
+    # The lesson's tools read the sample codebase relative to where they run,
     # which the lesson says is the project root.
     monkeypatch.chdir(path=PROJECT_ROOT)
     # Any request to a real model raises instead of reaching a provider.
@@ -76,7 +76,7 @@ def definitions_sent() -> dict[str, ToolDefinition]:
 # dependencies lesson proves their points through the agent: once the
 # tools take the run's context, they are not called directly, and a run
 # needs `deps=` (decisions.md, "A later lesson moves the earlier tests it
-# breaks"). They were test_the_tools_read_the_sample_repo,
+# breaks"). They were test_the_tools_read_the_sample_codebase,
 # test_a_name_that_is_not_a_module_is_sent_back_to_the_model and
 # test_the_agent_runs_the_tool_and_sends_back_its_result.
 
@@ -120,9 +120,9 @@ def test_tool_loop_prints_the_four_messages() -> None:
     assert first_line in printed
 
 
-def test_pytest_skips_the_sample_repo() -> None:
+def test_pytest_skips_the_sample_codebase() -> None:
     settings = tomllib.loads((PROJECT_ROOT / "pyproject.toml").read_text())
 
-    # Without this, pytest also collects the sample repo's tests, which
+    # Without this, pytest also collects the sample codebase's tests, which
     # cannot import tinyjobs, and one of which fails on purpose.
-    assert "--ignore=sample_repos" in settings["tool"]["pytest"]["addopts"]
+    assert "--ignore=sample_code" in settings["tool"]["pytest"]["addopts"]

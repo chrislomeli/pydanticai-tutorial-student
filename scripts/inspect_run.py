@@ -13,7 +13,7 @@ from pydantic_tutor.agent import agent
 # calls every tool it may, with made-up arguments, so it may call only
 # list_modules: read_docstring rightly rejects a made-up module name.
 model = TestModel(call_tools=["list_modules"])
-result = agent.run_sync(user_prompt="What does this repo do?", model=model)
+result = agent.run_sync(user_prompt="What does this codebase do?", model=model)
 
 # Every message of the run, in order: requests to the model, responses back.
 for message in result.all_messages():
