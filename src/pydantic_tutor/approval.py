@@ -17,9 +17,9 @@ from pydantic_ai_harness.filesystem import FILE_SYSTEM_TOOL_NAMES, READ_ONLY_TOO
 from pydantic_ai_harness.guardrails import ToolCallInfo
 from pydantic_ai_harness.shell import SHELL_TOOL_NAMES
 
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
-# The harness's tools that change the repository or start a process, by
+# The harness's tools that change the codebase or start a process, by
 # its own lists, so a tool it can add (`Shell`'s opt-in `shell`) asks too:
 # every file tool it does not call read-only, and every shell tool but the
 # two that check on or stop a command already started. Our own tools, the
@@ -40,7 +40,7 @@ APPROVER_ID = "approver"
 # A function that answers the calls held for approval: for each one,
 # `ToolApproved()` (or `True`) to run it, or `ToolDenied(message=...)` to
 # refuse it, the message being what the model is told.
-Answer = Callable[[RunContext[RepoDeps], DeferredToolRequests], DeferredToolResults]
+Answer = Callable[[RunContext[CodebaseDeps], DeferredToolRequests], DeferredToolResults]
 
 
 def ask_first(call: ToolCallInfo) -> GuardrailResult:
@@ -51,7 +51,7 @@ def ask_first(call: ToolCallInfo) -> GuardrailResult:
 
 
 def refuse_unattended(
-    ctx: RunContext[RepoDeps], requests: DeferredToolRequests
+    ctx: RunContext[CodebaseDeps], requests: DeferredToolRequests
 ) -> DeferredToolResults:
     """Refuse every call held for approval: no one is there to approve it."""
     return DeferredToolResults(
@@ -63,7 +63,7 @@ def refuse_unattended(
 
 
 def approve_all(
-    ctx: RunContext[RepoDeps], requests: DeferredToolRequests
+    ctx: RunContext[CodebaseDeps], requests: DeferredToolRequests
 ) -> DeferredToolResults:
     """Approve every call held for approval.
 
@@ -73,6 +73,6 @@ def approve_all(
     return requests.build_results(approve_all=True)
 
 
-def approver(*, answer: Answer) -> HandleDeferredToolCalls[RepoDeps]:
+def approver(*, answer: Answer) -> HandleDeferredToolCalls[CodebaseDeps]:
     """A capability that answers the calls held for approval with `answer`."""
     return HandleDeferredToolCalls(handler=answer, id=APPROVER_ID)
