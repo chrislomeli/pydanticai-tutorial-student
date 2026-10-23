@@ -20,8 +20,8 @@ from pydantic_ai.tools import (
 )
 
 from pydantic_tutor.approval import approver
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.composition import App
-from pydantic_tutor.repo_tools import RepoDeps
 
 PROMPT = "pydantic-tutor ➤ "
 EXIT = "/exit"
@@ -38,7 +38,7 @@ def ask(*, prompt: str) -> str | None:
 
 
 def ask_at_keyboard(
-    ctx: RunContext[RepoDeps], requests: DeferredToolRequests
+    ctx: RunContext[CodebaseDeps], requests: DeferredToolRequests
 ) -> DeferredToolResults:
     """Show each call held for approval; run it only if the person types y."""
     answers: dict[str, ToolApproved | ToolDenied] = {}
@@ -58,7 +58,7 @@ def ask_at_keyboard(
 
 
 async def show_tool_call(
-    ctx: RunContext[RepoDeps],
+    ctx: RunContext[CodebaseDeps],
     *,
     call: ToolCallPart,
     tool_def: ToolDefinition,
@@ -77,7 +77,7 @@ def chat(*, app: App) -> None:
     print(f"Chatting with {app.model.model_name}. Type {EXIT} to leave.")
     # Given to every run: you answer its held calls, in place of the
     # agent's refusal (the same `id`), and each tool that ran is named.
-    capabilities: list[AgentCapability[RepoDeps]] = [
+    capabilities: list[AgentCapability[CodebaseDeps]] = [
         approver(answer=ask_at_keyboard),
         Hooks(after_tool_execute=show_tool_call),
     ]
