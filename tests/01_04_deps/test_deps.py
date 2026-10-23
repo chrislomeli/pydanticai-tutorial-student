@@ -32,7 +32,7 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 # This file is tests/01_04_deps/test_deps.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 TINYJOBS_MODULES = [
     "tinyjobs",
     "tinyjobs.cli",
@@ -49,8 +49,8 @@ def no_real_model(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def other_repo(tmp_path: Path) -> Path:
-    """A second repository in the src layout, unlike tinyjobs."""
+def other_codebase(tmp_path: Path) -> Path:
+    """A second codebase in the src layout, unlike tinyjobs."""
     package = tmp_path / "src" / "otherpkg"
     package.mkdir(parents=True)
     (package / "__init__.py").write_text('"""Another package."""\n')
@@ -93,27 +93,27 @@ def calls(tool_name: str, args: dict[str, str]) -> FunctionModel:
 
 def test_the_agent_declares_its_dependencies() -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
-    assert agent.deps_type is RepoDeps
-    assert dataclasses.is_dataclass(RepoDeps)
-    assert [field.name for field in dataclasses.fields(RepoDeps)] == ["root"]
+    assert agent.deps_type is CodebaseDeps
+    assert dataclasses.is_dataclass(CodebaseDeps)
+    assert [field.name for field in dataclasses.fields(CodebaseDeps)] == ["root"]
     # Frozen: a run's dependencies are not changed during it.
-    deps = RepoDeps(root=TINYJOBS_ROOT)
+    deps = CodebaseDeps(root=TINYJOBS_ROOT)
     with pytest.raises(expected_exception=dataclasses.FrozenInstanceError):
         deps.root = PROJECT_ROOT  # type: ignore[misc]
 
 
-def test_the_tools_read_the_repository_each_run_is_given(other_repo: Path) -> None:
+def test_the_tools_read_the_codebase_each_run_is_given(other_codebase: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     model = calls(tool_name="list_modules", args={})
     on_tinyjobs = agent.run_sync(
-        user_prompt="x", model=model, deps=RepoDeps(root=TINYJOBS_ROOT)
+        user_prompt="x", model=model, deps=CodebaseDeps(root=TINYJOBS_ROOT)
     )
     on_other = agent.run_sync(
-        user_prompt="x", model=model, deps=RepoDeps(root=other_repo)
+        user_prompt="x", model=model, deps=CodebaseDeps(root=other_codebase)
     )
 
     # One agent, two runs: only the deps differ, and so do the answers.
@@ -121,14 +121,14 @@ def test_the_tools_read_the_repository_each_run_is_given(other_repo: Path) -> No
     assert json.loads(on_other.output) == ["otherpkg", "otherpkg.util"]
 
 
-def test_read_docstring_reads_the_repository_it_is_given(other_repo: Path) -> None:
+def test_read_docstring_reads_the_codebase_it_is_given(other_codebase: Path) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     jobs = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="read_docstring", args={"module": "tinyjobs.jobs"}),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     source = TINYJOBS_ROOT / "src" / "tinyjobs" / "jobs.py"
     assert jobs.output == ast.get_docstring(node=ast.parse(source=source.read_text()))
@@ -136,7 +136,7 @@ def test_read_docstring_reads_the_repository_it_is_given(other_repo: Path) -> No
     util = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="read_docstring", args={"module": "otherpkg.util"}),
-        deps=RepoDeps(root=other_repo),
+        deps=CodebaseDeps(root=other_codebase),
     )
     assert util.output == "Helpers for another package."
 
@@ -149,12 +149,12 @@ def test_a_name_that_is_not_a_module_is_sent_back_to_the_model(name: str) -> Non
     # Moved from 01-03's tests, now through the agent: the tool takes the
     # run's context, so it is no longer called directly.
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     result = agent.run_sync(
         user_prompt="x",
         model=calls(tool_name="read_docstring", args={"module": name}),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     # The model got the tool's ModelRetry message, telling it what to do.
     assert "list_modules" in result.output
@@ -162,7 +162,7 @@ def test_a_name_that_is_not_a_module_is_sent_back_to_the_model(name: str) -> Non
 
 def test_the_model_never_sees_the_context() -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     sent: list[AgentInfo] = []
 
@@ -173,7 +173,7 @@ def test_the_model_never_sees_the_context() -> None:
     agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
     )
     tools = {tool.name: tool.parameters_json_schema for tool in sent[0].function_tools}
 
@@ -192,8 +192,8 @@ def test_a_run_without_deps_fails_when_a_tool_reads_them() -> None:
         agent.run_sync(user_prompt="x", model=calls(tool_name="list_modules", args={}))
 
 
-def test_two_repos_prints_both_repositories() -> None:
-    printed = run_script("scripts/two_repos.py")
+def test_two_codebases_prints_both_codebases() -> None:
+    printed = run_script("scripts/two_codebases.py")
 
     assert "tinyjobs.storage" in printed
-    assert "pydantic_tutor.repo_tools" in printed
+    assert "pydantic_tutor.codebase_tools" in printed
