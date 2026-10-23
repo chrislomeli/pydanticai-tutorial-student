@@ -40,7 +40,7 @@ class Invoice(BaseModel):
         return self
 
 
-# No model here, as for the repository agent: each run says which to use.
+# No model here, as for the codebase agent: each run says which to use.
 extractor = Agent(
     name="invoice_extractor",
     output_type=Invoice,
