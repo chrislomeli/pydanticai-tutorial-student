@@ -14,7 +14,7 @@ tool's signature and docstring is now proved in
 
 Five tests were moved by the memory lesson (04-05), whose capability adds
 its guidance to the instructions: that the instructions name each run's
-repository, are rendered for every request and travel on the request,
+codebase, are rendered for every request and travel on the request,
 and what `inspect_run.py` and `scripted_run.py` print, are now proved in
 `tests/04_05_memory/test_memory.py`, by the tests of the same names.
 
@@ -43,10 +43,10 @@ from pydantic_ai.tools import ToolDefinition
 # This file is tests/01_05_instructions/test_instructions.py: two folders
 # below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 # The agent's own instructions, from the agent lesson; the lesson adds a
 # second paragraph after them.
-STATIC = "You answer questions about a Python code repository. Answer briefly."
+STATIC = "You answer questions about a Python codebase. Answer briefly."
 
 
 @pytest.fixture(autouse=True)
@@ -56,9 +56,9 @@ def no_real_model(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def other_repo(tmp_path: Path) -> Path:
-    """A second repository in the src layout, in a folder named for this test."""
-    root = tmp_path / "otherrepo"
+def other_codebase(tmp_path: Path) -> Path:
+    """A second codebase in the src layout, in a folder named for this test."""
+    root = tmp_path / "othercodebase"
     package = root / "src" / "otherpkg"
     package.mkdir(parents=True)
     (package / "__init__.py").write_text('"""Another package."""\n')
@@ -102,13 +102,13 @@ class Recorder:
 def run_recorded(*, root: Path, call_tool: bool = False) -> Recorder:
     """Run the student's agent on `root`; return what its model was given."""
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     recorder = Recorder(call_tool=call_tool)
     agent.run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=root),
+        deps=CodebaseDeps(root=root),
     )
     return recorder
 
