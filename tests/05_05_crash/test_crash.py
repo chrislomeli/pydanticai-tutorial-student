@@ -41,7 +41,7 @@ from pydantic_ai.usage import RunUsage
 
 # This file is tests/05_05_crash/test_crash.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 PREFIX = "PYDANTIC_TUTOR_"
 SESSION = "scripts/crash_session.py"
 
@@ -103,9 +103,9 @@ def kill_during(*, name: str, cwd: Path, stdin: str, marker: str) -> str:
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """A stand-in project folder: the sample repo and the lesson's scripts, nothing else."""
+    """A stand-in project folder: the sample codebase and the lesson's scripts, nothing else."""
     root = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_code" / "tinyjobs")
     (root / "scripts").mkdir()
     for script in ("fresh_copy.py", "crash_session.py"):
         # Before the lesson there is no crash_session.py: the test that runs
@@ -165,16 +165,16 @@ def open_chat(
 
     from pydantic_tutor.agent import agent
     from pydantic_tutor.chat import chat
+    from pydantic_tutor.codebase_tools import CodebaseDeps
     from pydantic_tutor.composition import App
     from pydantic_tutor.conversations import ConversationStore
-    from pydantic_tutor.repo_tools import RepoDeps
 
     monkeypatch.setattr("builtins.input", Keyboard(lines=lines))
     chat(
         app=App(
             agent=agent,
             model=FunctionModel(function=function, model_name="stand-in"),
-            deps=RepoDeps(root=TINYJOBS_ROOT),
+            deps=CodebaseDeps(root=TINYJOBS_ROOT),
             store=ConversationStore(path=tmp_path / "c.db"),
             steps=SqliteStepStore(database=tmp_path / "c.db"),
         )
@@ -367,7 +367,7 @@ def test_the_app_records_its_runs_in_its_database_file(
     from pydantic_tutor.settings import Settings
 
     monkeypatch.setenv("PYDANTIC_TUTOR_DATABASE", str(tmp_path / "x.db"))
-    app = build_app(settings=Settings(chat_model="test", repo_root=TINYJOBS_ROOT))
+    app = build_app(settings=Settings(chat_model="test", codebase_root=TINYJOBS_ROOT))
     assert app.steps is not None
     assert not (tmp_path / "x.db").exists()  # made on first use, by the chat
     monkeypatch.setattr("builtins.input", Keyboard(lines=["hello"]))

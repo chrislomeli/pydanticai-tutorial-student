@@ -25,19 +25,19 @@ from pydantic_ai.messages import (
 )
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
-from pydantic_tutor.agent import build_agent, repo_capabilities
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.agent import build_agent, codebase_capabilities
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 # The request log on, printing on stdout in order with this script's lines.
 logging.basicConfig(stream=sys.stdout, format="%(name)s: %(message)s")
 logging.getLogger(name="pydantic_tutor.request_log").setLevel(level=logging.INFO)
 
 
-class KeepLastTwo(AbstractCapability[RepoDeps]):
+class KeepLastTwo(AbstractCapability[CodebaseDeps]):
     """Send the model only the last two messages of each request."""
 
     async def before_model_request(
-        self, ctx: RunContext[RepoDeps], request_context: ModelRequestContext
+        self, ctx: RunContext[CodebaseDeps], request_context: ModelRequestContext
     ) -> ModelRequestContext:
         """Return the request with its earlier messages left out."""
         # Two, so a tool call is sent with its return. A copy: the run's
@@ -56,16 +56,16 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
     return ModelResponse(parts=[ToolCallPart(tool_name="list_modules", args={})])
 
 
-def stack() -> list[AgentCapability[RepoDeps]]:
+def stack() -> list[AgentCapability[CodebaseDeps]]:
     """The agent's capabilities, each one new, and the stand-in last."""
-    return [*repo_capabilities(), KeepLastTwo()]
+    return [*codebase_capabilities(), KeepLastTwo()]
 
 
 for label, capabilities in [("forwards", stack()), ("reversed", stack()[::-1])]:
     print(label)
     agent = build_agent(capabilities=capabilities)
     agent.run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=reply),
-        deps=RepoDeps(root=Path("sample_repos/tinyjobs")),
+        deps=CodebaseDeps(root=Path("sample_code/tinyjobs")),
     )

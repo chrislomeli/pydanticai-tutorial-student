@@ -8,7 +8,7 @@ every run is on a scripted model.
 One test was moved by the memory lesson (04-05), which adds the memory's
 guidance after the prompt: what the model is sent is now proved in
 `tests/04_05_memory/test_memory.py`, by
-`test_the_model_is_sent_the_prompt_then_the_memory_then_the_repository`.
+`test_the_model_is_sent_the_prompt_then_the_memory_then_the_codebase`.
 
 One more was moved by the seam lesson (04-06), whose prompt declares
 itself outermost and so sorts ahead of the two capabilities the library
@@ -33,12 +33,10 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 # This file is tests/04_04_prompt/test_prompt.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
-PROMPT_FILE: Path = (
-    PROJECT_ROOT / "src" / "pydantic_tutor" / "prompts" / "repo_assistant.md"
-)
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
+PROMPT_FILE: Path = PROJECT_ROOT / "src" / "pydantic_tutor" / "prompts" / "assistant.md"
 # The agent's prompt since the agent lesson, word for word.
-PROMPT = "You answer questions about a Python code repository. Answer briefly."
+PROMPT = "You answer questions about a Python codebase. Answer briefly."
 
 
 @pytest.fixture(autouse=True)
@@ -140,5 +138,5 @@ def test_instruction_order_prints_static_then_dynamic() -> None:
         " static: From the run, text.",
         "dynamic: From the constructor, a function.",
         "dynamic: From a capability, a function.",
-        "dynamic: The repository is tinyjobs.",
+        "dynamic: The codebase is tinyjobs.",
     ]

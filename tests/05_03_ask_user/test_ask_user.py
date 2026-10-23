@@ -34,7 +34,7 @@ from pydantic_ai_harness.ask_user import DECLINED, TOOL_NAME
 
 # This file is tests/05_03_ask_user/test_ask_user.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 PREFIX = "PYDANTIC_TUTOR_"
 OPTIONS = [
     {"label": "--verbose", "description": "print each job as it runs"},
@@ -70,9 +70,9 @@ def run_script(*, name: str, cwd: Path, stdin: str = "") -> str:
 
 @pytest.fixture
 def project(tmp_path: Path) -> Path:
-    """A stand-in project folder: the sample repo and the lesson's scripts, nothing else."""
+    """A stand-in project folder: the sample codebase and the lesson's scripts, nothing else."""
     root = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=root / "sample_code" / "tinyjobs")
     (root / "scripts").mkdir()
     for script in ("fresh_copy.py", "ask_session.py"):
         # Before the lesson there is no ask_session.py: the test that runs
@@ -144,14 +144,14 @@ def open_chat(*, working_copy: Path, model: Model) -> None:
     """Open the student's chat on `model`, in `working_copy`."""
     from pydantic_tutor.agent import agent
     from pydantic_tutor.chat import chat
+    from pydantic_tutor.codebase_tools import CodebaseDeps
     from pydantic_tutor.composition import App
-    from pydantic_tutor.repo_tools import RepoDeps
 
     chat(
         app=App(
             agent=agent,
             model=FunctionModel(function=model, model_name="stand-in"),
-            deps=RepoDeps(root=working_copy),
+            deps=CodebaseDeps(root=working_copy),
         )
     )
 
@@ -256,7 +256,7 @@ def test_only_the_chat_offers_the_model_a_question(
     # agent itself, which scripts and tests run with no one there, has no
     # question tool.
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     type_lines(monkeypatch=monkeypatch, lines=["go", "1", "/exit"])
     in_chat = Model()
@@ -266,7 +266,7 @@ def test_only_the_chat_offers_the_model_a_question(
     result = agent.run_sync(
         user_prompt="go",
         model=FunctionModel(function=alone),
-        deps=RepoDeps(root=working_copy),
+        deps=CodebaseDeps(root=working_copy),
     )
     assert TOOL_NAME not in alone.tools_offered[0]
     assert result.output == "No one to ask."

@@ -35,10 +35,10 @@ from pydantic_ai_harness.ask_user import (
 )
 
 from pydantic_tutor.approval import approver
+from pydantic_tutor.codebase_tools import CodebaseDeps
 from pydantic_tutor.composition import App
 from pydantic_tutor.conversations import ConversationConflictError
 from pydantic_tutor.recovery import Unfinished, last_unfinished, recorder
-from pydantic_tutor.repo_tools import RepoDeps
 
 PROMPT = "pydantic-tutor ➤ "
 EXIT = "/exit"
@@ -57,7 +57,7 @@ def ask(*, prompt: str) -> str | None:
 
 
 def ask_at_keyboard(
-    ctx: RunContext[RepoDeps], requests: DeferredToolRequests
+    ctx: RunContext[CodebaseDeps], requests: DeferredToolRequests
 ) -> DeferredToolResults:
     """Show each call held for approval; run it only if the person types y."""
     answers: dict[str, ToolApproved | ToolDenied] = {}
@@ -123,7 +123,7 @@ def read_choice(*, question: Question, reply: str) -> AskUserAnswer:
 
 
 async def show_tool_call(
-    ctx: RunContext[RepoDeps],
+    ctx: RunContext[CodebaseDeps],
     *,
     call: ToolCallPart,
     tool_def: ToolDefinition,
@@ -184,7 +184,7 @@ def chat(*, app: App) -> None:
     # agent's refusal (the same `id`); the model may ask you a question
     # (`AskUser` belongs here, not on the agent: only the chat's runs have
     # someone to answer); and each tool that ran is named.
-    capabilities: list[AgentCapability[RepoDeps]] = [
+    capabilities: list[AgentCapability[CodebaseDeps]] = [
         approver(answer=ask_at_keyboard),
         AskUser(answerer=answer_at_keyboard),
         Hooks(after_tool_execute=show_tool_call),
