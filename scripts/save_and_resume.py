@@ -16,7 +16,7 @@ from pydantic_ai.messages import (
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 from pydantic_tutor.agent import agent
-from pydantic_tutor.repo_tools import RepoDeps
+from pydantic_tutor.codebase_tools import CodebaseDeps
 
 HISTORY_FILE = Path("conversation.json")
 
@@ -27,7 +27,7 @@ def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
     return ModelResponse(parts=[TextPart(content=f"this is turn {turn}")])
 
 
-deps = RepoDeps(root=Path("sample_repos/tinyjobs"))
+deps = CodebaseDeps(root=Path("sample_code/tinyjobs"))
 model = FunctionModel(function=reply)
 
 first = agent.run_sync(user_prompt="Start a conversation.", model=model, deps=deps)
