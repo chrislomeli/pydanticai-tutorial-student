@@ -31,10 +31,10 @@ from pydantic_ai.tools import ToolDefinition
 # This file is tests/01_05_instructions/test_instructions.py: two folders
 # below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 # The agent's own instructions, from the agent lesson; the lesson adds a
 # second paragraph after them.
-STATIC = "You answer questions about a Python code repository. Answer briefly."
+STATIC = "You answer questions about a Python codebase. Answer briefly."
 
 
 @pytest.fixture(autouse=True)
@@ -44,9 +44,9 @@ def no_real_model(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.fixture
-def other_repo(tmp_path: Path) -> Path:
-    """A second repository in the src layout, in a folder named for this test."""
-    root = tmp_path / "otherrepo"
+def other_codebase(tmp_path: Path) -> Path:
+    """A second codebase in the src layout, in a folder named for this test."""
+    root = tmp_path / "othercodebase"
     package = root / "src" / "otherpkg"
     package.mkdir(parents=True)
     (package / "__init__.py").write_text('"""Another package."""\n')
@@ -90,32 +90,32 @@ class Recorder:
 def run_recorded(*, root: Path, call_tool: bool = False) -> Recorder:
     """Run the student's agent on `root`; return what its model was given."""
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     recorder = Recorder(call_tool=call_tool)
     agent.run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=root),
+        deps=CodebaseDeps(root=root),
     )
     return recorder
 
 
-def test_the_instructions_name_the_repository_each_run_is_given(
-    other_repo: Path,
+def test_the_instructions_name_the_codebase_each_run_is_given(
+    other_codebase: Path,
 ) -> None:
     # Goal 2: one agent, two runs, two renderings, each from its own deps.
     tinyjobs = run_recorded(root=TINYJOBS_ROOT)
-    other = run_recorded(root=other_repo)
+    other = run_recorded(root=other_codebase)
 
-    assert tinyjobs.infos[0].instructions == f"{STATIC}\n\nThe repository is tinyjobs."
-    assert other.infos[0].instructions == f"{STATIC}\n\nThe repository is otherrepo."
+    assert tinyjobs.infos[0].instructions == f"{STATIC}\n\nThe codebase is tinyjobs."
+    assert other.infos[0].instructions == f"{STATIC}\n\nThe codebase is othercodebase."
 
 
 def test_the_instructions_are_rendered_for_every_request() -> None:
     recorder = run_recorded(root=TINYJOBS_ROOT, call_tool=True)
 
-    expected = f"{STATIC}\n\nThe repository is tinyjobs."
+    expected = f"{STATIC}\n\nThe codebase is tinyjobs."
     assert [info.instructions for info in recorder.infos] == [expected, expected]
     # Each request in the run records the instructions it was sent.
     requests = [m for m in recorder.messages[-1] if isinstance(m, ModelRequest)]
@@ -131,7 +131,7 @@ def test_the_agent_sends_instructions_and_no_system_prompt() -> None:
     [request] = recorder.messages[0]
     assert isinstance(request, ModelRequest)
     assert [part.part_kind for part in request.parts] == ["user-prompt"]
-    assert request.instructions == f"{STATIC}\n\nThe repository is tinyjobs."
+    assert request.instructions == f"{STATIC}\n\nThe codebase is tinyjobs."
 
 
 def test_a_run_without_deps_fails_before_the_model_is_asked() -> None:
@@ -167,7 +167,7 @@ def test_inspect_run_shows_the_rendered_instructions() -> None:
     # Moved from the agent lesson, where it ran the agent without deps.
     printed = run_script("scripts/inspect_run.py")
 
-    assert f"  instructions: {STATIC}\n\nThe repository is tinyjobs.\n" in printed
+    assert f"  instructions: {STATIC}\n\nThe codebase is tinyjobs.\n" in printed
     assert "user-prompt" in printed
 
 
@@ -179,8 +179,8 @@ def test_scripted_run_prints_what_the_function_decided() -> None:
     printed = run_script("scripts/scripted_run.py")
 
     expected = (
-        "You asked 'What does this repo do?', and my instructions say: "
-        f"{STATIC}\n\nThe repository is tinyjobs."
+        "You asked 'What does this codebase do?', and my instructions say: "
+        f"{STATIC}\n\nThe codebase is tinyjobs."
     )
     assert printed.strip() == expected
 
