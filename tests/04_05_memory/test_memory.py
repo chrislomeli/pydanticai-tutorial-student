@@ -11,8 +11,8 @@ instructions' text or the number of tools. Each says where it came from,
 and proves its point with the memory's part included.
 
 One of them was moved again by the seam lesson (04-06), which gives the
-agent the repository toolset as a capability, not on `toolsets=`: it is
-now `test_the_agent_takes_the_repo_toolset_as_a_capability` in
+agent the codebase toolset as a capability, not on `toolsets=`: it is
+now `test_the_agent_takes_the_codebase_toolset_as_a_capability` in
 `tests/04_06_seam/test_seam.py`.
 
 Every import of the project is inside the test that needs it, so that
@@ -44,9 +44,9 @@ from pydantic_ai_harness.memory import FileStore, InMemoryStore
 
 # This file is tests/04_05_memory/test_memory.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 # The agent's prompt since the agent lesson, word for word.
-PROMPT = "You answer questions about a Python code repository. Answer briefly."
+PROMPT = "You answer questions about a Python codebase. Answer briefly."
 LOGGER = "pydantic_tutor.request_log"
 FILE_TOOLS = [
     "create_directory",
@@ -90,11 +90,11 @@ def run_script(name: str, *, cwd: Path = PROJECT_ROOT) -> str:
     return result.stdout
 
 
-def expected_instructions(repository: str) -> str:
-    """The prompt, the memory's guidance, then the repository's name."""
+def expected_instructions(codebase: str) -> str:
+    """The prompt, the memory's guidance, then the codebase's name."""
     from pydantic_tutor.listable_memory import LISTING_GUIDANCE
 
-    return f"{PROMPT}\n\n{LISTING_GUIDANCE}\n\nThe repository is {repository}."
+    return f"{PROMPT}\n\n{LISTING_GUIDANCE}\n\nThe codebase is {codebase}."
 
 
 class Recorder:
@@ -129,19 +129,19 @@ class Recorder:
 def run_agent(*, root: Path, calls: list[ToolCallPart] | None = None) -> Recorder:
     """Run the student's agent once on `root`; return what its model was given."""
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     recorder = Recorder(calls=calls)
     agent.run_sync(
-        user_prompt="What does this repo do?",
+        user_prompt="What does this codebase do?",
         model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=root),
+        deps=CodebaseDeps(root=root),
     )
     return recorder
 
 
 @pytest.fixture
-def repo_with_notes(tmp_path: Path) -> Path:
+def codebase_with_notes(tmp_path: Path) -> Path:
     """A copy of tinyjobs whose notebook already holds two files."""
     root = tmp_path / "tinyjobs"
     shutil.copytree(src=TINYJOBS_ROOT, dst=root)
@@ -180,7 +180,7 @@ def test_the_agent_has_one_notebook_in_its_workspace_with_injection_off() -> Non
     assert memory.inject_memory is False
     assert isinstance(memory.store, FileStore)
     assert memory.store.directory == ".agent-memory"
-    assert memory.store.workspace is None  # the run's workspace: the repository
+    assert memory.store.workspace is None  # the run's workspace: the codebase
 
 
 def test_the_model_is_sent_our_signatures_beside_the_file_shell_and_memory_tools() -> (
@@ -208,11 +208,11 @@ def test_the_model_is_sent_our_signatures_beside_the_file_shell_and_memory_tools
     assert tools["list_memory"].parameters_json_schema["properties"] == {}
 
 
-def test_no_request_carries_the_notebook(repo_with_notes: Path) -> None:
+def test_no_request_carries_the_notebook(codebase_with_notes: Path) -> None:
     # The lesson's point: with injection off, the notebook's files are on
     # disk, and no request carries them. The model lists them when it asks.
     recorder = run_agent(
-        root=repo_with_notes,
+        root=codebase_with_notes,
         calls=[ToolCallPart(tool_name="list_memory", args={}, tool_call_id="c1")],
     )
     for messages in recorder.messages:
@@ -279,15 +279,17 @@ def test_list_memory_lists_one_notebook_and_says_when_it_is_cut() -> None:
     assert listing == MemoryListing(files=["a.md", "b.md"], truncated=True)
 
 
-def test_list_memory_names_only_files_read_memory_takes(repo_with_notes: Path) -> None:
+def test_list_memory_names_only_files_read_memory_takes(
+    codebase_with_notes: Path,
+) -> None:
     # A file in a folder below the notebook's, and one not in Markdown:
     # `read_memory` refuses both, so the listing must not offer them.
-    notes = repo_with_notes / ".agent-memory" / "main"
+    notes = codebase_with_notes / ".agent-memory" / "main"
     (notes / "team").mkdir()
     (notes / "team" / "deep.md").write_text("x\n")
     (notes / "draft.txt").write_text("x\n")
     recorder = run_agent(
-        root=repo_with_notes,
+        root=codebase_with_notes,
         calls=[ToolCallPart(tool_name="list_memory", args={}, tool_call_id="c1")],
     )
     assert (
@@ -311,7 +313,7 @@ def test_list_memory_joins_memorys_own_toolset() -> None:
 def test_notebook_prints_two_sessions(tmp_path: Path) -> None:
     # In a stand-in project, so the student's own work/ copy is left alone.
     project = tmp_path / "project"
-    shutil.copytree(src=TINYJOBS_ROOT, dst=project / "sample_repos" / "tinyjobs")
+    shutil.copytree(src=TINYJOBS_ROOT, dst=project / "sample_code" / "tinyjobs")
     (project / "scripts").mkdir()
     for script in ("fresh_copy.py", "notebook.py", "memory_injection.py"):
         shutil.copy(src=PROJECT_ROOT / "scripts" / script, dst=project / "scripts")
@@ -360,9 +362,9 @@ def test_notebook_prints_two_sessions(tmp_path: Path) -> None:
 # Moved: they pinned the instructions' text before the memory's guidance.
 
 
-def test_the_instructions_name_the_repository_each_run_is_given(tmp_path: Path) -> None:
+def test_the_instructions_name_the_codebase_each_run_is_given(tmp_path: Path) -> None:
     # Moved from 01-05: one agent, two runs, two renderings, each from its deps.
-    other = tmp_path / "otherrepo"
+    other = tmp_path / "othercodebase"
     (other / "src" / "otherpkg").mkdir(parents=True)
     (other / "src" / "otherpkg" / "__init__.py").write_text('"""Another package."""\n')
 
@@ -370,7 +372,7 @@ def test_the_instructions_name_the_repository_each_run_is_given(tmp_path: Path) 
         "tinyjobs"
     )
     assert run_agent(root=other).infos[0].instructions == expected_instructions(
-        "otherrepo"
+        "othercodebase"
     )
 
 
@@ -384,7 +386,7 @@ def test_the_instructions_are_rendered_for_every_request_and_sent_once() -> None
     assert [info.instructions for info in recorder.infos] == [expected, expected]
     requests = [m for m in recorder.messages[-1] if isinstance(m, ModelRequest)]
     assert [request.instructions for request in requests] == [expected, expected]
-    assert expected.count("The repository is") == 1
+    assert expected.count("The codebase is") == 1
 
 
 def test_the_agent_sends_instructions_and_no_system_prompt() -> None:
@@ -396,7 +398,7 @@ def test_the_agent_sends_instructions_and_no_system_prompt() -> None:
     assert request.instructions == expected_instructions("tinyjobs")
 
 
-def test_the_model_is_sent_the_prompt_then_the_memory_then_the_repository() -> None:
+def test_the_model_is_sent_the_prompt_then_the_memory_then_the_codebase() -> None:
     # Moved from 04-04's guard, which pinned the prompt then the toolset's
     # text. The memory's guidance is text, like the prompt: it goes after
     # the prompt (list order) and before the toolset's function.
@@ -418,7 +420,7 @@ def test_scripted_run_prints_what_the_function_decided() -> None:
     # instructions the model was sent.
     printed = run_script("scripts/scripted_run.py")
     expected = (
-        "You asked 'What does this repo do?', and my instructions say: "
+        "You asked 'What does this codebase do?', and my instructions say: "
         f"{expected_instructions('tinyjobs')}"
     )
     assert printed.strip() == expected
@@ -428,22 +430,22 @@ def test_toolset_views_shows_the_agents_tools_and_instructions() -> None:
     # Moved from 04-01, which pinned the agent's instructions on line 3;
     # the rest of that script's output is unchanged.
     lines = run_script("scripts/toolset_views.py").splitlines()
-    assert lines[0] == "the repo assistant:"
+    assert lines[0] == "the codebase assistant:"
     assert lines[1].startswith("  tools: list_modules, read_docstring, read_file,")
     assert "list_memory" in lines[1]
     assert lines[2] == f"  instructions: {expected_instructions('tinyjobs')!r}"
     assert lines[3:] == [
         "a second agent, given the toolset:",
         "  tools: list_modules, read_docstring",
-        "  instructions: 'The repository is tinyjobs.'",
-        "prefixed with 'repo':",
-        "  tools: repo_list_modules, repo_read_docstring",
-        "  instructions: 'The repository is tinyjobs.'",
+        "  instructions: 'The codebase is tinyjobs.'",
+        "prefixed with 'codebase':",
+        "  tools: codebase_list_modules, codebase_read_docstring",
+        "  instructions: 'The codebase is tinyjobs.'",
         "prefixed, calling read_docstring with a wrong module:",
         "  asked to retry: There is no module 'jobs'. Call list_modules to see them.",
         "filtered to list_modules:",
         "  tools: list_modules",
-        "  instructions: 'The repository is tinyjobs.'",
+        "  instructions: 'The codebase is tinyjobs.'",
     ]
 
 
@@ -479,7 +481,7 @@ def test_watch_requests_prints_the_log() -> None:
     assert lines[3].startswith("usage: ")
 
 
-def test_no_script_leaves_a_notebook_in_the_sample_repo() -> None:
-    # The scripts that run on the sample repo never write memory; the
-    # series keeps the sample repo as shipped.
+def test_no_script_leaves_a_notebook_in_the_sample_codebase() -> None:
+    # The scripts that run on the sample codebase never write memory; the
+    # series keeps the sample codebase as shipped.
     assert not (TINYJOBS_ROOT / ".agent-memory").exists()

@@ -35,7 +35,7 @@ from pydantic_ai.tools import ToolDefinition
 
 # This file is tests/04_02_hooks/test_hooks.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
-TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_repos" / "tinyjobs"
+TINYJOBS_ROOT: Path = PROJECT_ROOT / "sample_code" / "tinyjobs"
 LOGGER = "pydantic_tutor.request_log"
 
 
@@ -97,12 +97,12 @@ def test_the_log_counts_the_tools_actually_sent(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     from pydantic_tutor.agent import agent
-    from pydantic_tutor.repo_tools import RepoDeps
+    from pydantic_tutor.codebase_tools import CodebaseDeps
 
     # Hide every tool but ours for one run: the log must count what is
     # sent, not a number fixed when the agent was built.
     def only_ours(
-        ctx: RunContext[RepoDeps], tool_defs: list[ToolDefinition]
+        ctx: RunContext[CodebaseDeps], tool_defs: list[ToolDefinition]
     ) -> list[ToolDefinition]:
         return [
             tool
@@ -115,7 +115,7 @@ def test_the_log_counts_the_tools_actually_sent(
     agent.run_sync(
         user_prompt="x",
         model=FunctionModel(function=recorder.reply),
-        deps=RepoDeps(root=TINYJOBS_ROOT),
+        deps=CodebaseDeps(root=TINYJOBS_ROOT),
         capabilities=[Hooks(prepare_tools=only_ours)],
     )
     assert recorder.tool_counts == [2, 2]
