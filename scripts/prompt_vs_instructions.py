@@ -18,30 +18,31 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 
 def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
     """Stand in for a model: print what this request carries, then answer."""
-    system_prompts = [
+    # The system prompt is a part inside the messages.
+    in_messages = [
         part.content
         for message in messages
         if isinstance(message, ModelRequest)
         for part in message.parts
         if isinstance(part, SystemPromptPart)
     ]
-    print("  system prompt parts:", system_prompts)
-    print("  instructions:", info.instructions)
+    # The instructions are attached beside the messages.
+    print("  in the messages:", in_messages)
+    print("  beside them:    ", info.instructions)
     return ModelResponse(parts=[TextPart(content="ok")])
 
 
 model = FunctionModel(function=reply)
-# The first agent has both: a system prompt, and instructions.
-first = Agent(system_prompt="You review Python code.", instructions="Answer briefly.")
-# The second has instructions only.
-second = Agent(instructions="Answer in detail.")
+# Each agent has both kinds of text, and each string names its owner.
+agent_a = Agent(system_prompt="A's system prompt", instructions="A's instructions")
+agent_b = Agent(system_prompt="B's system prompt", instructions="B's instructions")
 
-print("The first agent, a new run:")
-first_run = first.run_sync(user_prompt="What does this codebase do?", model=model)
+print("A, a new run:")
+a_run = agent_a.run_sync(user_prompt="What does this codebase do?", model=model)
 
-print("The second agent, continuing the first run's messages:")
-second.run_sync(
+print("B, continuing A's messages:")
+agent_b.run_sync(
     user_prompt="And what do its tests cover?",
     model=model,
-    message_history=first_run.all_messages(),
+    message_history=a_run.all_messages(),
 )
