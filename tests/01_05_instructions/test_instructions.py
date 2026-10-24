@@ -128,17 +128,18 @@ def test_a_run_without_deps_fails_before_the_model_is_asked() -> None:
 
 
 def test_prompt_vs_instructions_shows_which_one_replays() -> None:
-    # Goal 1: the system prompt comes back from the history; the
-    # instructions are only the current agent's.
+    # Goal 1: the system prompt comes back from the history, and the
+    # running agent's own is not added; the instructions are only the
+    # running agent's.
     printed = run_script("scripts/prompt_vs_instructions.py")
 
     assert printed.splitlines() == [
-        "The first agent, a new run:",
-        "  system prompt parts: ['You review Python code.']",
-        "  instructions: Answer briefly.",
-        "The second agent, continuing the first run's messages:",
-        "  system prompt parts: ['You review Python code.']",
-        "  instructions: Answer in detail.",
+        "A, a new run:",
+        '  in the messages: ["A\'s system prompt"]',
+        "  beside them:     A's instructions",
+        "B, continuing A's messages:",
+        '  in the messages: ["A\'s system prompt"]',
+        "  beside them:     B's instructions",
     ]
 
 
