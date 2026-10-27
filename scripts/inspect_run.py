@@ -1,7 +1,6 @@
 """Run the agent once on TestModel and print every message it sent and received.
 
-From the agent lesson (01-02). Kept working: a later lesson that changes
-the agent updates this script, or removes it and says why.
+From the agent lesson (01-02).
 """
 
 from pydantic_ai.messages import ModelRequest
@@ -21,4 +20,3 @@ for message in result.all_messages():
         print("  instructions:", message.instructions)
 
 print("output:", result.output)
-print("usage:", result.usage)

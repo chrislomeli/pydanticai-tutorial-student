@@ -1,7 +1,6 @@
 """Run the agent on a model you write: a function that answers from the request.
 
-From the agent lesson (01-02). Kept working: a later lesson that changes
-the agent updates this script, or removes it and says why.
+From the agent lesson (01-02).
 """
 
 from pydantic_ai.messages import ModelMessage, ModelResponse, TextPart, UserPromptPart
