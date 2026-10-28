@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     # The folder the chat works in. Relative to the folder the app runs in;
     # `demos/fresh_copy.py` makes the default.
     workspace_root: Path = Path("work/tinyjobs")
+    # The SQLite file the app keeps its state in; made on first use.
+    database: Path = Path("pydantic-tutor.db")
     # One key per provider the composition root can build. SecretStr:
     # printing the settings shows `**********`, never the key.
     openai_api_key: SecretStr | None = Field(

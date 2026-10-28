@@ -163,10 +163,9 @@ def open_chat(
     # The store's module is imported as a name of the package: before the
     # lesson it does not exist, and Ruff would sort a `from` import of it
     # apart from the rest of this block (I001).
-    from pydantic_tutor.stores import sqlite_conversations
-
     from pydantic_tutor.chat.agent import build_chat_agent
     from pydantic_tutor.composition import App
+    from pydantic_tutor.stores import sqlite_conversations
 
     def check(messages: list[ModelMessage]) -> None:
         if fail_on is not None and said(messages)[-1] == fail_on:
@@ -407,6 +406,7 @@ def test_git_ignores_the_saved_conversations() -> None:
 
 def test_the_chat_keeps_its_conversations_in_any_store() -> None:
     from pydantic_ai.messages import ModelRequest, UserPromptPart
+
     from pydantic_tutor.stores.conversations import ConversationStore, Saved
     from pydantic_tutor.stores.sqlite_conversations import SyncSqliteConversationStore
 

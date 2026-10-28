@@ -23,6 +23,9 @@ from pydantic_tutor.capabilities.ask_user import at_the_menu
 from pydantic_tutor.chat.console import blue, dim
 from pydantic_tutor.composition import App, build_app
 from pydantic_tutor.settings import Settings
+from pydantic_tutor.stores.conversations import ConversationConflictError
+
+NEW = "/new"
 
 
 def main(*, app: App | None = None) -> None:
@@ -38,6 +41,16 @@ def main(*, app: App | None = None) -> None:
             raise SystemExit(f"pydantic-tutor cannot start:\n{error}") from error
     print("Chat with the agent. An empty line ends it.")
     history: list[ModelMessage] = []  # every message of the chat so far
+    # The revision of `history` in the store; 0: not saved yet.
+    revision = 0
+    store = app.store
+    saved = None if store is None else store.latest()
+    if saved is not None:
+        history, revision = saved.messages, saved.revision
+        print(
+            f"Carrying on conversation {history[-1].conversation_id}: "
+            f"{len(history)} messages. Type {NEW} to start another."
+        )
     # Given to every run, because only the chat has someone to answer: you
     # answer the calls it holds, in place of the agent's own answerer (the
     # same `id`), and the model may ask you a question. The agent has no
@@ -53,6 +66,10 @@ def main(*, app: App | None = None) -> None:
             break
         if not line:
             break
+        if line == NEW:
+            history, revision = [], 0  # the saved one stays saved
+            print("A new conversation starts with your next line.")
+            continue
         result = app.agent.run_stream_sync(
             user_prompt=line,
             model=app.model,
@@ -65,4 +82,11 @@ def main(*, app: App | None = None) -> None:
             print(blue(text=piece), end="", flush=True)
         print()
         print(dim(text=f"  (the model was sent {result.usage.input_tokens} tokens)"))
+        if store is not None:
+            try:
+                revision = store.save(messages=result.all_messages(), revision=revision)
+            except ConversationConflictError as error:
+                # Keep `history` as it was: what the chat carries is what is saved.
+                print(f"This turn was not kept: {error}. Type {NEW}, or restart.")
+                continue
         history = result.all_messages()

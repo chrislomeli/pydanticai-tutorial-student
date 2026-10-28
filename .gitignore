@@ -14,3 +14,4 @@ wheels/
 
 # Working copies the agent may change, made by demos/fresh_copy.py.
 /work/
+/pydantic-tutor.db

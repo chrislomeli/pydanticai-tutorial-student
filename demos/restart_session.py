@@ -8,12 +8,11 @@ own file. Needs no API key. Run `demos/fresh_copy.py` first.
 
 from pathlib import Path
 
-from pydantic_tutor.stores.sqlite_conversations import SyncSqliteConversationStore
-
 from pydantic_tutor.chat.agent import build_chat_agent
 from pydantic_tutor.chat.loop import main
 from pydantic_tutor.composition import App
 from pydantic_tutor.settings import Settings
+from pydantic_tutor.stores.sqlite_conversations import SyncSqliteConversationStore
 from tutor_given.stand_ins import says_which_turn
 
 settings = Settings()

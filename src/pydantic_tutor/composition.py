@@ -17,6 +17,8 @@ from pydantic_ai.models import Model, infer_model
 from pydantic_tutor.chat.agent import build_chat_agent
 from pydantic_tutor.providers import ProviderFactory, build_provider
 from pydantic_tutor.settings import Settings
+from pydantic_tutor.stores.conversations import ConversationStore
+from pydantic_tutor.stores.sqlite_conversations import SyncSqliteConversationStore
 
 
 @dataclass(frozen=True)
@@ -25,6 +27,7 @@ class App:
 
     agent: Agent[None, str]
     model: Model
+    store: ConversationStore | None = None  # None: nothing is saved
 
 
 def build_app(*, settings: Settings) -> App:
@@ -42,6 +45,7 @@ def build_app(*, settings: Settings) -> App:
             web_search=settings.web_search, workspace_root=settings.workspace_root
         ),
         model=build_model(settings=settings),
+        store=SyncSqliteConversationStore(path=settings.database),
     )
 
 
