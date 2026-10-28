@@ -2,8 +2,8 @@
 
 From the console-chat lesson (02-02). Run it with `OPENAI_API_KEY` set:
 `uv run scripts/chat.py`. An empty line, or Ctrl-D, ends
-it. Each turn is a run of its own, so the agent remembers nothing between
-turns; the next lesson changes that.
+it. Each line you type starts a run of its own, so the agent remembers
+nothing from one run to the next; the next lesson changes that.
 """
 
 from pydantic_tutor.chat_agent import chat_agent
