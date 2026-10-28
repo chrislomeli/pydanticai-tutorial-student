@@ -1,2 +1,1 @@
-def main() -> None:
-    print("Hello from pydantic-tutor!")
+"""pydantic-tutor: a chat agent, built lesson by lesson."""

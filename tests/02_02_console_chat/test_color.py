@@ -5,7 +5,7 @@ import sys
 
 import pytest
 
-from pydantic_tutor.color import blue, dim
+from pydantic_tutor.chat.console import blue, dim
 
 
 class _Terminal(io.StringIO):

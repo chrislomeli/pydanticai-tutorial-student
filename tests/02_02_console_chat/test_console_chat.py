@@ -32,12 +32,11 @@ def no_real_models(monkeypatch: pytest.MonkeyPatch) -> None:
 
 @pytest.mark.parametrize("typed", ["\n", ""], ids=["empty line", "end of input"])
 def test_the_chat_ends_without_calling_the_model(typed: str) -> None:
-    # No key in the environment: if the chat called the model, it would fail.
-    env = {
-        name: value for name, value in os.environ.items() if name != "OPENAI_API_KEY"
-    }
+    # A fake key, so the chat can start whatever the lesson (it never calls
+    # the model): if it did, the request would fail.
+    env = {**os.environ, "OPENAI_API_KEY": "sk-not-a-real-key"}
     result = subprocess.run(
-        [sys.executable, "scripts/chat.py"],
+        [sys.executable, "-m", "pydantic_tutor"],
         cwd=PROJECT_ROOT,
         input=typed,
         capture_output=True,
@@ -50,7 +49,7 @@ def test_the_chat_ends_without_calling_the_model(typed: str) -> None:
 
 
 def test_each_run_is_sent_only_its_own_message() -> None:
-    from pydantic_tutor.chat_agent import chat_agent
+    from pydantic_tutor.chat.agent import chat_agent
 
     prompts: list[list[str]] = []
 

@@ -2,15 +2,15 @@
 
 From the console-chat lesson (02-02); history from the history lesson
 (02-03); streaming from the streaming lesson (02-04). Run it with `OPENAI_API_KEY` set:
-`uv run scripts/chat.py`. An empty line, or Ctrl-D, ends
+`uv run python -m pydantic_tutor`. An empty line, or Ctrl-D, ends
 it. Each run is handed the messages of the runs before it, so the model is
 sent the whole chat so far, and its answer is printed as it is written.
 """
 
 from pydantic_ai.messages import ModelMessage
 
-from pydantic_tutor.chat_agent import chat_agent
-from pydantic_tutor.color import blue, dim
+from pydantic_tutor.chat.agent import chat_agent
+from pydantic_tutor.chat.console import blue, dim
 from pydantic_tutor.model import CHAT_MODEL
 
 
@@ -35,7 +35,3 @@ def main() -> None:
         print()
         print(dim(text=f"  (the model was sent {result.usage.input_tokens} tokens)"))
         history = result.all_messages()
-
-
-if __name__ == "__main__":
-    main()

@@ -20,7 +20,7 @@ def no_real_models(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 def test_the_chat_agent_offers_the_model_web_search() -> None:
-    from pydantic_tutor.chat_agent import chat_agent
+    from pydantic_tutor.chat.agent import chat_agent
 
     sent: list[ModelRequestParameters] = []
 
