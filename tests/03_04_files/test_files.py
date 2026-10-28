@@ -9,7 +9,9 @@ API key or makes a request: every run is on a stand-in model.
 
 Two checks were moved here from the workspace lesson (03-03), which this
 lesson changes: that the chat is offered no tool, and that
-`workspace_reach.py` prints it. Both now say eight.
+`workspace_reach.py` prints it. Both then moved on to the shell lesson
+(03-05), which adds four tools, and are proved in
+`tests/03_05_shell/test_shell.py`.
 
 Each test runs in an empty folder of its own, so the project's own `.env`
 and `work/` folder are never read. A test that needs the workspace folder
@@ -47,16 +49,6 @@ PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 FAKE_TOKEN = "tj-FAKE-0000-not-a-real-secret"
 PREFIX = "PYDANTIC_TUTOR_"
 KEY_VARIABLES = ("OPENAI_API_KEY", "ANTHROPIC_API_KEY")
-FILE_TOOLS = [
-    "create_directory",
-    "edit_file",
-    "file_info",
-    "find_files",
-    "list_directory",
-    "read_file",
-    "search_files",
-    "write_file",
-]
 
 
 @pytest.fixture(autouse=True)
@@ -143,24 +135,6 @@ def mentions(*, messages: list[ModelMessage], text: str) -> bool:
 
 
 # Point 1: the chat has the library's file tools, working in its workspace.
-
-
-def test_the_chat_is_offered_the_eight_file_tools(workspace: Path) -> None:
-    # Moved from 03-03, where the chat was offered no tool at all.
-    from pydantic_tutor.composition import build_app
-    from pydantic_tutor.settings import Settings
-
-    offered: list[str] = []
-
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        offered.extend(tool.name for tool in info.function_tools)
-        return ModelResponse(parts=[TextPart(content="ok")])
-
-    app = build_app(
-        settings=Settings(chat_model="test", web_search=False, workspace_root=workspace)
-    )
-    app.agent.run_sync(user_prompt="hi", model=FunctionModel(function=reply))
-    assert sorted(offered) == FILE_TOOLS
 
 
 def test_a_file_tool_reads_in_the_workspace_folder(workspace: Path) -> None:
@@ -312,16 +286,6 @@ def project(tmp_path: Path) -> Path:
     made = run_script(name="fresh_copy.py", folder=tmp_path)
     assert made.returncode == 0, made.stderr
     return tmp_path
-
-
-def test_workspace_reach_now_counts_the_file_tools(project: Path) -> None:
-    # Moved from 03-03, where it printed 0.
-    result = run_script(name="workspace_reach.py", folder=project)
-    assert result.returncode == 0, result.stderr
-    lines = result.stdout.splitlines()
-    assert "tools the model is offered: 8" in lines
-    assert "README.md: # tinyjobs" in lines
-    assert "../../pyproject.toml: [project]" in lines
 
 
 def test_file_tools_prints_what_is_read_and_refused(project: Path) -> None:
