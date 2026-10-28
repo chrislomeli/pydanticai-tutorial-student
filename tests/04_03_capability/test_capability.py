@@ -12,6 +12,10 @@ makes `work/tinyjobs` there, from the sample code.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+The check that the cap comes just before the request log in the chat moved to
+the approval lesson (05-01), whose guardrail declares itself innermost beside
+the log.
 """
 
 import asyncio
@@ -165,23 +169,6 @@ def test_the_first_calls_are_kept_in_order_and_text_stays() -> None:
 def test_a_response_within_the_cap_is_passed_on_as_it_came() -> None:
     given = response(calls=3)
     assert capped(limit=3, given=given) is given
-
-
-def test_the_chat_has_the_cap_before_the_request_log(project: Path) -> None:
-    from pydantic_tutor.capabilities import batch_limit
-    from pydantic_tutor.capabilities.request_log import request_log
-    from pydantic_tutor.chat.agent import build_chat_agent
-
-    for web_search in (False, True):
-        agent = build_chat_agent(
-            web_search=web_search, workspace_root=project / "work" / "tinyjobs"
-        )
-        capabilities = agent.root_capability.capabilities
-        caps = [c for c in capabilities if isinstance(c, batch_limit.BatchLimit)]
-        assert len(caps) == 1
-        assert caps[0].max_tool_calls == 3
-        assert capabilities[-1] is request_log
-        assert capabilities[-2] is caps[0]
 
 
 def test_five_calls_in_one_response_reach_the_tools_as_three(project: Path) -> None:

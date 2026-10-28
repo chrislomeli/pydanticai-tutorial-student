@@ -15,6 +15,9 @@ makes `work/tinyjobs` there, from the sample code.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+The check that the request log is the chat's last capability moved to the
+approval lesson (05-01), whose guardrail declares itself innermost beside it.
 """
 
 import logging
@@ -101,23 +104,6 @@ def logged(*, caplog: pytest.LogCaptureFixture) -> list[str]:
 
 
 # Point 1: a hook that logs each request, as Hooks(...) and as a class.
-
-
-def test_the_request_log_is_a_hooks_capability_last_on_the_chat(
-    project: Path,
-) -> None:
-    from pydantic_tutor.capabilities import request_log as module
-    from pydantic_tutor.chat.agent import build_chat_agent
-
-    assert isinstance(module.request_log, Hooks)
-    assert module.logger.name == LOGGER
-    # Last, with web search on or off, so it sees each request as every
-    # other capability has left it.
-    for web_search in (False, True):
-        agent = build_chat_agent(
-            web_search=web_search, workspace_root=project / "work" / "tinyjobs"
-        )
-        assert agent.root_capability.capabilities[-1] is module.request_log
 
 
 def test_the_log_counts_the_tools_actually_sent(

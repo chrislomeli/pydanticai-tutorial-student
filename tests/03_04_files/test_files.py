@@ -20,6 +20,11 @@ makes `work/tinyjobs` there, from the sample code, with a fake `.env`.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+One check, that a write works in the workspace folder, and one, that the default
+write protection is kept, moved to the approval lesson (05-01): the chat now
+holds a write for approval, and they prove the same points with the write
+approved.
 """
 
 import os
@@ -143,16 +148,6 @@ def test_a_file_tool_reads_in_the_workspace_folder(workspace: Path) -> None:
     assert "# tinyjobs" in read.text
 
 
-def test_a_file_tool_writes_in_the_workspace_folder(workspace: Path) -> None:
-    wrote = call(
-        root=workspace,
-        tool_name="write_file",
-        args={"path": "notes.txt", "content": "from the agent\n"},
-    )
-    assert not wrote.refused, wrote.text
-    assert (workspace / "notes.txt").read_text() == "from the agent\n"
-
-
 @pytest.mark.parametrize(
     argnames="path", argvalues=["../outside.txt", "ABSOLUTE", "escape.txt"]
 )
@@ -234,22 +229,6 @@ def test_a_search_does_not_reveal_a_secret(workspace: Path) -> None:
     (workspace / "deploy" / "runner.pem").write_text(f"TOKEN={FAKE_TOKEN}\n")
     result = call(root=workspace, tool_name="search_files", args={"pattern": "tj-FAKE"})
     assert not mentions(messages=result.messages, text=FAKE_TOKEN)
-
-
-def test_the_default_write_protection_is_kept(workspace: Path) -> None:
-    # Setting `read_only_patterns` yourself would replace this list, and
-    # `.git/` would be writable.
-    (workspace / ".git").mkdir()
-    (workspace / ".git" / "config").write_text("[core]\n")
-    for path in (".git/config", ".env"):
-        result = call(
-            root=workspace,
-            tool_name="write_file",
-            args={"path": path, "content": "x\n"},
-        )
-        assert result.refused, f"{path} was written"
-    assert (workspace / ".git" / "config").read_text() == "[core]\n"
-    assert FAKE_TOKEN in (workspace / ".env").read_text()
 
 
 def test_the_deny_list_is_a_named_constant() -> None:

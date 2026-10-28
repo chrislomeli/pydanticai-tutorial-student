@@ -16,6 +16,10 @@ makes `work/tinyjobs` there, from the sample code.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+Two checks moved to the approval lesson (05-01), which adds two capabilities
+to the chat: that its capabilities are built anew and are eight, and that the
+prompt is first and the log last.
 """
 
 import logging
@@ -163,34 +167,6 @@ def test_with_no_capabilities_the_agent_gives_the_model_nothing(
     assert (seen[0].model_settings or {}).get("timeout") == 120
 
 
-def test_chat_capabilities_are_new_on_each_call_and_hold_the_whole_stack(
-    workspace: Path,
-) -> None:
-    from pydantic_ai.capabilities import LocalWorkspace, Toolset, WebSearch
-    from pydantic_ai_harness import FileSystem, Shell
-
-    from pydantic_tutor.capabilities.batch_limit import BatchLimit
-    from pydantic_tutor.capabilities.listable_memory import ListableMemory
-    from pydantic_tutor.capabilities.prompt_file import PromptFile
-    from pydantic_tutor.capabilities.request_log import request_log
-    from pydantic_tutor.chat.agent import chat_capabilities
-
-    first = chat_capabilities(web_search=False, workspace_root=workspace)
-    second = chat_capabilities(web_search=False, workspace_root=workspace)
-    kinds = (PromptFile, LocalWorkspace, FileSystem, Shell, Toolset, ListableMemory)
-    for kind in (*kinds, BatchLimit):
-        ours = [c for c in first if isinstance(c, kind)]
-        assert len(ours) == 1, kind
-        theirs = [c for c in second if isinstance(c, kind)]
-        assert ours[0] is not theirs[0], kind  # built anew, not shared
-    assert request_log in first
-    assert len(first) == 8
-    assert not any(isinstance(c, WebSearch) for c in first)
-    with_search = chat_capabilities(web_search=True, workspace_root=workspace)
-    assert len(with_search) == 9
-    assert any(isinstance(c, WebSearch) for c in with_search)
-
-
 def test_an_alternative_list_replaces_the_stack(workspace: Path) -> None:
     from pydantic_tutor.capabilities.prompt_file import PromptFile
     from pydantic_tutor.chat.agent import (
@@ -336,27 +312,3 @@ def test_stack_order_prints_both_orders_logged_right(project: Path) -> None:
 
 
 # Moved: it pinned the prompt behind the library's own capabilities.
-
-
-def test_the_chat_takes_its_prompt_from_the_file_first(workspace: Path) -> None:
-    # Moved from 04-04, which found the prompt behind the two capabilities
-    # the library adds of its own, ToolSearch and PendingMessageDrainCapability:
-    # declared outermost, it now sorts ahead of them, first of all; and the
-    # log, declared innermost, is last.
-    from pydantic_tutor.capabilities import prompt_file
-    from pydantic_tutor.chat.agent import PROMPT_PATH, build_chat_agent
-
-    assert PROMPT_PATH.is_absolute()
-    assert PROMPT_PATH.resolve() == PROMPT_FILE.resolve()
-    for web_search in (False, True):
-        agent = build_chat_agent(web_search=web_search, workspace_root=workspace)
-        capabilities = agent.root_capability.capabilities
-        prompts = [c for c in capabilities if isinstance(c, prompt_file.PromptFile)]
-        assert len(prompts) == 1
-        assert prompts[0].path == PROMPT_PATH
-        assert [type(c).__name__ for c in capabilities[:3]] == [
-            "PromptFile",
-            "ToolSearch",
-            "PendingMessageDrainCapability",
-        ]
-        assert type(capabilities[-1]).__name__ == "Hooks"

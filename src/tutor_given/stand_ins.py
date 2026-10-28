@@ -6,7 +6,8 @@ the toolsets lesson (04-01); `lists_reads_then_answers` and
 `asks_for_every_module_at_once` and `asks_for_five_reads` from the capability
 lesson (04-03); `remembers_then_recalls` and `prints_every_message` from the
 memory lesson (04-05); `lists_modules_and_counts_messages` and `KeepLastTwo` from
-the seam lesson (04-06). Each is a function with a readable name that returns a
+the seam lesson (04-06); `asks_for_a_test_and_its_run` and `approve_all` from the
+approval lesson (05-01). Each is a function with a readable name that returns a
 model, or a capability; the lesson says what it does.
 """
 
@@ -30,6 +31,7 @@ from pydantic_ai.messages import (
     UserPromptPart,
 )
 from pydantic_ai.models.function import AgentInfo, FunctionModel
+from pydantic_ai.tools import DeferredToolRequests, DeferredToolResults
 
 from tutor_given.memory_text import MemoryListing
 
@@ -295,3 +297,57 @@ def lists_modules_and_counts_messages() -> FunctionModel:
         return ModelResponse(parts=[ToolCallPart(tool_name="list_modules", args={})])
 
     return FunctionModel(function=reply)
+
+
+# The test the stand-in model of the approval lesson asks to have written. It
+# fails until the CLI has a `--verbose` flag.
+TEST_PATH = "tests/test_verbose.py"
+TEST_SOURCE = (
+    "from tinyjobs.cli import build_parser\n\n\n"
+    "def test_verbose() -> None:\n"
+    '    assert build_parser().parse_args(["--verbose", "list"]).verbose\n'
+)
+
+
+def asks_for_a_test_and_its_run() -> FunctionModel:
+    """A model that asks, in one response, to write a test file and to run it.
+
+    From the approval lesson (05-01). When it is sent the two tool returns it
+    prints, for each, the tool, the outcome and what came back, then answers
+    "Done.".
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        returns = [
+            part for part in messages[-1].parts if isinstance(part, ToolReturnPart)
+        ]
+        if not returns:
+            return ModelResponse(
+                parts=[
+                    ToolCallPart(
+                        tool_name="write_file",
+                        args={"path": TEST_PATH, "content": TEST_SOURCE},
+                    ),
+                    ToolCallPart(
+                        tool_name="run_command",
+                        args={"command": f"pytest -q {TEST_PATH}"},
+                    ),
+                ]
+            )
+        for part in returns:
+            print(f"  model got: {part.tool_name}, {part.outcome}: {part.content}")
+        return ModelResponse(parts=[TextPart(content="Done.")])
+
+    return FunctionModel(function=reply)
+
+
+def approve_all(
+    ctx: RunContext[None], requests: DeferredToolRequests
+) -> DeferredToolResults:
+    """Approve every call held for approval.
+
+    From the approval lesson (05-01). A stand-in person for a script whose
+    calls were chosen in advance by a stand-in model; never the chat's own
+    answer.
+    """
+    return requests.build_results(approve_all=True)

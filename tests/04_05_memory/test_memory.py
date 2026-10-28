@@ -19,6 +19,10 @@ makes `work/tinyjobs` there, from the sample code.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+The check that the file tools cannot write into the notebook moved to the
+approval lesson (05-01): a write is now held, and the check proves the same
+point with it approved.
 """
 
 import logging
@@ -265,21 +269,6 @@ def test_a_note_written_in_one_run_is_found_in_the_next(workspace: Path) -> None
     run_chat(root=workspace, recorder=later)
     assert len(later.messages[0]) == 1
     assert later.returned == note
-
-
-def test_the_file_tools_may_not_touch_the_notebook(workspace: Path) -> None:
-    # The notebook is the memory tools' alone: a file tool's write would
-    # skip the version check they make, and its read would skip the guidance.
-    notebook = workspace / ".agent-memory" / "main" / "logging.md"
-    before = notebook.read_text()
-    for tool_name, args in [
-        ("read_file", {"path": ".agent-memory/main/logging.md"}),
-        ("write_file", {"path": ".agent-memory/main/logging.md", "content": "x"}),
-    ]:
-        recorder = Recorder(calls=[call(tool_name=tool_name, **args)])
-        run_chat(root=workspace, recorder=recorder)
-        assert "denied by pattern" in recorder.returned
-    assert notebook.read_text() == before
 
 
 def test_the_file_tools_still_read_and_write_the_rest_of_the_workspace(

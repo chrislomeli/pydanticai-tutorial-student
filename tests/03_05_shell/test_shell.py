@@ -18,6 +18,10 @@ makes `work/tinyjobs` there, from the sample code, with a fake `.env`.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+Six checks that ran commands through the chat moved to the approval lesson
+(05-01): the chat now holds a command for approval, and they prove the same
+points with the command approved.
 """
 
 import os
@@ -134,34 +138,6 @@ def file_tool(*, root: Path, tool_name: str, args: dict[str, object]) -> ToolRes
 # after a timeout.
 
 
-def test_pytest_runs_in_the_workspace_folder(workspace: Path) -> None:
-    # The sample's one failing test is on purpose; pytest exits with 1.
-    result = command(root=workspace, line="pytest -q --tb=no")
-    assert not result.refused
-    assert "test_cancel" in result.text
-    assert "[exit code: 1]" in result.text
-
-
-@pytest.mark.parametrize(
-    argnames="line",
-    argvalues=["rm README.md", "cat .env", "uv run pytest", 'sh -c "rm README.md"'],
-)
-def test_a_command_that_does_not_start_with_pytest_is_refused(
-    workspace: Path, line: str
-) -> None:
-    result = command(root=workspace, line=line)
-    assert result.refused
-    assert "is not in the allowed list" in result.text
-    assert (workspace / "README.md").exists()
-    assert FAKE_TOKEN not in result.text
-
-
-def test_a_refusal_reaches_the_model_as_text_it_can_read(workspace: Path) -> None:
-    result = command(root=workspace, line="rm README.md")
-    assert isinstance(result.content, str)
-    assert result.content == "Command 'rm' is not in the allowed list."
-
-
 def test_the_allow_list_is_a_named_constant() -> None:
     from pydantic_tutor.chat.agent import SHELL_COMMANDS
 
@@ -182,31 +158,6 @@ def test_a_shell_without_a_list_is_stopped_after_its_timeout(workspace: Path) ->
 
 
 # Point 2: the allow list checks a first word, so it is not a boundary.
-
-
-def test_the_file_tools_refuse_the_env_file_the_shell_prints(workspace: Path) -> None:
-    read = file_tool(root=workspace, tool_name="read_file", args={"path": ".env"})
-    assert read.refused
-    assert FAKE_TOKEN not in read.text
-
-    printed = command(root=workspace, line="pytest --version && cat .env")
-    assert not printed.refused
-    assert FAKE_TOKEN in printed.text
-
-
-def test_the_shell_reaches_outside_the_workspace_folder(workspace: Path) -> None:
-    outside = workspace.parent / "outside.txt"
-    outside.write_text("outside the workspace\n")
-    result = command(root=workspace, line="pytest --version; cat ../outside.txt")
-    assert "outside the workspace" in result.text
-
-
-def test_pytest_runs_any_test_file_it_is_given(workspace: Path) -> None:
-    (workspace / "test_peek.py").write_text(
-        "def test_peek():\n    print(open('.env').read())\n"
-    )
-    result = command(root=workspace, line="pytest -q -s test_peek.py")
-    assert FAKE_TOKEN in result.text
 
 
 # The scripts.
