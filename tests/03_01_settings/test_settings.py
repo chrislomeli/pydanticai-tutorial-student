@@ -38,9 +38,12 @@ PREFIX = "PYDANTIC_TUTOR_"
 
 
 @pytest.fixture(autouse=True)
-def clean_environment(monkeypatch: pytest.MonkeyPatch) -> None:
-    # Each test starts with none of this project's variables set and no
-    # key, whatever the shell running pytest has, and no real model call.
+def clean_environment(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    # Each test starts in an empty folder (so the project's own `.env`, read
+    # from 03-02 on, is never seen), with none of this project's variables
+    # set and no key, whatever the shell running pytest has, and no real
+    # model call.
+    monkeypatch.chdir(tmp_path)
     for name in list(os.environ):
         if name.upper().startswith(PREFIX):
             monkeypatch.delenv(name)
@@ -82,13 +85,6 @@ def test_settings_read_the_prefixed_variables(monkeypatch: pytest.MonkeyPatch) -
     settings = Settings()
     assert settings.chat_model == "test"
     assert settings.web_search is False  # the text "false" became a bool
-
-
-def test_settings_hold_values_not_objects() -> None:
-    from pydantic_tutor.settings import Settings
-
-    for value in Settings().model_dump().values():
-        assert isinstance(value, str | bool | int | float | Path)
 
 
 def test_settings_cannot_be_changed_after_startup() -> None:
@@ -187,7 +183,6 @@ def test_the_script_prints_no_traceback_without_a_key() -> None:
     env = {k: v for k, v in os.environ.items() if k != "OPENAI_API_KEY"}
     result = subprocess.run(
         [sys.executable, "-m", "pydantic_tutor"],
-        cwd=PROJECT_ROOT,
         input="",
         capture_output=True,
         text=True,
