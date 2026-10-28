@@ -5,20 +5,18 @@ lesson (02-05); built from a setting in the settings lesson (03-01); a
 workspace from the workspace lesson (03-03); the file tools from the file
 tools lesson (03-04); the request log from the hooks lesson (04-02); the
 batch limit from the capability lesson (04-03); the prompt from a file in
-the prompt lesson (04-04); the notebook from the memory lesson (04-05). No
+the prompt lesson (04-04); the notebook from the memory lesson (04-05); split
+into `chat_capabilities` and `build_chat_agent` in the seam lesson (04-06). No
 model here, as for every agent in this project: the chat passes one on each
 run.
 """
 
+from collections.abc import Sequence
 from pathlib import Path
 
 from pydantic_ai import Agent
-from pydantic_ai.capabilities import (
-    AbstractCapability,
-    LocalWorkspace,
-    Toolset,
-    WebSearch,
-)
+from pydantic_ai.capabilities import AgentCapability, LocalWorkspace, Toolset, WebSearch
+from pydantic_ai.settings import ModelSettings
 from pydantic_ai_harness import FileSystem, Shell
 from pydantic_ai_harness.memory import FileStore
 
@@ -48,9 +46,11 @@ SHELL_COMMANDS = ("pytest",)
 PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "chat.md"
 
 
-def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, str]:
-    """Build the chat's agent, its runs working in the `workspace_root` folder."""
-    capabilities: list[AbstractCapability[None]] = [
+def chat_capabilities(
+    *, web_search: bool, workspace_root: Path
+) -> list[AgentCapability[None]]:
+    """Everything the chat does, as a list of capabilities, each one new."""
+    capabilities: list[AgentCapability[None]] = [
         # The chat's instructions, read from PROMPT_PATH when the agent is
         # built. Text, so it is sent ahead of any instructions computed
         # for a request.
@@ -83,8 +83,32 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
     # capability leaves it. It shows nothing until a program turns its
     # logger on; the chat does not.
     capabilities.append(request_log)
+    return capabilities
+
+
+def build_chat_agent(
+    *,
+    web_search: bool,
+    workspace_root: Path,
+    capabilities: Sequence[AgentCapability[None]] | None = None,
+) -> Agent[None, str]:
+    """Build the chat's agent: what it is here, what it does in `capabilities`.
+
+    The constructor sets what no capability can. `capabilities` defaults to
+    `chat_capabilities(...)`; pass another list to rearrange or extend the
+    stack, and `web_search` and `workspace_root` are not used.
+    """
+    if capabilities is None:
+        capabilities = chat_capabilities(
+            web_search=web_search, workspace_root=workspace_root
+        )
     return Agent(
         name="chat",
+        # The type the type checker holds every run to.
+        output_type=str,
+        # Each attempt at a request that takes longer fails; most hosted
+        # models honour it, the stand-in models in these lessons do not.
+        model_settings=ModelSettings(timeout=120),
         capabilities=capabilities,
     )
 
