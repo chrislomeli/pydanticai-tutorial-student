@@ -1,10 +1,10 @@
 """A chat in the terminal that remembers: type a message, read the answer.
 
 From the console-chat lesson (02-02); history from the history lesson
-(02-03). Run it with `OPENAI_API_KEY` set:
+(02-03); streaming from the streaming lesson (02-04). Run it with `OPENAI_API_KEY` set:
 `uv run scripts/chat.py`. An empty line, or Ctrl-D, ends
 it. Each run is handed the messages of the runs before it, so the model is
-sent the whole chat so far.
+sent the whole chat so far, and its answer is printed as it is written.
 """
 
 from pydantic_ai.messages import ModelMessage
@@ -25,10 +25,14 @@ def main() -> None:
             break
         if not line:
             break
-        result = chat_agent.run_sync(
+        result = chat_agent.run_stream_sync(
             user_prompt=line, model=CHAT_MODEL, message_history=history
         )
-        print(blue(text=f"agent> {result.output}"))
+        print(blue(text="agent> "), end="")
+        # Each piece of the answer as it arrives; flush, so it shows at once.
+        for piece in result.stream_text(delta=True):
+            print(blue(text=piece), end="", flush=True)
+        print()
         print(dim(text=f"  (the model was sent {result.usage.input_tokens} tokens)"))
         history = result.all_messages()
 
