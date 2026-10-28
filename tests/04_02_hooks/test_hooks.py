@@ -104,7 +104,6 @@ def test_the_request_log_is_a_hooks_capability_last_on_the_chat(
     project: Path,
 ) -> None:
     from pydantic_tutor.capabilities import request_log as module
-
     from pydantic_tutor.chat.agent import build_chat_agent
 
     assert isinstance(module.request_log, Hooks)
