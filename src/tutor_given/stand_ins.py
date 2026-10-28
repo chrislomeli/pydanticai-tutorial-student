@@ -8,7 +8,8 @@ lesson (04-03); `remembers_then_recalls` and `prints_every_message` from the
 memory lesson (04-05); `lists_modules_and_counts_messages` and `KeepLastTwo` from
 the seam lesson (04-06); `asks_for_a_test_and_its_run` and `approve_all` from the
 approval lesson (05-01), streaming from the chat-loop lesson (05-02);
-`asks_which_flag` from the ask-user lesson (05-03). Each is a function with a readable name that returns a
+`asks_which_flag` from the ask-user lesson (05-03); `says_which_turn` from
+the restart lesson (05-04). Each is a function with a readable name that returns a
 model, or a capability; the lesson says what it does.
 """
 
@@ -423,3 +424,33 @@ def asks_which_flag() -> FunctionModel:
                 }
 
     return FunctionModel(function=reply, stream_function=stream)
+
+
+def says_which_turn() -> FunctionModel:
+    """A model that says which turn it is and what it has been told so far.
+
+    From the restart lesson (05-04); it streams, so the chat can use it. It
+    counts the prompts in the messages it is sent, so a chat that carries on
+    a saved conversation shows it: "Turn 2. You've said: first | second".
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> str:
+        said = [
+            str(part.content)
+            for message in messages
+            for part in message.parts
+            if isinstance(part, UserPromptPart)
+        ]
+        return f"Turn {len(said)}. You've said: {' | '.join(said)}"
+
+    async def stream(
+        messages: list[ModelMessage], info: AgentInfo
+    ) -> AsyncIterator[str | DeltaToolCalls]:
+        yield reply(messages, info)
+
+    return FunctionModel(
+        function=lambda messages, info: ModelResponse(
+            parts=[TextPart(content=reply(messages, info))]
+        ),
+        stream_function=stream,
+    )

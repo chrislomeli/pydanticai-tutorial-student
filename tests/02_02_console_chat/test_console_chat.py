@@ -39,6 +39,9 @@ def test_the_chat_ends_without_calling_the_model(typed: str, tmp_path: Path) -> 
         **os.environ,
         "OPENAI_API_KEY": "sk-not-a-real-key",
         "PYDANTIC_TUTOR_WORKSPACE_ROOT": str(tmp_path),
+        # Since the restart lesson (05-04) the chat opens its database at
+        # start; keep that file out of the project folder.
+        "PYDANTIC_TUTOR_DATABASE": str(tmp_path / "chat.db"),
     }
     result = subprocess.run(
         [sys.executable, "-m", "pydantic_tutor"],
