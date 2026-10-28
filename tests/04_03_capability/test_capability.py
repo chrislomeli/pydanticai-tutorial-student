@@ -267,7 +267,6 @@ def test_the_cap_and_the_request_log_may_stand_in_either_order(
     project: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
     from pydantic_tutor.capabilities.batch_limit import BatchLimit
-
     from pydantic_tutor.capabilities.request_log import request_log
     from pydantic_tutor.tools.workspace_tools import build_workspace_toolset
 
