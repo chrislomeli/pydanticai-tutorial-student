@@ -5,8 +5,9 @@ the toolsets lesson (04-01); `lists_reads_then_answers` and
 `keeps_the_latest_exchange` from the hooks lesson (04-02);
 `asks_for_every_module_at_once` and `asks_for_five_reads` from the capability
 lesson (04-03); `remembers_then_recalls` and `prints_every_message` from the
-memory lesson (04-05). Each is a function with a readable name that returns a model;
-the lesson says what it does.
+memory lesson (04-05); `lists_modules_and_counts_messages` and `KeepLastTwo` from
+the seam lesson (04-06). Each is a function with a readable name that returns a
+model, or a capability; the lesson says what it does.
 """
 
 import json
@@ -15,6 +16,7 @@ from dataclasses import replace
 
 from pydantic import TypeAdapter
 from pydantic_ai import ModelRequestContext, RunContext
+from pydantic_ai.capabilities import AbstractCapability
 from pydantic_ai.messages import (
     ModelMessage,
     ModelRequestPart,
@@ -257,5 +259,39 @@ def prints_every_message() -> FunctionModel:
         for message in messages:
             print(f"  {message.kind}:", [text_of(part=part) for part in message.parts])
         return ModelResponse(parts=[TextPart(content="ok")])
+
+    return FunctionModel(function=reply)
+
+
+class KeepLastTwo(AbstractCapability[None]):
+    """A capability that sends the model only the last two messages of each request.
+
+    From the seam lesson (04-06): a stand-in for one that shortens a long
+    request, as a later lesson's compaction will.
+    """
+
+    async def before_model_request(
+        self, ctx: RunContext[None], request_context: ModelRequestContext
+    ) -> ModelRequestContext:
+        """Return the request with its earlier messages left out."""
+        # Two, so a tool call is sent with its return. A copy: the run's
+        # history keeps every message.
+        return replace(request_context, messages=request_context.messages[-2:])
+
+
+def lists_modules_and_counts_messages() -> FunctionModel:
+    """A model that says what it is sent, asks for `list_modules` once, then answers.
+
+    From the seam lesson (04-06). On each request it prints how many messages
+    it is sent; on the first, how each piece of its instructions starts.
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        print(f"  model: sent {len(messages)} message(s)")
+        if any(isinstance(part, ToolReturnPart) for part in messages[-1].parts):
+            return ModelResponse(parts=[TextPart(content="Done.")])
+        for part in info.model_request_parameters.instruction_parts or []:
+            print("    instructions:", " ".join(part.content.split()[:4]), "...")
+        return ModelResponse(parts=[ToolCallPart(tool_name="list_modules", args={})])
 
     return FunctionModel(function=reply)

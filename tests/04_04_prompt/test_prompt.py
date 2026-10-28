@@ -6,7 +6,9 @@ the lesson is done. None of them needs an API key or makes a request:
 every run is on a stand-in model.
 
 Two checks that pinned the chat's instructions moved to the memory lesson
-(04-05), which adds a paragraph of guidance after the prompt.
+(04-05), which adds a paragraph of guidance after the prompt. One that pinned
+where the prompt sits among the capabilities moved to the seam lesson
+(04-06), where the prompt declares its place.
 
 Each test runs in an empty folder of its own, so the project's own `.env`
 and `work/` folder are never read. A test that needs the workspace folder
@@ -127,29 +129,6 @@ def test_a_missing_or_empty_prompt_file_fails_when_made(tmp_path: Path) -> None:
     empty.write_text("  \n", encoding="utf-8")
     with pytest.raises(ValueError, match="empty"):
         prompt_file.PromptFile(path=empty)
-
-
-def test_the_chat_takes_its_prompt_from_the_file_first(project: Path) -> None:
-    from pydantic_tutor.capabilities import prompt_file
-    from pydantic_tutor.chat.agent import PROMPT_PATH, build_chat_agent
-
-    # Beside the module, found from anywhere: an absolute path.
-    assert PROMPT_PATH.is_absolute()
-    assert PROMPT_PATH.resolve() == PROMPT_FILE.resolve()
-    agent = build_chat_agent(
-        web_search=True, workspace_root=project / "work" / "tinyjobs"
-    )
-    capabilities = agent.root_capability.capabilities
-    prompts = [c for c in capabilities if isinstance(c, prompt_file.PromptFile)]
-    assert len(prompts) == 1
-    assert prompts[0].path == PROMPT_PATH
-    # First of those the chat was given. The two the library adds of its
-    # own, ToolSearch and PendingMessageDrainCapability, sit ahead of it.
-    assert [type(c).__name__ for c in capabilities[:3]] == [
-        "ToolSearch",
-        "PendingMessageDrainCapability",
-        "PromptFile",
-    ]
 
 
 # Point 2: the order of instruction text from several places.
