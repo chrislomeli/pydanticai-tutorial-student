@@ -7,8 +7,9 @@ which is about the library and passes before it too. None of them needs an
 API key or makes a request: every run is on a stand-in model.
 
 Two checks were moved here from the file tools lesson (03-04), which this
-lesson changes: that the chat is offered eight tools, and that
-`workspace_reach.py` prints it. The shell adds four, so both now say twelve.
+lesson changed: that the chat is offered eight tools, and that
+`workspace_reach.py` prints it. The shell adds four, so both said twelve;
+the toolsets lesson (04-01) moved them on again, to fourteen.
 
 Each test runs in an empty folder of its own, so the project's own `.env`
 and `work/` folder are never read. A test that needs the workspace folder
@@ -46,17 +47,6 @@ PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 FAKE_TOKEN = "tj-FAKE-0000-not-a-real-secret"
 PREFIX = "PYDANTIC_TUTOR_"
 KEY_VARIABLES = ("OPENAI_API_KEY", "ANTHROPIC_API_KEY")
-FILE_TOOLS = [
-    "create_directory",
-    "edit_file",
-    "file_info",
-    "find_files",
-    "list_directory",
-    "read_file",
-    "search_files",
-    "write_file",
-]
-SHELL_TOOLS = ["check_command", "run_command", "start_command", "stop_command"]
 
 
 @pytest.fixture(autouse=True)
@@ -142,26 +132,6 @@ def file_tool(*, root: Path, tool_name: str, args: dict[str, object]) -> ToolRes
 
 # Point 1: the chat has a shell that runs only pytest, each command stopped
 # after a timeout.
-
-
-def test_the_chat_is_offered_the_file_tools_and_the_shell_tools(
-    workspace: Path,
-) -> None:
-    # Moved from 03-04, where the chat was offered eight tools.
-    from pydantic_tutor.composition import build_app
-    from pydantic_tutor.settings import Settings
-
-    offered: list[str] = []
-
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        offered.extend(tool.name for tool in info.function_tools)
-        return ModelResponse(parts=[TextPart(content="ok")])
-
-    app = build_app(
-        settings=Settings(chat_model="test", web_search=False, workspace_root=workspace)
-    )
-    app.agent.run_sync(user_prompt="hi", model=FunctionModel(function=reply))
-    assert sorted(offered) == sorted(FILE_TOOLS + SHELL_TOOLS)
 
 
 def test_pytest_runs_in_the_workspace_folder(workspace: Path) -> None:
@@ -266,16 +236,6 @@ def project(tmp_path: Path) -> Path:
     made = run_script(name="fresh_copy.py", folder=tmp_path)
     assert made.returncode == 0, made.stderr
     return tmp_path
-
-
-def test_workspace_reach_now_counts_the_file_and_shell_tools(project: Path) -> None:
-    # Moved from 03-04, where it printed 8.
-    result = run_script(name="workspace_reach.py", folder=project)
-    assert result.returncode == 0, result.stderr
-    lines = result.stdout.splitlines()
-    assert "tools the model is offered: 12" in lines
-    assert "README.md: # tinyjobs" in lines
-    assert "../../pyproject.toml: [project]" in lines
 
 
 def test_shell_commands_prints_what_runs_and_what_is_refused(project: Path) -> None:
