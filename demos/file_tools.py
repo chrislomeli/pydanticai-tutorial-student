@@ -17,6 +17,8 @@ CALLS: list[tuple[str, str, dict[str, str | int]]] = [
     ("read_file", "README.md", {"limit": 1}),
     ("read_file", ".env", {}),
     ("write_file", ".env", {"content": "TOKEN=mine\n"}),
+    ("read_file", ".agent-memory/main/logging.md", {}),
+    ("write_file", ".agent-memory/main/logging.md", {"content": "mine\n"}),
     ("read_file", "../../pyproject.toml", {}),
 ]
 for tool_name, path, other_arguments in CALLS:

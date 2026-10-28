@@ -5,8 +5,9 @@ lesson (02-05); built from a setting in the settings lesson (03-01); a
 workspace from the workspace lesson (03-03); the file tools from the file
 tools lesson (03-04); the request log from the hooks lesson (04-02); the
 batch limit from the capability lesson (04-03); the prompt from a file in
-the prompt lesson (04-04). No model here, as for every agent in this
-project: the chat passes one on each run.
+the prompt lesson (04-04); the notebook from the memory lesson (04-05). No
+model here, as for every agent in this project: the chat passes one on each
+run.
 """
 
 from pathlib import Path
@@ -19,8 +20,10 @@ from pydantic_ai.capabilities import (
     WebSearch,
 )
 from pydantic_ai_harness import FileSystem, Shell
+from pydantic_ai_harness.memory import FileStore
 
 from pydantic_tutor.capabilities.batch_limit import BatchLimit
+from pydantic_tutor.capabilities.listable_memory import ListableMemory
 from pydantic_tutor.capabilities.prompt_file import PromptFile
 from pydantic_tutor.capabilities.request_log import request_log
 from pydantic_tutor.tools.workspace_tools import build_workspace_toolset
@@ -29,6 +32,10 @@ from pydantic_tutor.tools.workspace_tools import build_workspace_toolset
 # library's own secret patterns, which by default it only keeps from being
 # written. A leading `**/` means "in any folder, the top one included".
 SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
+
+# The notebook's folder, in the workspace. The file tools may not touch it:
+# the memory tools are its only way in.
+NOTEBOOK = ".agent-memory"
 
 # The only commands the shell may start: the chat runs the workspace's tests
 # and reads files with the file tools. A guard against mistakes, not a
@@ -52,7 +59,8 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
         LocalWorkspace(working_dir=workspace_root),
         # Eight file tools, working in that workspace and kept to its folder.
         # The default `read_only_patterns` still stop writes; this stops reads.
-        FileSystem(denied_patterns=SECRET_PATTERNS),
+        # The notebook is denied too, for reads and writes alike.
+        FileSystem(denied_patterns=(*SECRET_PATTERNS, f"**/{NOTEBOOK}/**")),
         # Four shell tools, running commands in that workspace, on this
         # machine. They keep to neither its folder nor SECRET_PATTERNS. Only
         # the allowed commands start; each is stopped after 30 seconds, the
@@ -61,6 +69,8 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
         # Our two tools that read the workspace's Python modules, with their
         # instructions and time limit. Built with the folder they read.
         Toolset(toolset=build_workspace_toolset(root=workspace_root)),
+        # Injection off: the model lists and reads the notebook with tools.
+        ListableMemory(store=FileStore(directory=NOTEBOOK), inject_memory=False),
     ]
     if web_search:
         # The model may search when it needs to. Each search is billed by

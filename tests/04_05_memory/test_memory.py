@@ -180,7 +180,6 @@ def workspace(tmp_path: Path) -> Path:
 
 def test_listable_memory_is_memory_with_its_own_guidance() -> None:
     from pydantic_tutor.capabilities.listable_memory import ListableMemory
-
     from tutor_given.memory_text import LISTING_GUIDANCE
 
     memory: ListableMemory[None] = ListableMemory()
@@ -296,7 +295,6 @@ def test_list_memory_lists_one_notebook_and_says_when_it_is_cut() -> None:
     import asyncio
 
     from pydantic_tutor.capabilities.listable_memory import ListableMemory
-
     from tutor_given.memory_text import MemoryListing
 
     async def fill() -> InMemoryStore:
