@@ -10,8 +10,15 @@ agent in this project: the chat passes one on each run.
 from pathlib import Path
 
 from pydantic_ai import Agent
-from pydantic_ai.capabilities import AbstractCapability, LocalWorkspace, WebSearch
+from pydantic_ai.capabilities import (
+    AbstractCapability,
+    LocalWorkspace,
+    Toolset,
+    WebSearch,
+)
 from pydantic_ai_harness import FileSystem, Shell
+
+from pydantic_tutor.tools.workspace_tools import build_workspace_toolset
 
 # Files the file tools may neither read nor write, in any folder: the
 # library's own secret patterns, which by default it only keeps from being
@@ -38,6 +45,9 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
         # the allowed commands start; each is stopped after 30 seconds, the
         # default, or after the time the model asks for.
         Shell(allowed_commands=SHELL_COMMANDS),
+        # Our two tools that read the workspace's Python modules, with their
+        # instructions and time limit. Built with the folder they read.
+        Toolset(toolset=build_workspace_toolset(root=workspace_root)),
     ]
     if web_search:
         # The model may search when it needs to. Each search is billed by

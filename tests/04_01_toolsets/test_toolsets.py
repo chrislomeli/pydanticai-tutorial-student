@@ -280,6 +280,7 @@ def test_filtered_offers_only_what_the_function_keeps(workspace: Path) -> None:
 
 def test_a_tool_name_can_be_used_once(workspace: Path) -> None:
     from pydantic_ai.exceptions import UserError
+
     from pydantic_tutor.tools.workspace_tools import build_workspace_toolset
 
     def list_modules() -> list[str]:

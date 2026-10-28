@@ -41,7 +41,8 @@ for label, path in paths.items():
     result = agent.run_sync(
         user_prompt=path,
         model=calls_tool_with_the_prompt(tool_name="first_line", argument="path"),
-        # A tool for this run only: the chat has none of its own yet.
+        # A tool for this run only, that reads through the workspace as the file
+        # tools do.
         toolsets=[FunctionToolset(tools=[first_line])],
     )
     print(f"{label}: {result.output}")
