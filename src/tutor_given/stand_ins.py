@@ -7,12 +7,12 @@ the toolsets lesson (04-01); `lists_reads_then_answers` and
 lesson (04-03); `remembers_then_recalls` and `prints_every_message` from the
 memory lesson (04-05); `lists_modules_and_counts_messages` and `KeepLastTwo` from
 the seam lesson (04-06); `asks_for_a_test_and_its_run` and `approve_all` from the
-approval lesson (05-01). Each is a function with a readable name that returns a
+approval lesson (05-01), streaming from the chat-loop lesson (05-02). Each is a function with a readable name that returns a
 model, or a capability; the lesson says what it does.
 """
 
 import json
-from collections.abc import Mapping
+from collections.abc import AsyncIterator, Mapping
 from dataclasses import replace
 
 from pydantic import TypeAdapter
@@ -30,7 +30,12 @@ from pydantic_ai.messages import (
     ToolReturnPart,
     UserPromptPart,
 )
-from pydantic_ai.models.function import AgentInfo, FunctionModel
+from pydantic_ai.models.function import (
+    AgentInfo,
+    DeltaToolCall,
+    DeltaToolCalls,
+    FunctionModel,
+)
 from pydantic_ai.tools import DeferredToolRequests, DeferredToolResults
 
 from tutor_given.memory_text import MemoryListing
@@ -312,33 +317,44 @@ TEST_SOURCE = (
 def asks_for_a_test_and_its_run() -> FunctionModel:
     """A model that asks, in one response, to write a test file and to run it.
 
-    From the approval lesson (05-01). When it is sent the two tool returns it
-    prints, for each, the tool, the outcome and what came back, then answers
-    "Done.".
+    From the approval lesson (05-01); it streams too, from the chat-loop
+    lesson (05-02), so the chat can use it. When it is sent the two tool
+    returns it prints, for each, the tool, the outcome and what came back,
+    then answers "Done.".
     """
 
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+    def asked_for(*, messages: list[ModelMessage]) -> list[tuple[str, str]]:
+        """The two calls as (tool, arguments as JSON), unless they were returned."""
         returns = [
             part for part in messages[-1].parts if isinstance(part, ToolReturnPart)
         ]
-        if not returns:
-            return ModelResponse(
-                parts=[
-                    ToolCallPart(
-                        tool_name="write_file",
-                        args={"path": TEST_PATH, "content": TEST_SOURCE},
-                    ),
-                    ToolCallPart(
-                        tool_name="run_command",
-                        args={"command": f"pytest -q {TEST_PATH}"},
-                    ),
-                ]
-            )
         for part in returns:
             print(f"  model got: {part.tool_name}, {part.outcome}: {part.content}")
-        return ModelResponse(parts=[TextPart(content="Done.")])
+        if returns:
+            return []
+        return [
+            ("write_file", json.dumps({"path": TEST_PATH, "content": TEST_SOURCE})),
+            ("run_command", json.dumps({"command": f"pytest -q {TEST_PATH}"})),
+        ]
 
-    return FunctionModel(function=reply)
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        calls = asked_for(messages=messages)
+        if not calls:
+            return ModelResponse(parts=[TextPart(content="Done.")])
+        return ModelResponse(
+            parts=[ToolCallPart(tool_name=name, args=args) for name, args in calls]
+        )
+
+    async def stream(
+        messages: list[ModelMessage], info: AgentInfo
+    ) -> AsyncIterator[str | DeltaToolCalls]:
+        calls = asked_for(messages=messages)
+        if not calls:
+            yield "Done."
+        for index, (name, args) in enumerate(calls):
+            yield {index: DeltaToolCall(name=name, json_args=args, tool_call_id=name)}
+
+    return FunctionModel(function=reply, stream_function=stream)
 
 
 def approve_all(
