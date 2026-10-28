@@ -11,12 +11,18 @@ from pathlib import Path
 
 from pydantic_ai import Agent
 from pydantic_ai.capabilities import AbstractCapability, LocalWorkspace, WebSearch
-from pydantic_ai_harness import FileSystem
+from pydantic_ai_harness import FileSystem, Shell
 
 # Files the file tools may neither read nor write, in any folder: the
 # library's own secret patterns, which by default it only keeps from being
 # written. A leading `**/` means "in any folder, the top one included".
 SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
+
+# The only commands the shell may start: the chat runs the workspace's tests
+# and reads files with the file tools. A guard against mistakes, not a
+# boundary: only a command's first word is checked, and pytest runs any
+# code it is given.
+SHELL_COMMANDS = ("pytest",)
 
 
 def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, str]:
@@ -27,6 +33,11 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
         # Eight file tools, working in that workspace and kept to its folder.
         # The default `read_only_patterns` still stop writes; this stops reads.
         FileSystem(denied_patterns=SECRET_PATTERNS),
+        # Four shell tools, running commands in that workspace, on this
+        # machine. They keep to neither its folder nor SECRET_PATTERNS. Only
+        # the allowed commands start; each is stopped after 30 seconds, the
+        # default, or after the time the model asks for.
+        Shell(allowed_commands=SHELL_COMMANDS),
     ]
     if web_search:
         # The model may search when it needs to. Each search is billed by
