@@ -1,12 +1,15 @@
 """Stand-in models for the lessons' keyless scripts.
 
 Given, from the workspace lesson (03-03); `reports_what_it_is_sent` from
-the toolsets lesson (04-01). Each is a function with a
+the toolsets lesson (04-01); `lists_reads_then_answers` and
+`keeps_the_latest_exchange` from the hooks lesson (04-02). Each is a function with a
 readable name that returns a model; the lesson says what it does.
 """
 
 from collections.abc import Mapping
+from dataclasses import replace
 
+from pydantic_ai import ModelRequestContext, RunContext
 from pydantic_ai.messages import (
     ModelMessage,
     ModelResponse,
@@ -59,3 +62,50 @@ def reports_what_it_is_sent() -> FunctionModel:
         return ModelResponse(parts=[TextPart(content="Done.")])
 
     return FunctionModel(function=reply)
+
+
+def lists_reads_then_answers() -> FunctionModel:
+    """A model that makes three requests and prints what each one carries.
+
+    From the hooks lesson (04-02). Before each request it prints how many
+    messages and tools it was sent. It calls `list_modules`, then
+    `read_docstring` on `tinyjobs.jobs`, then answers "Done.".
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        print(
+            f"  the model receives: messages={len(messages)} "
+            f"tools={len(info.function_tools)}"
+        )
+        returned = [
+            part.tool_name
+            for part in messages[-1].parts
+            if isinstance(part, ToolReturnPart)
+        ]
+        if not returned:
+            call = ToolCallPart(tool_name="list_modules", args={})
+            return ModelResponse(parts=[call])
+        if returned == ["list_modules"]:
+            call = ToolCallPart(
+                tool_name="read_docstring", args={"module": "tinyjobs.jobs"}
+            )
+            return ModelResponse(parts=[call])
+        return ModelResponse(parts=[TextPart(content="Done.")])
+
+    return FunctionModel(function=reply)
+
+
+def keeps_the_latest_exchange(
+    ctx: RunContext[None], request_context: ModelRequestContext
+) -> ModelRequestContext:
+    """A `before_model_request` hook that sends the question and the latest exchange only.
+
+    From the hooks lesson (04-02): a stand-in for a history trimmer. Up to
+    three messages it passes the request on unchanged; after that it sends
+    the first message and the last two (a tool's call and its return).
+    """
+    messages = request_context.messages
+    if len(messages) <= 3:
+        return request_context
+    # A new request with a shorter list: the run's history keeps every message.
+    return replace(request_context, messages=[messages[0], *messages[-2:]])
