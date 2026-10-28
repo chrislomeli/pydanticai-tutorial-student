@@ -2,30 +2,41 @@
 
 From the console-chat lesson (02-02); history from the history lesson
 (02-03); streaming from the streaming lesson (02-04); its agent and model
-from the settings lesson (03-01). Run it with `OPENAI_API_KEY` set:
+from the settings lesson (03-01); you answer the writes and commands the
+agent holds from the chat-loop lesson (05-02). Run it with `OPENAI_API_KEY` set:
 `uv run python -m pydantic_tutor`. An empty line, or Ctrl-D, ends
 it. Each run is handed the messages of the runs before it, so the model is
-sent the whole chat so far, and its answer is printed as it is written.
+sent the whole chat so far, and its answer is printed as it is written. When
+the agent wants to write a file or run a command, it shows the call and waits:
+`y` runs it, anything else refuses it.
 """
 
 from pydantic import ValidationError
 from pydantic_ai.exceptions import UserError
 from pydantic_ai.messages import ModelMessage
 
+from pydantic_tutor.capabilities.approval import approver, at_the_keyboard
 from pydantic_tutor.chat.console import blue, dim
-from pydantic_tutor.composition import build_app
+from pydantic_tutor.composition import App, build_app
 from pydantic_tutor.settings import Settings
 
 
-def main() -> None:
-    """Read a line, run the agent on it with the chat so far, print the answer."""
-    try:
-        app = build_app(settings=Settings())
-    except (ValidationError, UserError) as error:
-        # A bad setting or a missing key: say which, and do not open the chat.
-        raise SystemExit(f"pydantic-tutor cannot start:\n{error}") from error
+def main(*, app: App | None = None) -> None:
+    """Read a line, run the agent on it with the chat so far, print the answer.
+
+    The chat runs `app`; given none, it builds the app from the settings.
+    """
+    if app is None:
+        try:
+            app = build_app(settings=Settings())
+        except (ValidationError, UserError) as error:
+            # A bad setting or a missing key: say which, and do not open the chat.
+            raise SystemExit(f"pydantic-tutor cannot start:\n{error}") from error
     print("Chat with the agent. An empty line ends it.")
     history: list[ModelMessage] = []  # every message of the chat so far
+    # Given to every run, in place of the agent's own answerer (the same
+    # `id`): you answer the calls it holds, where nobody is there to.
+    at_the_desk = [approver(answer=at_the_keyboard)]
     while True:
         try:
             line = input("you> ").strip()
@@ -34,7 +45,10 @@ def main() -> None:
         if not line:
             break
         result = app.agent.run_stream_sync(
-            user_prompt=line, model=app.model, message_history=history
+            user_prompt=line,
+            model=app.model,
+            message_history=history,
+            capabilities=at_the_desk,
         )
         print(blue(text="agent> "), end="")
         # Each piece of the answer as it arrives; flush, so it shows at once.

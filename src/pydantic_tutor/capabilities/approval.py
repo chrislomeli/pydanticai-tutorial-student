@@ -3,14 +3,20 @@
 The mechanism is the library's: the harness's `ToolGuardrail` holds a call
 for approval before it runs, and a `HandleDeferredToolCalls` capability
 answers it inside the run. This module holds the project's policy: which
-tools ask (`ask_first`), and the answers, given to a run by `approver(...)`.
+tools ask (`ask_first`), and the answers, given to a run by `approver(...)`:
+`refuse_unattended` is the agent's own, `at_the_keyboard` is the chat's.
 """
 
 from collections.abc import Callable
 
 from pydantic_ai import RunContext
 from pydantic_ai.capabilities import HandleDeferredToolCalls
-from pydantic_ai.tools import DeferredToolRequests, DeferredToolResults, ToolDenied
+from pydantic_ai.tools import (
+    DeferredToolRequests,
+    DeferredToolResults,
+    ToolApproved,
+    ToolDenied,
+)
 from pydantic_ai_harness import GuardrailResult
 from pydantic_ai_harness.filesystem import FILE_SYSTEM_TOOL_NAMES, READ_ONLY_TOOL_NAMES
 from pydantic_ai_harness.guardrails import ToolCallInfo
@@ -57,6 +63,33 @@ def refuse_unattended(
             for call in requests.approvals
         }
     )
+
+
+def at_the_keyboard(
+    ctx: RunContext[None], requests: DeferredToolRequests
+) -> DeferredToolResults:
+    """Show each held call and ask: it runs only if the person types `y`.
+
+    Anything else refuses it, nothing typed and the end of input included,
+    and what was typed is what the model is told.
+    """
+    answers: dict[str, ToolApproved | ToolDenied] = {}
+    for call in requests.approvals:
+        print(f"  {call.tool_name} {call.args_as_dict()}")
+        try:
+            reply = input("  Run it? y, or say why not: ").strip()
+        except EOFError, KeyboardInterrupt:
+            # Ctrl-D, Ctrl-C, or the end of piped input: when in doubt, no.
+            print()
+            reply = ""
+        if reply == "y":
+            answers[call.tool_call_id] = ToolApproved()
+        else:
+            reason = f": {reply}" if reply else "."
+            answers[call.tool_call_id] = ToolDenied(
+                message=f"Refused at the keyboard{reason}"
+            )
+    return requests.build_results(approvals=answers)
 
 
 def approver(*, answer: Answer) -> HandleDeferredToolCalls[None]:
