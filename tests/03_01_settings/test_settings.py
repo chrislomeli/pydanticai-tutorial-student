@@ -66,9 +66,8 @@ def user_prompts(messages: list[ModelMessage]) -> list[str]:
 
 
 def test_settings_have_the_defaults_the_chat_used() -> None:
-    from pydantic_tutor.settings import Settings
-
     from pydantic_tutor.model import CHAT_MODEL
+    from pydantic_tutor.settings import Settings
 
     settings = Settings()
     assert settings.chat_model == CHAT_MODEL
@@ -206,9 +205,8 @@ def test_the_script_prints_no_traceback_without_a_key() -> None:
 
 
 def test_each_run_is_sent_the_chat_so_far(monkeypatch: pytest.MonkeyPatch) -> None:
-    from pydantic_tutor.composition import App
-
     from pydantic_tutor.chat.agent import chat_agent
+    from pydantic_tutor.composition import App
 
     sent: list[list[str]] = []
 
@@ -237,9 +235,8 @@ def test_each_run_is_sent_the_chat_so_far(monkeypatch: pytest.MonkeyPatch) -> No
 def test_the_chat_streams_and_still_remembers(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    from pydantic_tutor.composition import App
-
     from pydantic_tutor.chat.agent import chat_agent
+    from pydantic_tutor.composition import App
 
     sent: list[int] = []
 
