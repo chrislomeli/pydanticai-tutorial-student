@@ -9,7 +9,8 @@ memory lesson (04-05); `lists_modules_and_counts_messages` and `KeepLastTwo` fro
 the seam lesson (04-06); `asks_for_a_test_and_its_run` and `approve_all` from the
 approval lesson (05-01), streaming from the chat-loop lesson (05-02);
 `asks_which_flag` from the ask-user lesson (05-03); `says_which_turn` from
-the restart lesson (05-04). Each is a function with a readable name that returns a
+the restart lesson (05-04); `writes_notes_then_builds` from the crash lesson
+(05-05). Each is a function with a readable name that returns a
 model, or a capability; the lesson says what it does.
 """
 
@@ -453,4 +454,88 @@ def says_which_turn() -> FunctionModel:
             parts=[TextPart(content=reply(messages, info))]
         ),
         stream_function=stream,
+    )
+
+
+def writes_notes_then_builds() -> FunctionModel:
+    """A model whose every turn is four tool calls, one per response, then an answer.
+
+    From the crash lesson (05-05); it streams, so the chat can use it. In a
+    turn it calls `list_modules`, `read_docstring` on `tinyjobs.jobs`,
+    `write_file` (`NOTES.md`, held for your approval) and `wait_for_build`,
+    a tool the script `crash_session.py` adds, then says what came back.
+    It reads the turn from its last prompt on and asks for the first of the
+    four that has not returned in it, so a run started from a history that
+    ends in some returns carries on with the rest.
+    """
+
+    def next_call(*, messages: list[ModelMessage]) -> tuple[str, str] | None:
+        """The next tool call as (name, arguments as JSON), or None once all returned."""
+        start = max(
+            index
+            for index, message in enumerate(messages)
+            if any(isinstance(part, UserPromptPart) for part in message.parts)
+        )
+        returned = {
+            part.tool_name: str(part.content)
+            for message in messages[start:]
+            for part in message.parts
+            if isinstance(part, ToolReturnPart)
+        }
+        if "list_modules" not in returned:
+            return "list_modules", "{}"
+        if "read_docstring" not in returned:
+            return "read_docstring", json.dumps({"module": "tinyjobs.jobs"})
+        if "write_file" not in returned:
+            summary = returned["read_docstring"].splitlines()[0]
+            notes = f"# Notes\n\ntinyjobs.jobs: {summary}\n"
+            return "write_file", json.dumps({"path": "NOTES.md", "content": notes})
+        if "wait_for_build" not in returned:
+            return "wait_for_build", "{}"
+        return None
+
+    def call_id(*, messages: list[ModelMessage], name: str) -> str:
+        """An id for the call that is new in every turn, so a record can tell them apart."""
+        turn = sum(
+            isinstance(part, UserPromptPart)
+            for message in messages
+            for part in message.parts
+        )
+        return f"{name}-{turn}"
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        call = next_call(messages=messages)
+        if call is None:
+            return ModelResponse(
+                parts=[TextPart(content="Wrote NOTES.md; build passed.")]
+            )
+        name, args = call
+        return ModelResponse(
+            parts=[
+                ToolCallPart(
+                    tool_name=name,
+                    args=args,
+                    tool_call_id=call_id(messages=messages, name=name),
+                )
+            ]
+        )
+
+    async def stream(
+        messages: list[ModelMessage], info: AgentInfo
+    ) -> AsyncIterator[str | DeltaToolCalls]:
+        call = next_call(messages=messages)
+        if call is None:
+            yield "Wrote NOTES.md; build passed."
+            return
+        name, args = call
+        yield {
+            0: DeltaToolCall(
+                name=name,
+                json_args=args,
+                tool_call_id=call_id(messages=messages, name=name),
+            )
+        }
+
+    return FunctionModel(
+        function=reply, stream_function=stream, model_name="a stand-in model"
     )
