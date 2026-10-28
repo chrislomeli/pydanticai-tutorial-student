@@ -12,6 +12,10 @@ makes it there.
 Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
+
+Two checks were moved to the file tools lesson (03-04), which gives the chat
+its first tools: that the chat is offered no tool, and that
+`workspace_reach.py` prints it.
 """
 
 import os
@@ -135,26 +139,6 @@ def test_build_app_attaches_a_workspace_in_the_setting_folder(tmp_path: Path) ->
     assert result.output == "# inside"
 
 
-def test_the_workspace_gives_the_chat_no_tools(tmp_path: Path) -> None:
-    from pydantic_tutor.composition import build_app
-    from pydantic_tutor.settings import Settings
-
-    (tmp_path / "ws").mkdir()
-    offered: list[str] = []
-
-    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        offered.extend(tool.name for tool in info.function_tools)
-        return ModelResponse(parts=[TextPart(content="ok")])
-
-    app = build_app(
-        settings=Settings(
-            chat_model="test", web_search=False, workspace_root=Path("ws")
-        )
-    )
-    app.agent.run_sync(user_prompt="hi", model=FunctionModel(function=reply))
-    assert offered == []
-
-
 def test_build_app_refuses_a_missing_folder_by_the_setting() -> None:
     from pydantic_tutor.composition import build_app
     from pydantic_tutor.settings import Settings
@@ -273,7 +257,6 @@ def test_workspace_reach_prints_what_the_workspace_is_and_is_not(
     result = run_script(name="workspace_reach.py", folder=folder)
     assert result.returncode == 0, result.stderr
     lines = result.stdout.splitlines()
-    assert "tools the model is offered: 0" in lines
     assert "README.md: # tinyjobs" in lines
     assert "../../pyproject.toml: [project]" in lines
     assert "absolute path: [project]" in lines
