@@ -165,7 +165,6 @@ def chat_call(
     the chat's own answer applies.
     """
     from pydantic_tutor.capabilities.approval import approver
-
     from pydantic_tutor.chat.agent import build_chat_agent
     from tutor_given.stand_ins import approve_all
 
@@ -218,6 +217,7 @@ def project(tmp_path: Path) -> Path:
 def test_the_policy_holds_the_writes_and_commands_and_nothing_else() -> None:
     from pydantic_ai_harness import GuardrailResult
     from pydantic_ai_harness.guardrails import ToolCallInfo
+
     from pydantic_tutor.capabilities.approval import ASK_FIRST, ask_first
 
     # `shell` is the tool `Shell` adds only when asked: it asks too.
@@ -258,6 +258,7 @@ def test_unattended_a_command_is_refused_and_does_not_start(workspace: Path) -> 
 def test_unattended_the_shells_opt_in_tool_is_refused_too(workspace: Path) -> None:
     from pydantic_ai.capabilities import LocalWorkspace as Workspace
     from pydantic_ai_harness import Shell
+
     from pydantic_tutor.capabilities.approval import (
         approver,
         ask_first,
@@ -339,7 +340,6 @@ def test_the_chat_carries_the_guardrail_and_an_answerer(workspace: Path) -> None
         ask_first,
         refuse_unattended,
     )
-
     from pydantic_tutor.chat.agent import chat_capabilities
 
     stack = chat_capabilities(web_search=False, workspace_root=workspace)
@@ -389,7 +389,6 @@ def test_a_runs_answerer_replaces_the_chats_and_each_call_gets_its_own(
     workspace: Path,
 ) -> None:
     from pydantic_tutor.capabilities.approval import approver
-
     from pydantic_tutor.chat.agent import build_chat_agent
 
     chat = build_chat_agent(web_search=False, workspace_root=workspace)

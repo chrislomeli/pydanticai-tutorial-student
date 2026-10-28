@@ -5,9 +5,10 @@ first. Kept working: a later lesson that changes the chat's file tools
 updates this script, or removes it and says why.
 """
 
+from pydantic_tutor.capabilities.approval import approver
 from pydantic_tutor.chat.agent import build_chat_agent
 from pydantic_tutor.settings import Settings
-from tutor_given.stand_ins import calls_tool_with_the_prompt
+from tutor_given.stand_ins import approve_all, calls_tool_with_the_prompt
 
 agent = build_chat_agent(web_search=False, workspace_root=Settings().workspace_root)
 
@@ -27,6 +28,9 @@ for tool_name, path, other_arguments in CALLS:
         model=calls_tool_with_the_prompt(
             tool_name=tool_name, argument="path", other_arguments=other_arguments
         ),
+        # Every call approved: this script shows what the tools themselves
+        # allow and refuse, once a person has said yes.
+        capabilities=[approver(answer=approve_all)],
     )
     print(f"{tool_name} {path}:")
     for line in result.output.splitlines():

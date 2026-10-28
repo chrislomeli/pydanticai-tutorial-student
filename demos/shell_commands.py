@@ -12,9 +12,10 @@ from pydantic_ai import Agent
 from pydantic_ai.capabilities import LocalWorkspace
 from pydantic_ai_harness import Shell
 
+from pydantic_tutor.capabilities.approval import approver
 from pydantic_tutor.chat.agent import build_chat_agent
 from pydantic_tutor.settings import Settings
-from tutor_given.stand_ins import calls_tool_with_the_prompt
+from tutor_given.stand_ins import approve_all, calls_tool_with_the_prompt
 
 root = Settings().workspace_root
 chat = build_chat_agent(web_search=False, workspace_root=root)
@@ -30,6 +31,9 @@ for line in COMMANDS:
     result = chat.run_sync(
         user_prompt=line,
         model=calls_tool_with_the_prompt(tool_name="run_command", argument="command"),
+        # Every call approved: this script shows what the tools themselves
+        # allow and refuse, once a person has said yes.
+        capabilities=[approver(answer=approve_all)],
     )
     print(f"$ {line}")
     print(textwrap.indent(text=result.output.rstrip(), prefix="  "))

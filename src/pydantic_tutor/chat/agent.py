@@ -6,9 +6,9 @@ workspace from the workspace lesson (03-03); the file tools from the file
 tools lesson (03-04); the request log from the hooks lesson (04-02); the
 batch limit from the capability lesson (04-03); the prompt from a file in
 the prompt lesson (04-04); the notebook from the memory lesson (04-05); split
-into `chat_capabilities` and `build_chat_agent` in the seam lesson (04-06). No
-model here, as for every agent in this project: the chat passes one on each
-run.
+into `chat_capabilities` and `build_chat_agent` in the seam lesson (04-06);
+approval of writes and commands from the approval lesson (05-01). No model
+here, as for every agent in this project: the chat passes one on each run.
 """
 
 from collections.abc import Sequence
@@ -17,9 +17,10 @@ from pathlib import Path
 from pydantic_ai import Agent
 from pydantic_ai.capabilities import AgentCapability, LocalWorkspace, Toolset, WebSearch
 from pydantic_ai.settings import ModelSettings
-from pydantic_ai_harness import FileSystem, Shell
+from pydantic_ai_harness import FileSystem, Shell, ToolGuardrail
 from pydantic_ai_harness.memory import FileStore
 
+from pydantic_tutor.capabilities.approval import approver, ask_first, refuse_unattended
 from pydantic_tutor.capabilities.batch_limit import BatchLimit
 from pydantic_tutor.capabilities.listable_memory import ListableMemory
 from pydantic_tutor.capabilities.prompt_file import PromptFile
@@ -66,6 +67,11 @@ def chat_capabilities(
         # the allowed commands start; each is stopped after 30 seconds, the
         # default, or after the time the model asks for.
         Shell(allowed_commands=SHELL_COMMANDS),
+        # Every call to an ASK_FIRST tool waits for approval before it runs.
+        ToolGuardrail(guard=ask_first),
+        # The answer when no one is there: each held call is refused, and the
+        # model told why. A run replaces it with its own `approver(...)`.
+        approver(answer=refuse_unattended),
         # Our two tools that read the workspace's Python modules, with their
         # instructions and time limit. Built with the folder they read.
         Toolset(toolset=build_workspace_toolset(root=workspace_root)),
