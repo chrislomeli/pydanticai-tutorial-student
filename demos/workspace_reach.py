@@ -16,7 +16,8 @@ from tutor_given.stand_ins import calls_tool_with_the_prompt
 root = Settings().workspace_root
 agent = build_chat_agent(web_search=False, workspace_root=root)
 
-test_model = TestModel()
+# Offer the tools without calling them: TestModel calls every tool it is offered.
+test_model = TestModel(call_tools=[])
 agent.run_sync(user_prompt="hello", model=test_model)
 parameters = test_model.last_model_request_parameters
 assert parameters is not None  # the run made a request
