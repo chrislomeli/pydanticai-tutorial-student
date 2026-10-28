@@ -7,7 +7,8 @@ the toolsets lesson (04-01); `lists_reads_then_answers` and
 lesson (04-03); `remembers_then_recalls` and `prints_every_message` from the
 memory lesson (04-05); `lists_modules_and_counts_messages` and `KeepLastTwo` from
 the seam lesson (04-06); `asks_for_a_test_and_its_run` and `approve_all` from the
-approval lesson (05-01), streaming from the chat-loop lesson (05-02). Each is a function with a readable name that returns a
+approval lesson (05-01), streaming from the chat-loop lesson (05-02);
+`asks_which_flag` from the ask-user lesson (05-03). Each is a function with a readable name that returns a
 model, or a capability; the lesson says what it does.
 """
 
@@ -37,6 +38,7 @@ from pydantic_ai.models.function import (
     FunctionModel,
 )
 from pydantic_ai.tools import DeferredToolRequests, DeferredToolResults
+from pydantic_ai_harness.ask_user import TOOL_NAME, Question, QuestionOption
 
 from tutor_given.memory_text import MemoryListing
 
@@ -367,3 +369,57 @@ def approve_all(
     answer.
     """
     return requests.build_results(approve_all=True)
+
+
+# The question the model of the ask-user lesson asks, in the harness's own
+# model of one: an edit that breaks the tool's limits fails here, not mid-chat.
+FLAG_QUESTION = Question(
+    header="Flag",
+    question="Which flag should the CLI gain?",
+    options=(
+        QuestionOption(label="--verbose", description="print each job as it runs"),
+        QuestionOption(label="--quiet", description="print only errors"),
+    ),
+)
+
+
+def asks_which_flag() -> FunctionModel:
+    """A model that asks the person which flag to add, whatever it is sent.
+
+    From the ask-user lesson (05-03); it streams, so the chat can use it.
+    Each turn it calls `ask_user_question` with `FLAG_QUESTION`, then says
+    "I was told: " and the tool's return, as the model is sent it. In a run
+    that offers no such tool it says "No one to ask." instead.
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        returns = [
+            part for part in messages[-1].parts if isinstance(part, ToolReturnPart)
+        ]
+        if returns:
+            return ModelResponse(
+                parts=[TextPart(content=f"I was told: {returns[0].content}")]
+            )
+        if TOOL_NAME not in {tool.name for tool in info.function_tools}:
+            return ModelResponse(parts=[TextPart(content="No one to ask.")])
+        # The tool's arguments, as a model sends them: plain JSON.
+        args = {"questions": [FLAG_QUESTION.model_dump(mode="json")]}
+        return ModelResponse(parts=[ToolCallPart(tool_name=TOOL_NAME, args=args)])
+
+    async def stream(
+        messages: list[ModelMessage], info: AgentInfo
+    ) -> AsyncIterator[str | DeltaToolCalls]:
+        response = reply(messages, info)
+        for part in response.parts:
+            if isinstance(part, TextPart):
+                yield part.content
+            elif isinstance(part, ToolCallPart):
+                yield {
+                    0: DeltaToolCall(
+                        name=part.tool_name,
+                        json_args=json.dumps(part.args),
+                        tool_call_id="ask",
+                    )
+                }
+
+    return FunctionModel(function=reply, stream_function=stream)
