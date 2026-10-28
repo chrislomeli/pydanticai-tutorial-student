@@ -9,6 +9,9 @@ Two checks were moved here from the shell lesson (03-05), which this lesson
 changes: that the chat is offered its tools, and that `workspace_reach.py`
 prints how many. The toolset adds two, so both now say fourteen.
 
+Four checks that pinned the chat's tool count or instructions moved to the memory
+lesson (04-05), which adds five tools and a paragraph of guidance.
+
 Each test runs in an empty folder of its own, so the project's own `.env`
 and `work/` folder are never read. A test that needs the workspace folder
 makes `work/tinyjobs` there, from the sample code.
@@ -186,38 +189,6 @@ def test_the_time_limit_is_on_the_toolset(workspace: Path) -> None:
     assert build_workspace_toolset(root=workspace).timeout == 10
 
 
-def test_the_chat_is_offered_the_toolset_and_the_tools_it_had(
-    workspace: Path,
-) -> None:
-    # Moved from 03-05, where the chat was offered twelve tools.
-    from pydantic_tutor.composition import build_app
-    from pydantic_tutor.settings import Settings
-
-    sent = Sent()
-    app = build_app(
-        settings=Settings(chat_model="test", web_search=False, workspace_root=workspace)
-    )
-    app.agent.run_sync(user_prompt="hi", model=sent.model())
-    assert len(sent.tools) == FILE_AND_SHELL_TOOLS + 2
-    assert {"list_modules", "read_docstring", "read_file", "run_command"} <= set(
-        sent.tools
-    )
-
-
-def test_the_chat_sends_the_toolsets_instructions_after_its_own(
-    workspace: Path,
-) -> None:
-    from pydantic_tutor.chat.agent import build_chat_agent
-
-    sent = Sent()
-    agent = build_chat_agent(web_search=False, workspace_root=workspace)
-    agent.run_sync(user_prompt="hi", model=sent.model())
-    assert sent.instructions == (
-        "You are a helpful assistant. Answer briefly.\n\n"
-        "Your workspace holds the Python project tinyjobs."
-    )
-
-
 def test_the_chat_tools_read_the_folder_the_chat_was_built_with(
     workspace: Path, tmp_path: Path
 ) -> None:
@@ -320,36 +291,3 @@ def project(tmp_path: Path) -> Path:
     made = run_script(name="fresh_copy.py", folder=tmp_path)
     assert made.returncode == 0, made.stderr
     return tmp_path
-
-
-def test_workspace_reach_now_counts_the_toolset_too(project: Path) -> None:
-    # Moved from 03-05, where it printed 12.
-    result = run_script(name="workspace_reach.py", folder=project)
-    assert result.returncode == 0, result.stderr
-    lines = result.stdout.splitlines()
-    assert "tools the model is offered: 14" in lines
-    assert "README.md: # tinyjobs" in lines
-
-
-def test_toolset_views_prints_the_chat_and_what_each_wrapper_sends(
-    project: Path,
-) -> None:
-    result = run_script(name="toolset_views.py", folder=project)
-    assert result.returncode == 0, result.stderr
-    lines = result.stdout.splitlines()
-    assert any(line.startswith("  tools: read_file, ") for line in lines)
-    assert any(line.endswith(", list_modules, read_docstring") for line in lines)
-    assert (
-        "  read_docstring('tinyjobs.jobs') returned: "
-        "The job record and the queue that holds jobs." in lines
-    )
-    assert "  tools: list_modules, read_docstring" in lines
-    assert "  tools: workspace_list_modules, workspace_read_docstring" in lines
-    assert "  tools: list_modules" in lines
-    assert (
-        "  the model got back: There is no module 'jobs'. "
-        "Call list_modules to see them." in lines
-    )
-    assert (
-        "  instructions: 'Your workspace holds the Python project tinyjobs.'" in lines
-    )

@@ -4,10 +4,12 @@ Given, from the workspace lesson (03-03); `reports_what_it_is_sent` from
 the toolsets lesson (04-01); `lists_reads_then_answers` and
 `keeps_the_latest_exchange` from the hooks lesson (04-02);
 `asks_for_every_module_at_once` and `asks_for_five_reads` from the capability
-lesson (04-03). Each is a function with a readable name that returns a model;
+lesson (04-03); `remembers_then_recalls` and `prints_every_message` from the
+memory lesson (04-05). Each is a function with a readable name that returns a model;
 the lesson says what it does.
 """
 
+import json
 from collections.abc import Mapping
 from dataclasses import replace
 
@@ -15,14 +17,19 @@ from pydantic import TypeAdapter
 from pydantic_ai import ModelRequestContext, RunContext
 from pydantic_ai.messages import (
     ModelMessage,
+    ModelRequestPart,
     ModelResponse,
+    ModelResponsePart,
     RetryPromptPart,
+    TextContent,
     TextPart,
     ToolCallPart,
     ToolReturnPart,
     UserPromptPart,
 )
 from pydantic_ai.models.function import AgentInfo, FunctionModel
+
+from tutor_given.memory_text import MemoryListing
 
 # What list_modules returns, checked as the stand-in models read it.
 MODULE_NAMES = TypeAdapter(list[str])
@@ -179,5 +186,76 @@ def asks_for_five_reads() -> FunctionModel:
             for module in modules
         ]
         return ModelResponse(parts=calls)
+
+    return FunctionModel(function=reply)
+
+
+def remembers_then_recalls() -> FunctionModel:
+    """A model that stores a note when told to remember, and looks one up when asked.
+
+    From the memory lesson (04-05). A prompt starting "Remember" makes it
+    call `write_memory` with a note about logging; any other prompt makes
+    it call `list_memory`, `read_memory` on the first file listed, and
+    answer with what it read. It prints what it is sent and what it asks for.
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        # Each request the model is sent: its parts' kinds. With injection
+        # off, no part carries the notebook.
+        print("  request", [part.part_kind for part in messages[-1].parts])
+        for part in messages[-1].parts:
+            if isinstance(part, UserPromptPart):
+                if str(part.content).startswith("Remember"):
+                    note = "- Logging goes to stderr, so stdout stays pipeable.\n"
+                    return call(
+                        tool="write_memory",
+                        args={"content": note, "file": "logging.md"},
+                    )
+                return call(tool="list_memory", args={})
+            if isinstance(part, ToolReturnPart):
+                print("  result", part.model_response_str())
+                if part.tool_name == "list_memory":
+                    listing = MemoryListing.model_validate_json(
+                        part.model_response_str()
+                    )
+                    return call(tool="read_memory", args={"file": listing.files[0]})
+                if part.tool_name == "read_memory":
+                    note = part.model_response_str().strip()
+                    return ModelResponse(
+                        parts=[TextPart(content=f"We decided: {note}")]
+                    )
+                return ModelResponse(parts=[TextPart(content="Noted.")])
+        raise ValueError("a request this stand-in was not written for")
+
+    def call(*, tool: str, args: dict[str, str]) -> ModelResponse:
+        print("  call  ", tool, json.dumps(obj=args))
+        return ModelResponse(parts=[ToolCallPart(tool_name=tool, args=args)])
+
+    return FunctionModel(function=reply)
+
+
+def prints_every_message() -> FunctionModel:
+    """A model that prints each message of the request it is sent, then answers "ok".
+
+    From the memory lesson (04-05). Each message prints on one line: its
+    kind, then the text of each part. A part of another kind shows as its
+    kind, and a part made of several text items shows them joined.
+    """
+
+    def text_of(*, part: ModelRequestPart | ModelResponsePart) -> str:
+        if isinstance(part, UserPromptPart) and not isinstance(part.content, str):
+            text = " ".join(
+                item.content for item in part.content if isinstance(item, TextContent)
+            )
+        elif isinstance(part, UserPromptPart | TextPart):
+            text = str(part.content)
+        else:
+            text = part.part_kind
+        return " ".join(text.split())
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        for message in messages:
+            print(f"  {message.kind}:", [text_of(part=part) for part in message.parts])
+        return ModelResponse(parts=[TextPart(content="ok")])
 
     return FunctionModel(function=reply)

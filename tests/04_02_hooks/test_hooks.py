@@ -5,6 +5,9 @@ is not asked to run them. Run them with `uv run pytest`. They fail until
 the lesson is done. None of them needs an API key or makes a request:
 every run is on a stand-in model.
 
+Two checks that pinned the chat's tool count (fourteen) moved to the memory
+lesson (04-05), which adds five tools.
+
 Each test runs in an empty folder of its own, so the project's own `.env`
 and `work/` folder are never read. A test that needs the workspace folder
 makes `work/tinyjobs` there, from the sample code.
@@ -117,26 +120,6 @@ def test_the_request_log_is_a_hooks_capability_last_on_the_chat(
         assert agent.root_capability.capabilities[-1] is module.request_log
 
 
-def test_each_request_is_logged_with_its_step_messages_and_tools(
-    project: Path, caplog: pytest.LogCaptureFixture
-) -> None:
-    from pydantic_tutor.chat.agent import build_chat_agent
-
-    caplog.set_level(level=logging.INFO, logger=LOGGER)
-    recorder = Recorder()
-    chat = build_chat_agent(
-        web_search=False, workspace_root=project / "work" / "tinyjobs"
-    )
-    chat.run_sync(user_prompt="x", model=FunctionModel(function=recorder.reply))
-    assert logged(caplog=caplog) == [
-        "request step=1 messages=1 tools=14",
-        "request step=2 messages=3 tools=14",
-    ]
-    # The hook only watches: the model got what the log describes.
-    assert recorder.message_counts == [1, 3]
-    assert recorder.tool_counts == [14, 14]
-
-
 def test_the_log_counts_the_tools_actually_sent(
     project: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
@@ -168,18 +151,6 @@ def test_the_log_counts_the_tools_actually_sent(
         "request step=1 messages=1 tools=2",
         "request step=2 messages=3 tools=2",
     ]
-
-
-def test_watch_requests_prints_the_log(project: Path) -> None:
-    result = run_script(name="watch_requests.py", folder=project)
-    assert result.returncode == 0, result.stderr
-    lines = result.stdout.splitlines()
-    assert lines[:2] == [
-        f"{LOGGER}: request step=1 messages=1 tools=14",
-        f"{LOGGER}: request step=2 messages=3 tools=14",
-    ]
-    assert lines[2].startswith("output: ")
-    assert lines[3].startswith("usage: ")
 
 
 # Point 2: where a hook stands decides what it sees; a module only writes.

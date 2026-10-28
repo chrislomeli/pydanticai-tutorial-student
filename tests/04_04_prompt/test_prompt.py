@@ -5,6 +5,9 @@ is not asked to run them. Run them with `uv run pytest`. They fail until
 the lesson is done. None of them needs an API key or makes a request:
 every run is on a stand-in model.
 
+Two checks that pinned the chat's instructions moved to the memory lesson
+(04-05), which adds a paragraph of guidance after the prompt.
+
 Each test runs in an empty folder of its own, so the project's own `.env`
 and `work/` folder are never read. A test that needs the workspace folder
 makes `work/tinyjobs` there, from the sample code.
@@ -147,37 +150,6 @@ def test_the_chat_takes_its_prompt_from_the_file_first(project: Path) -> None:
         "PendingMessageDrainCapability",
         "PromptFile",
     ]
-
-
-def test_the_chat_sends_the_text_of_the_file(
-    project: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    # The prompt really comes from the file: change the file, and the
-    # chat built next is sent the change, with no Python edited.
-    from pydantic_tutor.chat import agent as chat_agent
-
-    edited = tmp_path / "chat.md"
-    edited.write_text("You are a pirate.\n", encoding="utf-8")
-    monkeypatch.setattr(target=chat_agent, name="PROMPT_PATH", value=edited)
-    recorder = Recorder()
-    agent = chat_agent.build_chat_agent(
-        web_search=False, workspace_root=project / "work" / "tinyjobs"
-    )
-    agent.run_sync(user_prompt="hi", model=recorder.model())
-    assert recorder.instructions == [f"You are a pirate.\n\n{WORKSPACE_NAME}"]
-
-
-def test_the_model_is_sent_what_it_was_sent_before(project: Path) -> None:
-    # Moving the prompt changes nothing the model is sent: the file's text,
-    # then the toolset's. A guard: passes before the lesson too.
-    from pydantic_tutor.chat.agent import build_chat_agent
-
-    recorder = Recorder()
-    agent = build_chat_agent(
-        web_search=False, workspace_root=project / "work" / "tinyjobs"
-    )
-    agent.run_sync(user_prompt="hi", model=recorder.model())
-    assert recorder.instructions == [f"{PROMPT}\n\n{WORKSPACE_NAME}"]
 
 
 # Point 2: the order of instruction text from several places.
