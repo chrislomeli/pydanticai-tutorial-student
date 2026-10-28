@@ -4,8 +4,9 @@ From the console-chat lesson (02-02); web search from the web-search
 lesson (02-05); built from a setting in the settings lesson (03-01); a
 workspace from the workspace lesson (03-03); the file tools from the file
 tools lesson (03-04); the request log from the hooks lesson (04-02); the
-batch limit from the capability lesson (04-03). No model here, as for
-every agent in this project: the chat passes one on each run.
+batch limit from the capability lesson (04-03); the prompt from a file in
+the prompt lesson (04-04). No model here, as for every agent in this
+project: the chat passes one on each run.
 """
 
 from pathlib import Path
@@ -20,6 +21,7 @@ from pydantic_ai.capabilities import (
 from pydantic_ai_harness import FileSystem, Shell
 
 from pydantic_tutor.capabilities.batch_limit import BatchLimit
+from pydantic_tutor.capabilities.prompt_file import PromptFile
 from pydantic_tutor.capabilities.request_log import request_log
 from pydantic_tutor.tools.workspace_tools import build_workspace_toolset
 
@@ -34,10 +36,18 @@ SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
 # code it is given.
 SHELL_COMMANDS = ("pytest",)
 
+# The chat's prompt, in a file of its own beside this module, so it is found
+# whichever folder the program runs from.
+PROMPT_PATH = Path(__file__).parent.parent / "prompts" / "chat.md"
+
 
 def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, str]:
     """Build the chat's agent, its runs working in the `workspace_root` folder."""
     capabilities: list[AbstractCapability[None]] = [
+        # The chat's instructions, read from PROMPT_PATH when the agent is
+        # built. Text, so it is sent ahead of any instructions computed
+        # for a request.
+        PromptFile(path=PROMPT_PATH),
         # A place for tools to work in. It adds no tool: they use `ctx.workspace`.
         LocalWorkspace(working_dir=workspace_root),
         # Eight file tools, working in that workspace and kept to its folder.
@@ -65,7 +75,6 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
     capabilities.append(request_log)
     return Agent(
         name="chat",
-        instructions="You are a helpful assistant. Answer briefly.",
         capabilities=capabilities,
     )
 
