@@ -2,13 +2,16 @@
 
 Given, from the workspace lesson (03-03); `reports_what_it_is_sent` from
 the toolsets lesson (04-01); `lists_reads_then_answers` and
-`keeps_the_latest_exchange` from the hooks lesson (04-02). Each is a function with a
-readable name that returns a model; the lesson says what it does.
+`keeps_the_latest_exchange` from the hooks lesson (04-02);
+`asks_for_every_module_at_once` and `asks_for_five_reads` from the capability
+lesson (04-03). Each is a function with a readable name that returns a model;
+the lesson says what it does.
 """
 
 from collections.abc import Mapping
 from dataclasses import replace
 
+from pydantic import TypeAdapter
 from pydantic_ai import ModelRequestContext, RunContext
 from pydantic_ai.messages import (
     ModelMessage,
@@ -20,6 +23,9 @@ from pydantic_ai.messages import (
     UserPromptPart,
 )
 from pydantic_ai.models.function import AgentInfo, FunctionModel
+
+# What list_modules returns, checked as the stand-in models read it.
+MODULE_NAMES = TypeAdapter(list[str])
 
 
 def calls_tool_with_the_prompt(
@@ -109,3 +115,69 @@ def keeps_the_latest_exchange(
         return request_context
     # A new request with a shorter list: the run's history keeps every message.
     return replace(request_context, messages=[messages[0], *messages[-2:]])
+
+
+def asks_for_every_module_at_once() -> FunctionModel:
+    """A model that lists the modules, then asks to read every unread one in one response.
+
+    From the capability lesson (04-03). Each time it prints what it asks
+    for, and it answers "I read N modules." once every module has a
+    docstring returned.
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        listed: list[str] = []
+        read = 0
+        for message in messages:
+            for part in message.parts:
+                if not isinstance(part, ToolReturnPart):
+                    continue
+                if part.tool_name == "list_modules":
+                    listed = MODULE_NAMES.validate_python(part.content)
+                elif part.tool_name == "read_docstring":
+                    read += 1
+        if not listed:
+            print("the model asks for the module list")
+            call = ToolCallPart(tool_name="list_modules", args={})
+            return ModelResponse(parts=[call])
+        # Each docstring returned is one module read, in the order asked for.
+        unread = listed[read:]
+        if not unread:
+            print("the model answers")
+            return ModelResponse(parts=[TextPart(content=f"I read {read} modules.")])
+        print(f"the model asks to read {len(unread)} modules: {', '.join(unread)}")
+        calls = [
+            ToolCallPart(tool_name="read_docstring", args={"module": module})
+            for module in unread
+        ]
+        return ModelResponse(parts=calls)
+
+    return FunctionModel(function=reply)
+
+
+def asks_for_five_reads() -> FunctionModel:
+    """A model that asks for five docstrings in one response, then answers "Done.".
+
+    From the capability lesson (04-03). It prints one line each time, and
+    asks for the five modules of `tinyjobs` whatever the workspace holds.
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        if any(isinstance(part, ToolReturnPart) for part in messages[-1].parts):
+            print("  the model answers")
+            return ModelResponse(parts=[TextPart(content="Done.")])
+        print("  the model asks for 5 tool calls")
+        modules = (
+            "tinyjobs",
+            "tinyjobs.cli",
+            "tinyjobs.jobs",
+            "tinyjobs.log",
+            "tinyjobs.storage",
+        )
+        calls = [
+            ToolCallPart(tool_name="read_docstring", args={"module": module})
+            for module in modules
+        ]
+        return ModelResponse(parts=calls)
+
+    return FunctionModel(function=reply)
