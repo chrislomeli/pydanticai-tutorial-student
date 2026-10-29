@@ -7,7 +7,8 @@ tools lesson (03-04); the request log from the hooks lesson (04-02); the
 batch limit from the capability lesson (04-03); the prompt from a file in
 the prompt lesson (04-04); the notebook from the memory lesson (04-05); split
 into `chat_capabilities` and `build_chat_agent` in the seam lesson (04-06);
-approval of writes and commands from the approval lesson (05-01). No model
+approval of writes and commands from the approval lesson (05-01); the
+notebook loaded on demand in the deferred lesson (06-02). No model
 here, as for every agent in this project: the chat passes one on each run.
 """
 
@@ -41,6 +42,13 @@ NOTEBOOK = ".agent-memory"
 # boundary: only a command's first word is checked, and pytest runs any
 # code it is given.
 SHELL_COMMANDS = ("pytest",)
+
+# The notebook's line in the catalog: all the model reads about it until
+# it loads it, so it must say when loading is worth it.
+MEMORY_DESCRIPTION = (
+    "Your notebook, kept across sessions on this workspace: load it to "
+    "remember something for later, or to look up what was noted before."
+)
 
 # The chat's prompt, in a file of its own beside this module, so it is found
 # whichever folder the program runs from.
@@ -76,7 +84,14 @@ def chat_capabilities(
         # instructions and time limit. Built with the folder they read.
         Toolset(toolset=build_workspace_toolset(root=workspace_root)),
         # Injection off: the model lists and reads the notebook with tools.
-        ListableMemory(store=FileStore(directory=NOTEBOOK), inject_memory=False),
+        # Loaded on demand: until the model loads it, by its id, `memory`, a
+        # request carries MEMORY_DESCRIPTION in place of its tools and guidance.
+        ListableMemory(
+            store=FileStore(directory=NOTEBOOK),
+            inject_memory=False,
+            defer_loading=True,
+            description=MEMORY_DESCRIPTION,
+        ),
     ]
     if web_search:
         # The model may search when it needs to. Each search is billed by
