@@ -1,7 +1,10 @@
 """A stand-in model that says what each request carried, and counts it as a provider would.
 
-Given, from the cost lesson (06-01): you run it, you don't write it. The model
-lists the modules, reads one docstring, then answers: three requests a turn.
+Given, from the cost lesson (06-01), extended in the deferred lesson (06-02):
+you run it, you don't write it. The model lists the modules, reads one
+docstring, then answers: three requests a turn. A prompt starting "Remember
+that " makes it write a note to the notebook instead, loading the notebook
+first if its tools were not sent.
 For each request it prints the tokens of the request's three parts, the
 instructions, the tool definitions and the messages, at about four characters
 a token. It reports their sum as the request's input tokens, as a provider
@@ -36,6 +39,10 @@ from pydantic_ai.usage import RequestUsage
 # The usual rule of thumb for English text and code; a real model's
 # tokenizer counts its own way.
 CHARS_PER_TOKEN = 4
+
+# A prompt that starts so is a note to keep: the model loads the notebook if
+# it must, writes the note, and answers "Noted.".
+REMEMBER = "Remember that "
 
 
 def message_text(*, message: ModelMessage) -> str:
@@ -106,12 +113,20 @@ def counts_like_a_provider() -> ProviderCounts:
         )
         return instructions, tools, history
 
-    def next_call(*, messages: list[ModelMessage]) -> tuple[str, str] | None:
-        """The next tool call as (name, arguments as JSON), or None once both returned."""
+    def turn(*, messages: list[ModelMessage]) -> tuple[int, str, set[str]]:
+        """Where the turn starts, its prompt, and the tools that have returned in it."""
+        # The request that opens the turn: a prompt and no tool return. (A
+        # tool a load reveals is announced to the model as a prompt too.)
         start = max(
             index
             for index, message in enumerate(messages)
             if any(isinstance(part, UserPromptPart) for part in message.parts)
+            and not any(isinstance(part, ToolReturnPart) for part in message.parts)
+        )
+        prompt = "".join(
+            str(part.content)
+            for part in messages[start].parts
+            if isinstance(part, UserPromptPart)
         )
         returned = {
             part.tool_name
@@ -119,6 +134,22 @@ def counts_like_a_provider() -> ProviderCounts:
             for part in message.parts
             if isinstance(part, ToolReturnPart)
         }
+        return start, prompt, returned
+
+    def next_call(
+        *, messages: list[ModelMessage], info: AgentInfo
+    ) -> tuple[str, str] | None:
+        """The next tool call as (name, arguments as JSON), or None to answer."""
+        _, prompt, returned = turn(messages=messages)
+        if prompt.startswith(REMEMBER):
+            # Asked to remember: load the notebook if its tools weren't
+            # sent, write the note, then answer.
+            if "write_memory" not in {tool.name for tool in info.function_tools}:
+                return "load_capability", json.dumps({"id": "memory"})
+            if "write_memory" not in returned:
+                note = f"- {prompt.removeprefix(REMEMBER)}\n"
+                return "write_memory", json.dumps({"content": note})
+            return None
         if "list_modules" not in returned:
             return "list_modules", "{}"
         if "read_docstring" not in returned:
@@ -126,12 +157,10 @@ def counts_like_a_provider() -> ProviderCounts:
         return None
 
     def answer(*, messages: list[ModelMessage]) -> str:
-        """The first line of the docstring that came back in this turn."""
-        start = max(
-            index
-            for index, message in enumerate(messages)
-            if any(isinstance(part, UserPromptPart) for part in message.parts)
-        )
+        """The first line of the docstring that came back in this turn, or "Noted."."""
+        start, prompt, _ = turn(messages=messages)
+        if prompt.startswith(REMEMBER):
+            return "Noted."
         docstring = next(
             part.model_response_str()
             for message in messages[start:]
@@ -153,7 +182,7 @@ def counts_like_a_provider() -> ProviderCounts:
 
     def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         # Not used by the chat, which streams; here for a run that does not.
-        call = next_call(messages=messages)
+        call = next_call(messages=messages, info=info)
         parts: list[ToolCallPart | TextPart] = (
             [TextPart(content=answer(messages=messages))]
             if call is None
@@ -168,7 +197,7 @@ def counts_like_a_provider() -> ProviderCounts:
         messages: list[ModelMessage], info: AgentInfo
     ) -> AsyncIterator[str | DeltaToolCalls]:
         model.sent = report(messages=messages, info=info)
-        call = next_call(messages=messages)
+        call = next_call(messages=messages, info=info)
         if call is None:
             yield answer(messages=messages)
         else:

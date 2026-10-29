@@ -21,7 +21,10 @@ test_model = TestModel(call_tools=[])
 agent.run_sync(user_prompt="hello", model=test_model)
 parameters = test_model.last_model_request_parameters
 assert parameters is not None  # the run made a request
-print(f"tools the model is offered: {len(parameters.function_tools)}")
+# A tool that loads on demand is in the request's definitions but is not
+# offered until it is loaded.
+offered = [tool for tool in parameters.function_tools if not tool.defer_loading]
+print(f"tools the model is offered: {len(offered)}")
 
 
 async def first_line(ctx: RunContext[None], *, path: str) -> str:

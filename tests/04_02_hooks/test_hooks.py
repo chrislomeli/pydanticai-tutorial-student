@@ -16,11 +16,14 @@ Every import of the project is inside the test that needs it, so that
 before the lesson each test fails on its own, instead of the whole file
 failing to load.
 
+The check that the log counts the tools actually sent moved to the deferred
+lesson (06-02), where a hidden tool is in the request's definitions but is
+not sent.
+
 The check that the request log is the chat's last capability moved to the
 approval lesson (05-01), whose guardrail declares itself innermost beside it.
 """
 
-import logging
 import os
 import shutil
 import subprocess
@@ -28,16 +31,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from pydantic_ai import RunContext, models
-from pydantic_ai.capabilities import Hooks
-from pydantic_ai.messages import (
-    ModelMessage,
-    ModelResponse,
-    TextPart,
-    ToolCallPart,
-)
-from pydantic_ai.models.function import AgentInfo, FunctionModel
-from pydantic_ai.tools import ToolDefinition
+from pydantic_ai import models
 
 # This file is tests/04_02_hooks/test_hooks.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
@@ -81,62 +75,12 @@ def run_script(*, name: str, folder: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-class Recorder:
-    """A model that records what each request carries, calling list_modules first."""
-
-    def __init__(self) -> None:
-        self.tool_counts: list[int] = []
-        self.message_counts: list[int] = []
-
-    def reply(self, messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        self.tool_counts.append(len(info.function_tools))
-        self.message_counts.append(len(messages))
-        if len(self.tool_counts) == 1:
-            return ModelResponse(
-                parts=[ToolCallPart(tool_name="list_modules", args={})]
-            )
-        return ModelResponse(parts=[TextPart(content="ok")])
-
-
 def logged(*, caplog: pytest.LogCaptureFixture) -> list[str]:
     """The messages our request log wrote during the test."""
     return [record.getMessage() for record in caplog.records if record.name == LOGGER]
 
 
 # Point 1: a hook that logs each request, as Hooks(...) and as a class.
-
-
-def test_the_log_counts_the_tools_actually_sent(
-    project: Path, caplog: pytest.LogCaptureFixture
-) -> None:
-    from pydantic_tutor.chat.agent import build_chat_agent
-
-    # Hide every tool but ours for one run: the log must count what is
-    # sent, not a number fixed when the agent was built.
-    def only_ours(
-        ctx: RunContext[None], tool_defs: list[ToolDefinition]
-    ) -> list[ToolDefinition]:
-        return [
-            tool
-            for tool in tool_defs
-            if tool.name in {"list_modules", "read_docstring"}
-        ]
-
-    caplog.set_level(level=logging.INFO, logger=LOGGER)
-    recorder = Recorder()
-    chat = build_chat_agent(
-        web_search=False, workspace_root=project / "work" / "tinyjobs"
-    )
-    chat.run_sync(
-        user_prompt="x",
-        model=FunctionModel(function=recorder.reply),
-        capabilities=[Hooks(prepare_tools=only_ours)],
-    )
-    assert recorder.tool_counts == [2, 2]
-    assert logged(caplog=caplog) == [
-        "request step=1 messages=1 tools=2",
-        "request step=2 messages=3 tools=2",
-    ]
 
 
 # Point 2: where a hook stands decides what it sees; a module only writes.

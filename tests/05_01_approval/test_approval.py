@@ -20,6 +20,9 @@ came from:
   of them. The guardrail added here declares itself innermost too, beside
   the log. One test here proves those points as the chat is now built.
 
+The case that the notebook's write needs no approval moved to the deferred
+lesson (06-02): the notebook must be loaded before it is called.
+
 Each test runs in an empty folder of its own, so the project's own `.env`
 and `work/` folder are never read. A test that needs the workspace folder
 makes `work/tinyjobs` there, from the sample code, with a fake `.env`.
@@ -280,19 +283,12 @@ def test_unattended_the_shells_opt_in_tool_is_refused_too(workspace: Path) -> No
     assert outcome_of(messages=result.all_messages()).outcome == "denied"
 
 
-def test_reads_and_the_notebook_do_not_ask(workspace: Path) -> None:
+def test_reads_do_not_ask(workspace: Path) -> None:
     read = chat_call(root=workspace, tool_name="read_file", args={"path": "README.md"})
     assert read.outcome == "success"
     assert "# tinyjobs" in read.text
     listed = chat_call(root=workspace, tool_name="list_modules", args={})
     assert listed.outcome == "success"
-    note = chat_call(
-        root=workspace,
-        tool_name="write_memory",
-        args={"content": "- a note\n", "file": "a.md"},
-    )
-    assert note.outcome == "success"
-    assert (workspace / ".agent-memory" / "main" / "a.md").exists()
 
 
 def test_with_no_answerer_the_run_stops_before_anything_runs(workspace: Path) -> None:

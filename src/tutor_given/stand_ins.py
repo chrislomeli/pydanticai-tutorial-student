@@ -10,7 +10,7 @@ the seam lesson (04-06); `asks_for_a_test_and_its_run` and `approve_all` from th
 approval lesson (05-01), streaming from the chat-loop lesson (05-02);
 `asks_which_flag` from the ask-user lesson (05-03); `says_which_turn` from
 the restart lesson (05-04); `writes_notes_then_builds` from the crash lesson
-(05-05). Each is a function with a readable name that returns a
+(05-05); `loads_the_notebook_then_remembers` from the deferred lesson (06-02). Each is a function with a readable name that returns a
 model, or a capability; the lesson says what it does.
 """
 
@@ -239,6 +239,57 @@ def remembers_then_recalls() -> FunctionModel:
                     )
                 return ModelResponse(parts=[TextPart(content="Noted.")])
         raise ValueError("a request this stand-in was not written for")
+
+    def call(*, tool: str, args: dict[str, str]) -> ModelResponse:
+        print("  call  ", tool, json.dumps(obj=args))
+        return ModelResponse(parts=[ToolCallPart(tool_name=tool, args=args)])
+
+    return FunctionModel(function=reply)
+
+
+def loads_the_notebook_then_remembers() -> FunctionModel:
+    """A model that loads the notebook on demand, then stores a note or looks one up.
+
+    From the deferred lesson (06-02): `remembers_then_recalls`, for an agent
+    whose notebook loads on demand. A session opens with `load_capability`
+    unless the notebook's tools were sent. Once they are, a prompt starting
+    "Remember" makes it call `write_memory`; any other prompt, `list_memory`,
+    `read_memory` on the first file listed, and an answer with what it read.
+    It prints what it is sent and what it asks for.
+    """
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        # The session's prompt: the load's reveal arrives as a prompt too.
+        prompt = next(
+            str(part.content)
+            for part in messages[0].parts
+            if isinstance(part, UserPromptPart)
+        )
+        print("  request", [part.part_kind for part in messages[-1].parts])
+        if "write_memory" not in {tool.name for tool in info.function_tools}:
+            return call(tool="load_capability", args={"id": "memory"})
+        for part in messages[-1].parts:
+            if isinstance(part, ToolReturnPart):
+                print("  result", part.model_response_str())
+                if part.tool_name == "list_memory":
+                    listing = MemoryListing.model_validate_json(
+                        part.model_response_str()
+                    )
+                    return call(tool="read_memory", args={"file": listing.files[0]})
+                if part.tool_name == "read_memory":
+                    note = part.model_response_str().strip()
+                    return ModelResponse(
+                        parts=[TextPart(content=f"We decided: {note}")]
+                    )
+                if part.tool_name == "write_memory":
+                    return ModelResponse(parts=[TextPart(content="Noted.")])
+        # Loaded, nothing returned yet: the prompt's own first call.
+        if prompt.startswith("Remember"):
+            note = "- Logging goes to stderr, so stdout stays pipeable.\n"
+            return call(
+                tool="write_memory", args={"content": note, "file": "logging.md"}
+            )
+        return call(tool="list_memory", args={})
 
     def call(*, tool: str, args: dict[str, str]) -> ModelResponse:
         print("  call  ", tool, json.dumps(obj=args))
