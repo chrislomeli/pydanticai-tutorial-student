@@ -20,10 +20,12 @@ from pydantic_ai_harness import AskUser
 
 from pydantic_tutor.capabilities.approval import approver, at_the_keyboard
 from pydantic_tutor.capabilities.ask_user import at_the_menu
+from pydantic_tutor.capabilities.recovery import last_unfinished, recorder
 from pydantic_tutor.chat.console import blue, dim
 from pydantic_tutor.composition import App, build_app
 from pydantic_tutor.settings import Settings
 from pydantic_tutor.stores.conversations import ConversationConflictError
+from tutor_given.unfinished import RESUME, Unfinished, describe, resume_point
 
 NEW = "/new"
 
@@ -59,6 +61,13 @@ def main(*, app: App | None = None) -> None:
         approver(answer=at_the_keyboard),
         AskUser(answerer=at_the_menu),
     ]
+    unfinished: Unfinished | None = None
+    if app.steps is not None:
+        # Each run is recorded as it goes, so a crash leaves a record.
+        at_the_desk.append(recorder(store=app.steps))
+        unfinished = last_unfinished(store=app.steps)
+        if unfinished is not None:
+            print(describe(unfinished=unfinished))
     while True:
         try:
             line = input("you> ").strip()
@@ -66,14 +75,28 @@ def main(*, app: App | None = None) -> None:
             break
         if not line:
             break
+        prompt: str | None = line
+        start, start_revision = history, revision
+        if line == RESUME:
+            if unfinished is None:
+                print("There is no unfinished run to carry on.")
+                continue
+            # No prompt: the run picks up where the history stops, and the
+            # model is asked what to do next.
+            prompt = None
+            start, start_revision = resume_point(
+                unfinished=unfinished, history=history, revision=revision
+            )
+        # The offer lasts one line: the next run becomes the last recorded.
+        unfinished = None
         if line == NEW:
             history, revision = [], 0  # the saved one stays saved
             print("A new conversation starts with your next line.")
             continue
         result = app.agent.run_stream_sync(
-            user_prompt=line,
+            user_prompt=prompt,
             model=app.model,
-            message_history=history,
+            message_history=start,
             capabilities=at_the_desk,
         )
         print(blue(text="agent> "), end="")
@@ -84,7 +107,9 @@ def main(*, app: App | None = None) -> None:
         print(dim(text=f"  (the model was sent {result.usage.input_tokens} tokens)"))
         if store is not None:
             try:
-                revision = store.save(messages=result.all_messages(), revision=revision)
+                revision = store.save(
+                    messages=result.all_messages(), revision=start_revision
+                )
             except ConversationConflictError as error:
                 # Keep `history` as it was: what the chat carries is what is saved.
                 print(f"This turn was not kept: {error}. Type {NEW}, or restart.")

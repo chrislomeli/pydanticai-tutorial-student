@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pydantic_ai import Agent
 from pydantic_ai.exceptions import UserError
 from pydantic_ai.models import Model, infer_model
+from pydantic_ai_harness.step_persistence import SqliteStepStore, StepStore
 
 from pydantic_tutor.chat.agent import build_chat_agent
 from pydantic_tutor.providers import ProviderFactory, build_provider
@@ -28,6 +29,7 @@ class App:
     agent: Agent[None, str]
     model: Model
     store: ConversationStore | None = None  # None: nothing is saved
+    steps: StepStore | None = None  # None: nothing is recorded
 
 
 def build_app(*, settings: Settings) -> App:
@@ -46,6 +48,7 @@ def build_app(*, settings: Settings) -> App:
         ),
         model=build_model(settings=settings),
         store=SyncSqliteConversationStore(path=settings.database),
+        steps=SqliteStepStore(database=settings.database),
     )
 
 
