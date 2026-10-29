@@ -9,7 +9,9 @@ it. Each run is handed the messages of the runs before it, so the model is
 sent the whole chat so far, and its answer is printed as it is written. When
 the agent wants to write a file or run a command, it shows the call and waits:
 `y` runs it, anything else refuses it. The model may also ask you a question,
-from the ask-user lesson (05-03): a numbered menu; Enter declines.
+from the ask-user lesson (05-03): a numbered menu; Enter declines. After each
+answer, a status line from the cost lesson (06-01) says how full the last
+request's context was, and how many tokens the turn sent in all.
 """
 
 from pydantic import ValidationError
@@ -20,6 +22,7 @@ from pydantic_ai_harness import AskUser
 
 from pydantic_tutor.capabilities.approval import approver, at_the_keyboard
 from pydantic_tutor.capabilities.ask_user import at_the_menu
+from pydantic_tutor.capabilities.context_gauge import ContextGauge
 from pydantic_tutor.capabilities.recovery import last_unfinished, recorder
 from pydantic_tutor.chat.console import blue, dim
 from pydantic_tutor.composition import App, build_app
@@ -93,18 +96,21 @@ def main(*, app: App | None = None) -> None:
             history, revision = [], 0  # the saved one stays saved
             print("A new conversation starts with your next line.")
             continue
+        # A new gauge for each turn: it reads every request this turn sends,
+        # and only those.
+        gauge = ContextGauge()
         result = app.agent.run_stream_sync(
             user_prompt=prompt,
             model=app.model,
             message_history=start,
-            capabilities=at_the_desk,
+            capabilities=[*at_the_desk, gauge],
         )
         print(blue(text="agent> "), end="")
         # Each piece of the answer as it arrives; flush, so it shows at once.
         for piece in result.stream_text(delta=True):
             print(blue(text=piece), end="", flush=True)
         print()
-        print(dim(text=f"  (the model was sent {result.usage.input_tokens} tokens)"))
+        print(dim(text=f"  {gauge.status_line()}"))
         if store is not None:
             try:
                 revision = store.save(
