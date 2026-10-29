@@ -1,9 +1,12 @@
 """Every value the app is configured with, typed and checked at startup.
 
 From the settings lesson (03-01); since the models lesson (03-02) it holds
-the API keys too, and reads `.env` itself. Values only: the objects built
+the API keys too, and reads `.env` itself; since the workspace lesson
+(03-03) it names the workspace's folder. Values only: the objects built
 from them are in `composition.py`.
 """
+
+from pathlib import Path
 
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -35,6 +38,9 @@ class Settings(BaseSettings):
     chat_model: str = CHAT_MODEL
     # Whether the chat may search the web. Each search is billed.
     web_search: bool = True
+    # The folder the chat works in. Relative to the folder the app runs in;
+    # `demos/fresh_copy.py` makes the default.
+    workspace_root: Path = Path("work/tinyjobs")
     # One key per provider the composition root can build. SecretStr:
     # printing the settings shows `**********`, never the key.
     openai_api_key: SecretStr | None = Field(

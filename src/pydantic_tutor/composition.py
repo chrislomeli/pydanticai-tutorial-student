@@ -1,14 +1,17 @@
 """The composition root: the one place the app's objects are built.
 
 From the settings lesson (03-01); since the models lesson (03-02) it
-chooses the model's provider and hands it its key. `build_app` turns
+chooses the model's provider and hands it its key; since the workspace
+lesson (03-03) it gives the agent its workspace. `build_app` turns
 `Settings` (values) into the agent and the model (objects), at startup, so
-a bad model name or a missing API key stops the app before the chat opens.
+a bad model name, a missing API key or a missing workspace folder stops the
+app before the chat opens.
 """
 
 from dataclasses import dataclass
 
 from pydantic_ai import Agent
+from pydantic_ai.exceptions import UserError
 from pydantic_ai.models import Model, infer_model
 
 from pydantic_tutor.chat.agent import build_chat_agent
@@ -25,13 +28,19 @@ class App:
 
 
 def build_app(*, settings: Settings) -> App:
-    """Build the agent and the model from `settings`.
-
-    Raises `pydantic_ai.exceptions.UserError` if the model is unknown, names
-    a provider this app does not build, or its provider's key is not set.
-    """
+    """Build the agent and the model; `UserError` if anything is missing."""
+    if not settings.workspace_root.is_dir():
+        # Checked here so the chat stops now, by the setting's name, instead
+        # of at the first tool that uses the workspace.
+        raise UserError(
+            f"PYDANTIC_TUTOR_WORKSPACE_ROOT is {str(settings.workspace_root)!r}, "
+            "which is not a folder. Make the default with "
+            "`uv run demos/fresh_copy.py`, or set the variable to another folder."
+        )
     return App(
-        agent=build_chat_agent(web_search=settings.web_search),
+        agent=build_chat_agent(
+            web_search=settings.web_search, workspace_root=settings.workspace_root
+        ),
         model=build_model(settings=settings),
     )
 
