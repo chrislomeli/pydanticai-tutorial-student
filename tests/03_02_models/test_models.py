@@ -49,6 +49,8 @@ def clean_environment(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
         if name.upper().startswith(PREFIX) or name.upper() in KEY_VARIABLES:
             monkeypatch.delenv(name)
     monkeypatch.chdir(tmp_path)
+    # The workspace folder (03-03) the app now needs at startup.
+    (tmp_path / "work" / "tinyjobs").mkdir(parents=True)
     monkeypatch.setattr(target=models, name="ALLOW_MODEL_REQUESTS", value=False)
 
 

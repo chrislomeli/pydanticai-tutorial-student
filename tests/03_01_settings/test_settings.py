@@ -44,6 +44,8 @@ def clean_environment(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     # set and no key, whatever the shell running pytest has, and no real
     # model call.
     monkeypatch.chdir(tmp_path)
+    # The workspace folder (03-03) the app now needs at startup.
+    (tmp_path / "work" / "tinyjobs").mkdir(parents=True)
     for name in list(os.environ):
         if name.upper().startswith(PREFIX):
             monkeypatch.delenv(name)

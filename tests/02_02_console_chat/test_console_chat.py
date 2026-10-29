@@ -31,10 +31,15 @@ def no_real_models(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @pytest.mark.parametrize("typed", ["\n", ""], ids=["empty line", "end of input"])
-def test_the_chat_ends_without_calling_the_model(typed: str) -> None:
+def test_the_chat_ends_without_calling_the_model(typed: str, tmp_path: Path) -> None:
     # A fake key, so the chat can start whatever the lesson (it never calls
-    # the model): if it did, the request would fail.
-    env = {**os.environ, "OPENAI_API_KEY": "sk-not-a-real-key"}
+    # the model): if it did, the request would fail. Since the workspace
+    # lesson (03-03) the chat also needs its workspace folder to exist.
+    env = {
+        **os.environ,
+        "OPENAI_API_KEY": "sk-not-a-real-key",
+        "PYDANTIC_TUTOR_WORKSPACE_ROOT": str(tmp_path),
+    }
     result = subprocess.run(
         [sys.executable, "-m", "pydantic_tutor"],
         cwd=PROJECT_ROOT,

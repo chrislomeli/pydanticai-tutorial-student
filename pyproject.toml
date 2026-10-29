@@ -30,6 +30,9 @@ dev = [
     "ruff==0.16.10",
 ]
 
+[tool.ruff]
+extend-exclude = ["sample_code", "work"]  # code the agent reads, not code you write
+
 [tool.ruff.lint]
 select = [
     "E", "W",  # style: pycodestyle
@@ -48,4 +51,11 @@ ignore = ["E501"]  # line length is the formatter's job
 [tool.mypy]
 strict = true
 plugins = ["pydantic.mypy"]
-exclude = ["^tests/"]  # the series' lesson tests refer to code you have not written yet
+exclude = [
+    "^tests/",        # the series' lesson tests refer to code you have not written yet
+    "^sample_code/",  # code the agent reads, not code you write
+    "^work/",         # the agent's working copy of it
+]
+
+[tool.pytest]
+addopts = ["--ignore=sample_code", "--ignore=work"]  # the sample's tests are not ours

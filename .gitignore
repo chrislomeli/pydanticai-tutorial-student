@@ -11,3 +11,6 @@ wheels/
 
 # Secrets: holds your API key from the chat lesson on. Never commit it.
 .env
+
+# Working copies the agent may change, made by demos/fresh_copy.py.
+/work/
