@@ -94,11 +94,12 @@
       "note": ""
     },
     "workspace": {
-      "about": "everything the workspace lessons start with: the sample and the script that copies it",
+      "about": "everything 03-03 hands over: the sample, the script that copies it, and the given models",
       "files": {},
       "includes": [
         "tinyjobs",
-        "fresh-copy"
+        "fresh-copy",
+        "tutor-given"
       ],
       "note": "Three small edits to your own files go with this (they are yours, so they are not copied):\n\n  .gitignore      add:  /work/\n  pyproject.toml  add under [tool.ruff]:   extend-exclude = [\"sample_code\", \"work\"]\n                  mypy exclude:            \"^sample_code/\", \"^work/\"\n                  add under [tool.pytest]: addopts = [\"--ignore=sample_code\", \"--ignore=work\"]"
     }
