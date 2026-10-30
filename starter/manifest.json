@@ -1,0 +1,106 @@
+{
+  "items": {
+    "ask-session": {
+      "about": "demos/ask_session.py: a chat in which the agent asks you a question",
+      "files": {
+        "demos/ask_session.py": "124a001f78759246953b8e6245ed6747c8f25b261a5d18402444867896234dce"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "chat-session": {
+      "about": "demos/chat_session.py: the chat, driven by a stand-in model",
+      "files": {
+        "demos/chat_session.py": "09b4e36711edf1c4e871f2ecd3f4bc37c70597619401329d2f95c42e12c0284f"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "cost-session": {
+      "about": "demos/cost_session.py: a session that reports what each turn costs",
+      "files": {
+        "demos/cost_session.py": "d1e63cc17795260698033edc968ad77f4028facb363e661efe8a58ea1c6b93eb"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "crash-session": {
+      "about": "demos/crash_session.py: a run that crashes part-way, and is recovered",
+      "files": {
+        "demos/crash_session.py": "6dd54ffb1bbdf266fe2411e6269fd2b0063375a45fb49172e557045c7d8bcb55"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "fresh-copy": {
+      "about": "demos/fresh_copy.py: makes a working copy of the sample, for the agent to change",
+      "files": {
+        "demos/fresh_copy.py": "4c9aa25bc0b517a01c2fd4b19c6f450aef72c3bb84dcd3e5a7919d8937605236"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "report-context-usage": {
+      "about": "examples/06-01-cost/report_context_usage.py: the context-usage report, on its own",
+      "files": {
+        "examples/06-01-cost/report_context_usage.py": "213f528700a6697caf9be4ab5442409e2bd79c7afdb0e5df357b0c35e8f3223a"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "restart-session": {
+      "about": "demos/restart_session.py: stop the chat and start it again from its saved conversation",
+      "files": {
+        "demos/restart_session.py": "a0064e1fce8b0620624596121620480bf7a7bfd961ffaa2332c4cc7c398a6ca2"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "tinyjobs": {
+      "about": "the sample project the assistant works on: sample_code/tinyjobs",
+      "files": {
+        "sample_code/tinyjobs/README.md": "27771aec598376eba12b8f2710741266e75e587787de16aa31f2479588c35367",
+        "sample_code/tinyjobs/docs/architecture.md": "995e17988c2a8cbf3d7d529cb06f790f05b8d3a020386e966db8a26838f74d4a",
+        "sample_code/tinyjobs/docs/decisions.md": "0c391ebb12f2b3ee707a74069f1dabc51030cc075e438a173f28af98495b6ee4",
+        "sample_code/tinyjobs/pyproject.toml": "5a4e5b4812683c55216d5efaf06e50a468a2171525287f83cbaa88fad6f37459",
+        "sample_code/tinyjobs/src/tinyjobs/__init__.py": "e818bf86093722d186ed2860b4cfa9d3451a953459714b349b0b2cb9eedf97ca",
+        "sample_code/tinyjobs/src/tinyjobs/cli.py": "6e1bb00e81a194965e61192f6bdae4d21b168deb786d8acc18ebb596c62e6fef",
+        "sample_code/tinyjobs/src/tinyjobs/jobs.py": "c39c3f7fdca74ee285c8611f8e38ad8b1dc8e43fdb77f006c9b81cd5cc69cfe3",
+        "sample_code/tinyjobs/src/tinyjobs/log.py": "3821e9a50ae5d0c354102f4453682f99026bacbc30584aaa6c2f653bcbceb016",
+        "sample_code/tinyjobs/src/tinyjobs/report.py": "401247a95a367d89a1c4dea9a4b565b7fabffa78fa6c6102051b9f908fcef098",
+        "sample_code/tinyjobs/src/tinyjobs/retry.py": "b402ed357d98bb952b7f681265bae711b4b6c7c6ec5a2747d3947db0850f2ce7",
+        "sample_code/tinyjobs/src/tinyjobs/storage.py": "c338bf54f2e34f704457c0eff78c15b131b223f664a788ff05cb3aa3bc01898b",
+        "sample_code/tinyjobs/src/tinyjobs/worker.py": "7a5b0f4fa625bd237f779d664f786591a6106df97f0415391dfcc9b14597bc29",
+        "sample_code/tinyjobs/tests/test_cli.py": "650f09d19199662c41f0d736c7fe00a07908b12c78a2f4395c4b33d15fc55195",
+        "sample_code/tinyjobs/tests/test_jobs.py": "6f3072b70a095dc862dc073475beea2e23103a83bcb2916830d5bd77bd4b877c",
+        "sample_code/tinyjobs/tests/test_report.py": "6b75134682ad9a4a594743883ae14811396b35bcd00ff01bcfc3463eb751bfb9",
+        "sample_code/tinyjobs/tests/test_retry.py": "47d2179fb16079a0f161a7b2ef01660eb65476abe2d6d78f9ddf02c77485e0bc",
+        "sample_code/tinyjobs/tests/test_storage.py": "6e27c7de390cb9f5091cf85d75fd7447031be8e32b89aa5bf78b5091f7491f0c",
+        "sample_code/tinyjobs/tests/test_worker.py": "e6cbca3759ae61fec1e08379fdbe2ef5ffaf39c1cc6cdefa9fe802d944877d9d"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "tutor-given": {
+      "about": "src/tutor_given/: the stand-in models and helpers the lessons give you to run, not to read",
+      "files": {
+        "src/tutor_given/__init__.py": "df76efe1d42cec21da53609076fee854568a9c956a92377f24c733170a340b81",
+        "src/tutor_given/memory_text.py": "f8f69e64faa1861b70ba1bba5419008eeb39743a90604fbd4e0f939a0bcfd0da",
+        "src/tutor_given/provider_counts.py": "77e02027fd80b4db0a2bc4995df808fc3521d6fbd21fe65ddf2df427d84cb671",
+        "src/tutor_given/stand_ins.py": "bd5373c0a9dc44f854ea2e9c1c1b4206e7457d38b5d53f3907799b919de9aa0e",
+        "src/tutor_given/unfinished.py": "1b25780a4c697f8e66923d6243de549f61122d457c6ef0169abeced6dea53765"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "workspace": {
+      "about": "everything the workspace lessons start with: the sample and the script that copies it",
+      "files": {},
+      "includes": [
+        "tinyjobs",
+        "fresh-copy"
+      ],
+      "note": "Three small edits to your own files go with this (they are yours, so they are not copied):\n\n  .gitignore      add:  /work/\n  pyproject.toml  add under [tool.ruff]:   extend-exclude = [\"sample_code\", \"work\"]\n                  mypy exclude:            \"^sample_code/\", \"^work/\"\n                  add under [tool.pytest]: addopts = [\"--ignore=sample_code\", \"--ignore=work\"]"
+    }
+  }
+}
