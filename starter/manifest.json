@@ -56,6 +56,14 @@
       "includes": [],
       "note": ""
     },
+    "show-chat-request": {
+      "about": "demos/show_chat_request.py: prints the tools and instructions the chat sends the model",
+      "files": {
+        "demos/show_chat_request.py": "658a869972615f35f475f127d0ed321d6d4905e8415b94bdb9dac7b55edd5e0e"
+      },
+      "includes": [],
+      "note": ""
+    },
     "tinyjobs": {
       "about": "the sample project the assistant works on: sample_code/tinyjobs",
       "files": {
@@ -100,6 +108,7 @@
       "includes": [
         "tinyjobs",
         "fresh-copy",
+        "show-chat-request",
         "tutor-given"
       ],
       "note": "Three small edits to your own files go with this (they are yours, so they are not copied):\n\n  .gitignore      add:  /work/\n  pyproject.toml  add under [tool.ruff]:   extend-exclude = [\"sample_code\", \"work\"]\n                  mypy exclude:            \"^sample_code/\", \"^work/\"\n                  add under [tool.pytest]: addopts = [\"--ignore=sample_code\", \"--ignore=work\"]"
