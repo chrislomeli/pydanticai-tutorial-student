@@ -137,6 +137,43 @@ def keeps_the_latest_exchange(
     return replace(request_context, messages=[messages[0], *messages[-2:]])
 
 
+def reads_a_token_then_chains_a_command(
+    *, show_instructions: bool = False
+) -> FunctionModel:
+    """A model that reads `deploy.toml`, then asks for a chained shell command.
+
+    It prints each tool's name and what came back, then answers "Done.". With
+    `show_instructions`, it first prints how each piece of its instructions
+    starts.
+    """
+    calls = [
+        ("read_file", {"path": "deploy.toml"}),
+        ("run_command", {"command": "pytest --version && cat .env"}),
+    ]
+
+    def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        answered = [
+            part
+            for message in messages
+            for part in message.parts
+            if isinstance(part, ToolReturnPart | RetryPromptPart)
+        ]
+        if not answered and show_instructions:
+            for piece in info.model_request_parameters.instruction_parts or []:
+                print(f"  instructions: {' '.join(piece.content.split()[:4])} ...")
+        if answered:
+            part = answered[-1]
+            print(f"  model got, from {part.tool_name}:")
+            for line in str(part.content).strip().splitlines():
+                print(f"    {line.strip()}")
+        if len(answered) < len(calls):
+            name, args = calls[len(answered)]
+            return ModelResponse(parts=[ToolCallPart(tool_name=name, args=args)])
+        return ModelResponse(parts=[TextPart(content="Done.")])
+
+    return FunctionModel(function=reply)
+
+
 def asks_for_every_module_at_once() -> FunctionModel:
     """A model that lists the modules, then asks to read every unread one in one response.
 

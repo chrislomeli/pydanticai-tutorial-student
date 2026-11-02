@@ -58,6 +58,14 @@
       "includes": [],
       "note": ""
     },
+    "show-capabilities": {
+      "about": "demos/show_capabilities.py: lists what each of the chat's capabilities brings",
+      "files": {
+        "demos/show_capabilities.py": "e637f7f03d64eb38b5d87aa29df848e5221a0cb509924b2dc9c34fdcad1f86f6"
+      },
+      "includes": [],
+      "note": ""
+    },
     "show-chat-request": {
       "about": "demos/show_chat_request.py: prints the tools and instructions the chat sends the model",
       "files": {
@@ -99,7 +107,7 @@
         "src/tutor_given/module_tools.py": "2e4455157915029a990406ea11939d671badb22b839c521bac0cf6ec419c5a4a",
         "src/tutor_given/paths.py": "d03a726b2af112772ac22969a12a1045de86e1cd8c802a605fe3f06e96beb9ad",
         "src/tutor_given/provider_counts.py": "77e02027fd80b4db0a2bc4995df808fc3521d6fbd21fe65ddf2df427d84cb671",
-        "src/tutor_given/stand_ins.py": "bd5373c0a9dc44f854ea2e9c1c1b4206e7457d38b5d53f3907799b919de9aa0e",
+        "src/tutor_given/stand_ins.py": "f1085d93a482e1a2f5a572ae5bacbdc7f99c8ad844f9408a68272fa110b7aaca",
         "src/tutor_given/unfinished.py": "1b25780a4c697f8e66923d6243de549f61122d457c6ef0169abeced6dea53765"
       },
       "includes": [],
@@ -112,6 +120,7 @@
         "tinyjobs",
         "fresh-copy",
         "show-chat-request",
+        "show-capabilities",
         "tutor-given"
       ],
       "note": "Three small edits to your own files go with this (they are yours, so they are not copied):\n\n  .gitignore      add:  /work/\n  pyproject.toml  add under [tool.ruff]:   extend-exclude = [\"sample_code\", \"work\"]\n                  mypy exclude:            \"^sample_code/\", \"^work/\"\n                  add under [tool.pytest]: addopts = [\"--ignore=sample_code\", \"--ignore=work\"]"
