@@ -1,7 +1,7 @@
 """Fetch starter files from the pydantic-tutor library into your project.
 
     uv run https://raw.githubusercontent.com/chrislomeli/pydanticai-tutorial-student/main/starter/get_starter.py --list
-    uv run https://raw.githubusercontent.com/chrislomeli/pydanticai-tutorial-student/main/starter/get_starter.py workspace
+    uv run https://raw.githubusercontent.com/chrislomeli/pydanticai-tutorial-student/main/starter/get_starter.py fresh-copy
 
 Run it from your project's root, the folder with `pyproject.toml`. Each
 name is an item of the library: some files, laid out where they belong in

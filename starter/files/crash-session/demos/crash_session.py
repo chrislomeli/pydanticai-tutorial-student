@@ -9,7 +9,6 @@ ten seconds. The chat saves its conversations and records its runs in
 """
 
 import asyncio
-from pathlib import Path
 
 from pydantic_ai import FunctionToolset
 from pydantic_ai.capabilities import Toolset
@@ -20,8 +19,9 @@ from pydantic_tutor.composition import App
 from pydantic_tutor.settings import Settings
 from pydantic_tutor.stores.sqlite_conversations import SyncSqliteConversationStore
 from tutor_given.stand_ins import writes_notes_then_builds
+from tutor_given.paths import project_root
 
-DATABASE = Path("work/crash.db")
+DATABASE = project_root() / "work" / "crash.db"
 BUILD_SECONDS = 10
 
 
