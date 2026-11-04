@@ -1,13 +1,9 @@
----
-title: "Install the tools: macOS"
-description: "Install or upgrade git and uv on macOS, for the setup lesson."
----
-
 # Install the tools: macOS
 
-The setup lesson needs `git`, and `uv` 0.13.1 or newer. You do not need to
-install Python: `uv` downloads the version the project asks for. When both
-checks below pass, go back to the lesson.
+The lesson [Setting up the environment](../01-01-setup/) needs
+`git`, and `uv` 0.13.1 or newer. You do not need to install Python: `uv`
+downloads the version the project asks for. When both checks below pass, go
+back to that lesson.
 
 > Tested on macOS (Apple silicon) with `uv` 0.13.1.
 
@@ -108,6 +104,8 @@ error: Self-update is only available for uv binaries installed via the standalon
 If you installed uv with pip, brew, or another package manager, update uv with `pip install --upgrade`, `brew upgrade`, or similar.
 ```
 
+The first line is what matters; the second depends on how uv was installed, and may differ.
+
 Then upgrade it the way it was installed: `brew upgrade uv` for Homebrew,
 `pipx upgrade uv` for pipx, or `pip install --upgrade uv` in the
 environment you installed it into. Run `uv --version` again afterwards.
@@ -115,3 +113,7 @@ environment you installed it into. Run `uv --version` again afterwards.
 **0.13.1 or newer.** You are ready. A newer `uv` may write files that
 differ slightly from the ones shown in the lesson, such as a version number
 in `pyproject.toml`; that is fine.
+
+---
+
+*Tested with `pydantic-ai` 2.56.0 and `pydantic-ai-harness` 0.56.0.*

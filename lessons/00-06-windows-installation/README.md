@@ -1,8 +1,3 @@
----
-title: "Install the tools: Windows"
-description: "Set up WSL 2 on Windows, check it works, connect VS Code to it, then install git and uv inside it, for the setup lesson."
----
-
 # Install the tools: Windows
 
 This series runs on macOS and Linux. On Windows, you work inside **WSL**,
@@ -111,7 +106,6 @@ an extension. Do not install VS Code inside Linux.
    Ubuntu terminal.
 2. In VS Code, open the Extensions view, search for **WSL**, and install
    the extension by Microsoft (identifier `ms-vscode-remote.remote-wsl`).
-   It is also part of the **Remote Development** extension pack.
 3. In the Ubuntu terminal, go to a folder and open it in VS Code:
 
    ```bash
@@ -130,12 +124,23 @@ an extension. Do not install VS Code inside Linux.
 If `code .` is not found, VS Code was installed without **Add to PATH**:
 reinstall it with that box checked, then open a new Ubuntu terminal.
 
+If you use PyCharm instead, it works with WSL too, through a WSL
+interpreter. JetBrains' guide,
+[Configure an interpreter using WSL](https://www.jetbrains.com/help/pycharm/using-wsl-as-a-remote-interpreter.html),
+shows how. Like the rest of this page, that route comes from the
+documentation and has not been run.
+
 Sources: [Get started using VS Code with WSL](https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-vscode),
 [Developing in WSL](https://code.visualstudio.com/docs/remote/wsl).
 
 ## Then follow the Linux guide
 
 From here on, everything happens inside Ubuntu: follow
-[Install the tools: Linux](install-linux.md), then go back to the lesson
-and run every command there in the Ubuntu terminal, starting in your Linux
-home folder (`cd ~`).
+[Install the tools: Linux](../00-05-linux-installation/), then go back to
+[Setting up the environment](../01-01-setup/) and run every
+command there in the Ubuntu terminal, starting in your Linux home folder
+(`cd ~`).
+
+---
+
+*Tested with `pydantic-ai` 2.56.0 and `pydantic-ai-harness` 0.56.0.*

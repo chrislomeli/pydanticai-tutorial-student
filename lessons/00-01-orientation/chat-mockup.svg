@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" width="960" height="640" font-family="Helvetica, Arial, sans-serif">
+  <!-- Background -->
+  <rect x="0" y="0" width="960" height="640" rx="12" fill="#ffffff"/>
+
+  <!-- Browser chrome -->
+  <rect x="0" y="0" width="960" height="36" rx="12" fill="#eceff3"/>
+  <rect x="0" y="24" width="960" height="12" fill="#eceff3"/>
+  <circle cx="20" cy="18" r="6" fill="#ff5f57"/>
+  <circle cx="38" cy="18" r="6" fill="#febc2e"/>
+  <circle cx="56" cy="18" r="6" fill="#28c840"/>
+  <rect x="200" y="8" width="560" height="20" rx="10" fill="#ffffff"/>
+  <text x="480" y="22" font-size="11" fill="#666" text-anchor="middle">chat.example.com</text>
+
+  <!-- Sidebar -->
+  <path d="M0,36 H220 V640 H12 A12,12 0 0 1 0,628 Z" fill="#f6f7f9"/>
+  <line x1="220" y1="36" x2="220" y2="640" stroke="#e1e4e8"/>
+  <rect x="16" y="52" width="188" height="32" rx="8" fill="#ffffff" stroke="#c9ced6"/>
+  <text x="32" y="73" font-size="13" fill="#222">+  New chat</text>
+  <text x="20" y="114" font-size="11" fill="#888" letter-spacing="0.5">SAVED CHATS</text>
+  <rect x="12" y="124" width="196" height="30" rx="6" fill="#e3e8f0"/>
+  <text x="22" y="144" font-size="13" fill="#111" font-weight="bold">Python virtual envs</text>
+  <text x="22" y="176" font-size="13" fill="#444">Regex for dates</text>
+  <text x="22" y="206" font-size="13" fill="#444">Async vs threads</text>
+  <text x="22" y="236" font-size="13" fill="#444">Pandas groupby help</text>
+  <text x="22" y="266" font-size="13" fill="#444">Dockerfile review</text>
+
+  <!-- Header with model selector -->
+  <rect x="244" y="48" width="150" height="28" rx="6" fill="#ffffff" stroke="#c9ced6"/>
+  <text x="256" y="67" font-size="13" fill="#222">Model A</text>
+  <path d="M371,59 L381,59 L376,65 Z" fill="#666"/>
+  <line x1="221" y1="90" x2="960" y2="90" stroke="#e5e7eb"/>
+
+  <!-- User message 1 -->
+  <rect x="500" y="106" width="420" height="52" rx="14" fill="#e8eefc"/>
+  <text x="516" y="128" font-size="13" fill="#111">Why should I use a virtual environment for my</text>
+  <text x="516" y="146" font-size="13" fill="#111">Python projects? Answer in exactly three bullet points.</text>
+
+  <!-- AI message 1 -->
+  <circle cx="256" cy="186" r="12" fill="#444"/>
+  <text x="256" y="190" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">AI</text>
+  <text x="280" y="190" font-size="13" fill="#222">• <tspan font-weight="bold">Isolation:</tspan> each project gets its own packages, so</text>
+  <text x="292" y="208" font-size="13" fill="#222">upgrading one project can't break another.</text>
+  <text x="280" y="232" font-size="13" fill="#222">• <tspan font-weight="bold">Reproducibility:</tspan> you can pin exact versions in a</text>
+  <text x="292" y="250" font-size="13" fill="#222">requirements or lock file and rebuild the same setup.</text>
+  <text x="280" y="274" font-size="13" fill="#222">• <tspan font-weight="bold">Safety:</tspan> you never modify the system Python that</text>
+  <text x="292" y="292" font-size="13" fill="#222">your operating system depends on.</text>
+
+  <!-- User message 2 -->
+  <rect x="660" y="316" width="260" height="36" rx="14" fill="#e8eefc"/>
+  <text x="676" y="339" font-size="13" fill="#111">Can you expand on the second point?</text>
+
+  <!-- AI message 2 -->
+  <circle cx="256" cy="382" r="12" fill="#444"/>
+  <text x="256" y="386" font-size="10" fill="#fff" text-anchor="middle" font-weight="bold">AI</text>
+  <text x="280" y="386" font-size="13" fill="#222">Sure. Reproducibility means anyone (including future you) can</text>
+  <text x="280" y="404" font-size="13" fill="#222">recreate the exact environment your code was tested in. You</text>
+  <text x="280" y="422" font-size="13" fill="#222">record each package and its version, for example with</text>
+  <text x="280" y="440" font-size="13" fill="#222"><tspan font-family="Menlo, Consolas, monospace" font-size="12">pip freeze &gt; requirements.txt</tspan> or a lock file, and</text>
+  <text x="280" y="458" font-size="13" fill="#222">teammates or a CI server install from that file to get</text>
+  <text x="280" y="476" font-size="13" fill="#222">identical results.</text>
+
+  <!-- Input box -->
+  <rect x="244" y="562" width="692" height="48" rx="12" fill="#ffffff" stroke="#c9ced6"/>
+  <text x="262" y="591" font-size="13" fill="#999">Message…</text>
+  <circle cx="910" cy="586" r="14" fill="#333"/>
+  <path d="M910,578 L910,594 M904,584 L910,578 L916,584" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Numbered callouts -->
+  <g font-size="12" font-weight="bold" fill="#fff" text-anchor="middle">
+    <circle cx="412" cy="62" r="11" fill="#e8590c"/><text x="412" y="66">1</text>
+    <circle cx="196" cy="110" r="11" fill="#e8590c"/><text x="196" y="114">2</text>
+    <circle cx="478" cy="132" r="11" fill="#e8590c"/><text x="478" y="136">3</text>
+    <circle cx="232" cy="586" r="11" fill="#e8590c"/><text x="232" y="590">4</text>
+  </g>
+
+  <!-- Outer frame -->
+  <rect x="0.5" y="0.5" width="959" height="639" rx="12" fill="none" stroke="#d0d4da"/>
+</svg>
