@@ -1,6 +1,6 @@
 """Two read-only tools for looking at the modules of a Python project.
 
-Given, from the toolsets lesson (04-01): you run it, you don't write it. Hand
+Given: you run it, you don't write it. Hand
 `list_modules` and `read_docstring` to a toolset, and the model calls them. The
 project's folder is set once, when you build `ModuleTools`, so the tools take
 no deps and the model never sees the path.

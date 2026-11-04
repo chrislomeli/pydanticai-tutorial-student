@@ -1,6 +1,6 @@
 """The last run, stopped before it ended, and what the chat does with it.
 
-Given, from the crash lesson (05-05): you run it, you don't write it.
+Given: you run it, you don't write it.
 `Unfinished` is what `recovery.py` reads back from the record; `describe` is
 the report the chat prints at its start; `resume_point` is where `RESUME` (the
 line that carries the run on) starts the run from.

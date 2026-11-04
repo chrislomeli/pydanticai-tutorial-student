@@ -1,6 +1,6 @@
 """The harness's own gauge, `ReportContextUsage`, and what listening to it changes.
 
-Given, from the cost lesson (06-01). `ReportContextUsage` takes the same
+Given. `ReportContextUsage` takes the same
 reading as our `ContextGauge`, before each request, and emits it as a
 `ContextUsageEvent`, which a listener receives. The same agent runs twice with
 `run_sync` on a stand-in model that says whether it was asked in one piece or

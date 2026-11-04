@@ -1,7 +1,6 @@
 """A stand-in model that says what each request carried, and counts it as a provider would.
 
-Given, from the cost lesson (06-01), extended in the deferred lesson (06-02):
-you run it, you don't write it. The model lists the modules, reads one
+Given: you run it, you don't write it. The model lists the modules, reads one
 docstring, then answers: three requests a turn. A prompt starting "Remember
 that " makes it write a note to the notebook instead, loading the notebook
 first if its tools were not sent.
@@ -95,7 +94,7 @@ class ProviderCounts(FunctionModel):
 def counts_like_a_provider() -> ProviderCounts:
     """A model that lists the modules, reads a docstring, answers, and prints what each request carried.
 
-    From the cost lesson (06-01); it streams, so the chat can use it. It reads
+    It streams, so the chat can use it. It reads
     the turn so far, from its last prompt on, and asks for the first of its
     two tools that has not returned in it yet.
     """

@@ -1,6 +1,6 @@
 """Open the chat on a stand-in model, saving its conversations in a file.
 
-Given, from the restart lesson (05-04): you run it, you don't write it. It opens
+Given: you run it, you don't write it. It opens
 the chat of `pydantic_tutor/chat/loop.py` with the agent the app builds, the given stand-in
 model `says_which_turn()` and a store on `work/conversations.db`, not the app's
 own file. Needs no API key. Run `demos/fresh_copy.py` first.

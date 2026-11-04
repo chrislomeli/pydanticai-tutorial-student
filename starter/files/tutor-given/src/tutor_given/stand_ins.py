@@ -1,17 +1,8 @@
 """Stand-in models for the lessons' keyless scripts.
 
-Given, from the workspace lesson (03-03); `reports_what_it_is_sent` from
-the toolsets lesson (04-01); `lists_reads_then_answers` and
-`keeps_the_latest_exchange` from the hooks lesson (04-02);
-`asks_for_every_module_at_once` and `asks_for_five_reads` from the capability
-lesson (04-03); `remembers_then_recalls` and `prints_every_message` from the
-memory lesson (04-05); `lists_modules_and_counts_messages` and `KeepLastTwo` from
-the seam lesson (04-06); `asks_for_a_test_and_its_run` and `approve_all` from the
-approval lesson (05-01), streaming from the chat-loop lesson (05-02);
-`asks_which_flag` from the ask-user lesson (05-03); `says_which_turn` from
-the restart lesson (05-04); `writes_notes_then_builds` from the crash lesson
-(05-05); `loads_the_notebook_then_remembers` from the deferred lesson (06-02). Each is a function with a readable name that returns a
-model, or a capability; the lesson says what it does.
+Given: you run it, you don't write it. Each is a function with a readable
+name that returns a model, or a capability; the page that uses it says what
+it does.
 """
 
 import json
@@ -56,8 +47,7 @@ def calls_tool_with_the_prompt(
 ) -> FunctionModel:
     """A model that calls `tool_name` with the user's prompt as `argument`.
 
-    `other_arguments`, if given, are passed too (from the file tools lesson,
-    03-04). The model then answers with the text the tool returned or the
+    `other_arguments`, if given, are passed too. The model then answers with the text the tool returned or the
     reason it was refused, and nothing else.
     """
 
@@ -79,7 +69,7 @@ def calls_tool_with_the_prompt(
 def reports_what_it_is_sent() -> FunctionModel:
     """A model that prints the names of the tools and the instructions it is sent.
 
-    From the toolsets lesson (04-01). It prints two lines and answers "Done."
+    It prints two lines and answers "Done."
     """
 
     def reply(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
@@ -93,7 +83,7 @@ def reports_what_it_is_sent() -> FunctionModel:
 def lists_reads_then_answers() -> FunctionModel:
     """A model that makes three requests and prints what each one carries.
 
-    From the hooks lesson (04-02). Before each request it prints how many
+    Before each request it prints how many
     messages and tools it was sent. It calls `list_modules`, then
     `read_docstring` on `tinyjobs.jobs`, then answers "Done.".
     """
@@ -126,7 +116,7 @@ def keeps_the_latest_exchange(
 ) -> ModelRequestContext:
     """A `before_model_request` hook that sends the question and the latest exchange only.
 
-    From the hooks lesson (04-02): a stand-in for a history trimmer. Up to
+    A stand-in for a history trimmer. Up to
     three messages it passes the request on unchanged; after that it sends
     the first message and the last two (a tool's call and its return).
     """
@@ -177,7 +167,7 @@ def reads_a_token_then_chains_a_command(
 def asks_for_every_module_at_once() -> FunctionModel:
     """A model that lists the modules, then asks to read every unread one in one response.
 
-    From the capability lesson (04-03). Each time it prints what it asks
+    Each time it prints what it asks
     for, and it answers "I read N modules." once every module has a
     docstring returned.
     """
@@ -215,7 +205,7 @@ def asks_for_every_module_at_once() -> FunctionModel:
 def asks_for_five_reads() -> FunctionModel:
     """A model that asks for five docstrings in one response, then answers "Done.".
 
-    From the capability lesson (04-03). It prints one line each time, and
+    It prints one line each time, and
     asks for the five modules of `tinyjobs` whatever the workspace holds.
     """
 
@@ -243,7 +233,7 @@ def asks_for_five_reads() -> FunctionModel:
 def remembers_then_recalls() -> FunctionModel:
     """A model that stores a note when told to remember, and looks one up when asked.
 
-    From the memory lesson (04-05). A prompt starting "Remember" makes it
+    A prompt starting "Remember" makes it
     call `write_memory` with a note about logging; any other prompt makes
     it call `list_memory`, `read_memory` on the first file listed, and
     answer with what it read. It prints what it is sent and what it asks for.
@@ -287,7 +277,7 @@ def remembers_then_recalls() -> FunctionModel:
 def loads_the_notebook_then_remembers() -> FunctionModel:
     """A model that loads the notebook on demand, then stores a note or looks one up.
 
-    From the deferred lesson (06-02): `remembers_then_recalls`, for an agent
+    `remembers_then_recalls`, for an agent
     whose notebook loads on demand. A session opens with `load_capability`
     unless the notebook's tools were sent. Once they are, a prompt starting
     "Remember" makes it call `write_memory`; any other prompt, `list_memory`,
@@ -338,7 +328,7 @@ def loads_the_notebook_then_remembers() -> FunctionModel:
 def prints_every_message() -> FunctionModel:
     """A model that prints each message of the request it is sent, then answers "ok".
 
-    From the memory lesson (04-05). Each message prints on one line: its
+    Each message prints on one line: its
     kind, then the text of each part. A part of another kind shows as its
     kind, and a part made of several text items shows them joined.
     """
@@ -365,8 +355,7 @@ def prints_every_message() -> FunctionModel:
 class KeepLastTwo(AbstractCapability[None]):
     """A capability that sends the model only the last two messages of each request.
 
-    From the seam lesson (04-06): a stand-in for one that shortens a long
-    request, as a later lesson's compaction will.
+    A stand-in for one that shortens a long request.
     """
 
     async def before_model_request(
@@ -381,7 +370,7 @@ class KeepLastTwo(AbstractCapability[None]):
 def lists_modules_and_counts_messages() -> FunctionModel:
     """A model that says what it is sent, asks for `list_modules` once, then answers.
 
-    From the seam lesson (04-06). On each request it prints how many messages
+    On each request it prints how many messages
     it is sent; on the first, how each piece of its instructions starts.
     """
 
@@ -396,7 +385,7 @@ def lists_modules_and_counts_messages() -> FunctionModel:
     return FunctionModel(function=reply)
 
 
-# The test the stand-in model of the approval lesson asks to have written. It
+# The test `asks_for_a_test_and_its_run` asks to have written. It
 # fails until the CLI has a `--verbose` flag.
 TEST_PATH = "tests/test_verbose.py"
 TEST_SOURCE = (
@@ -409,8 +398,7 @@ TEST_SOURCE = (
 def asks_for_a_test_and_its_run() -> FunctionModel:
     """A model that asks, in one response, to write a test file and to run it.
 
-    From the approval lesson (05-01); it streams too, from the chat-loop
-    lesson (05-02), so the chat can use it. When it is sent the two tool
+    It streams, so the chat can use it. When it is sent the two tool
     returns it prints, for each, the tool, the outcome and what came back,
     then answers "Done.".
     """
@@ -454,14 +442,14 @@ def approve_all(
 ) -> DeferredToolResults:
     """Approve every call held for approval.
 
-    From the approval lesson (05-01). A stand-in person for a script whose
+    A stand-in person for a script whose
     calls were chosen in advance by a stand-in model; never the chat's own
     answer.
     """
     return requests.build_results(approve_all=True)
 
 
-# The question the model of the ask-user lesson asks, in the harness's own
+# The question `asks_which_flag` asks, in the harness's own
 # model of one: an edit that breaks the tool's limits fails here, not mid-chat.
 FLAG_QUESTION = Question(
     header="Flag",
@@ -476,7 +464,7 @@ FLAG_QUESTION = Question(
 def asks_which_flag() -> FunctionModel:
     """A model that asks the person which flag to add, whatever it is sent.
 
-    From the ask-user lesson (05-03); it streams, so the chat can use it.
+    It streams, so the chat can use it.
     Each turn it calls `ask_user_question` with `FLAG_QUESTION`, then says
     "I was told: " and the tool's return, as the model is sent it. In a run
     that offers no such tool it says "No one to ask." instead.
@@ -518,7 +506,7 @@ def asks_which_flag() -> FunctionModel:
 def says_which_turn() -> FunctionModel:
     """A model that says which turn it is and what it has been told so far.
 
-    From the restart lesson (05-04); it streams, so the chat can use it. It
+    It streams, so the chat can use it. It
     counts the prompts in the messages it is sent, so a chat that carries on
     a saved conversation shows it: "Turn 2. You've said: first | second".
     """
@@ -548,7 +536,7 @@ def says_which_turn() -> FunctionModel:
 def writes_notes_then_builds() -> FunctionModel:
     """A model whose every turn is four tool calls, one per response, then an answer.
 
-    From the crash lesson (05-05); it streams, so the chat can use it. In a
+    It streams, so the chat can use it. In a
     turn it calls `list_modules`, `read_docstring` on `tinyjobs.jobs`,
     `write_file` (`NOTES.md`, held for your approval) and `wait_for_build`,
     a tool the script `crash_session.py` adds, then says what came back.

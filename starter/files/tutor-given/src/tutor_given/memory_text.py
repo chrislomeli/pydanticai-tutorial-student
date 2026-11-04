@@ -1,6 +1,6 @@
-"""Text and a result type the memory lesson's capability uses.
+"""Text and a result type for the memory capability.
 
-Given, from the memory lesson (04-05): the guidance is wording, and
+Given: the guidance is wording, and
 `MemoryListing` is the shape `list_memory` returns. You use them; the
 lesson says what they do.
 """

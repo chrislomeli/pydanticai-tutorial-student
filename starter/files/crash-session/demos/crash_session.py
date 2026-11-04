@@ -1,6 +1,6 @@
 """Open the chat on a stand-in model whose turn ends in a slow build, so you can stop it mid-tool.
 
-Given, from the crash lesson (05-05): you run it, you don't write it. It opens
+Given: you run it, you don't write it. It opens
 the chat of `pydantic_tutor/chat/loop.py` on `work/tinyjobs`, with the given stand-in model
 `writes_notes_then_builds()` and a stand-in tool, `wait_for_build`, that waits
 ten seconds. The chat saves its conversations and records its runs in

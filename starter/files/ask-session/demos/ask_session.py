@@ -1,6 +1,6 @@
 """Open the chat on a stand-in model that asks you a question each turn.
 
-Given, from the ask-user lesson (05-03): you run it, you don't write it. It
+Given: you run it, you don't write it. It
 opens the chat of `pydantic_tutor/chat/loop.py`, with the agent the app builds and a given
 stand-in model, `asks_which_flag()`, in place of a real one. Whatever you
 type, the model asks which flag the CLI should gain, then says what it was

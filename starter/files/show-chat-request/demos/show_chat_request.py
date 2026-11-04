@@ -1,7 +1,6 @@
 """Show what the chat's agent sends the model: its tools and its instructions.
 
-Given, from the workspace lesson's starter files (03-03), and first used in the
-prompt lesson (04-04): you run it, you don't write it. Needs no API key: the
+Given: you run it, you don't write it. Needs no API key: the
 model is a stand-in that prints what it receives. Run `demos/fresh_copy.py` first.
 """
 

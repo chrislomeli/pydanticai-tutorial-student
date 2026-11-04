@@ -1,6 +1,6 @@
 """Open the chat on a stand-in model that says what each request carried.
 
-Given, from the cost lesson (06-01): you run it, you don't write it. It opens
+Given: you run it, you don't write it. It opens
 the chat of `pydantic_tutor/chat/loop.py` on `work/tinyjobs`, nothing saved, with the
 given stand-in model `counts_like_a_provider()`. Whatever you type, the model
 lists the modules, reads one docstring and answers: three requests a turn.

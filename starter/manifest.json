@@ -3,7 +3,7 @@
     "ask-session": {
       "about": "demos/ask_session.py: a chat in which the agent asks you a question",
       "files": {
-        "demos/ask_session.py": "124a001f78759246953b8e6245ed6747c8f25b261a5d18402444867896234dce"
+        "demos/ask_session.py": "d104e862c5c39d55f6d98a34be761e907b200fab1b53999052d20f0e1f44654e"
       },
       "includes": [],
       "note": ""
@@ -11,7 +11,7 @@
     "chat-session": {
       "about": "demos/chat_session.py: the chat, driven by a stand-in model",
       "files": {
-        "demos/chat_session.py": "09b4e36711edf1c4e871f2ecd3f4bc37c70597619401329d2f95c42e12c0284f"
+        "demos/chat_session.py": "439253c39c8a398fd1c9d626ec0a7bdd21fe2533ea51de62bdd1be536df4ac57"
       },
       "includes": [],
       "note": ""
@@ -19,7 +19,7 @@
     "cost-session": {
       "about": "demos/cost_session.py: a session that reports what each turn costs",
       "files": {
-        "demos/cost_session.py": "d1e63cc17795260698033edc968ad77f4028facb363e661efe8a58ea1c6b93eb"
+        "demos/cost_session.py": "7dfb1e7d519c52bfd6716b0028a2d7fff7fd4dcf55834831bcd59612fff4c889"
       },
       "includes": [],
       "note": ""
@@ -27,7 +27,7 @@
     "crash-session": {
       "about": "demos/crash_session.py: a run that crashes part-way, and is recovered",
       "files": {
-        "demos/crash_session.py": "f9a77d77d65a7d34077a2bb23d36d07285298d45bca8cb6831bfc56c26352d02"
+        "demos/crash_session.py": "82c11f74aac7a73edb9d8a73d85699e8a1f85e9db0663c55db0be75137fab8df"
       },
       "includes": [],
       "note": ""
@@ -42,10 +42,34 @@
       ],
       "note": ""
     },
+    "greeting-model": {
+      "about": "src/pydantic_tutor/given/greeting_model.py: a stand-in model that answers a greeting in words",
+      "files": {
+        "src/pydantic_tutor/given/greeting_model.py": "3b64abdbb356c141e95eb0be0eaea0e7627c547f0bd724fa3ccba208d1130e32"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "invoice-model": {
+      "about": "src/pydantic_tutor/given/invoice_model.py: the stand-in model, and the invoice it reads",
+      "files": {
+        "src/pydantic_tutor/given/invoice_model.py": "3717a1a764b25332200e0b6fa5e4f20b2cfa7ee11b989c1a868b171e06992a8b"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "limit-models": {
+      "about": "src/pydantic_tutor/given/limit_models.py: the stand-in models for limits",
+      "files": {
+        "src/pydantic_tutor/given/limit_models.py": "b29767ab40533b364f3df3a41d5db5eeb7cad315383149285b6665cc1de7d251"
+      },
+      "includes": [],
+      "note": ""
+    },
     "report-context-usage": {
       "about": "examples/06-01-cost/report_context_usage.py: the context-usage report, on its own",
       "files": {
-        "examples/06-01-cost/report_context_usage.py": "213f528700a6697caf9be4ab5442409e2bd79c7afdb0e5df357b0c35e8f3223a"
+        "examples/06-01-cost/report_context_usage.py": "22e7567809c043b3777e27e4b092063a5c85e81d49a8592fdd2aacf6dbf94b58"
       },
       "includes": [],
       "note": ""
@@ -53,7 +77,15 @@
     "restart-session": {
       "about": "demos/restart_session.py: stop the chat and start it again from its saved conversation",
       "files": {
-        "demos/restart_session.py": "5cf4b882311663c340b0b82d6b51c6798840ea62428b359564f8f345a7c6e6db"
+        "demos/restart_session.py": "2b3e508fcb35298bba23044adf152b0499a2fbb1e54dfba8207a9d5a75fb36ba"
+      },
+      "includes": [],
+      "note": ""
+    },
+    "shop-model": {
+      "about": "src/pydantic_tutor/given/shop_model.py: the stand-in model for dependencies",
+      "files": {
+        "src/pydantic_tutor/given/shop_model.py": "2c060385ec872a70d5546cff65dac06f876674a9b671828139e2cbcc6ebeeacc"
       },
       "includes": [],
       "note": ""
@@ -69,7 +101,7 @@
     "show-chat-request": {
       "about": "demos/show_chat_request.py: prints the tools and instructions the chat sends the model",
       "files": {
-        "demos/show_chat_request.py": "658a869972615f35f475f127d0ed321d6d4905e8415b94bdb9dac7b55edd5e0e"
+        "demos/show_chat_request.py": "37c17ca12c0858c48243ead0b4cd5c469d408cc6d61546334da17213319f27e9"
       },
       "includes": [],
       "note": ""
@@ -99,16 +131,26 @@
       "includes": [],
       "note": ""
     },
+    "tool-models": {
+      "about": "src/pydantic_tutor/given/: the stand-in models for function tools",
+      "files": {
+        "src/pydantic_tutor/given/__init__.py": "6157e668a7caa19f655e67f0147f32ffbc18cd19d78859ce5e7d78e4bc0c9648",
+        "src/pydantic_tutor/given/tool_models.py": "efce1f000ed290cf91dddf5770fadc244b744fe0607c3155df6d7713a9529b8a"
+      },
+      "includes": [],
+      "note": ""
+    },
     "tutor-given": {
       "about": "src/tutor_given/: the stand-in models and helpers the lessons give you to run, not to read",
       "files": {
         "src/tutor_given/__init__.py": "df76efe1d42cec21da53609076fee854568a9c956a92377f24c733170a340b81",
-        "src/tutor_given/memory_text.py": "f8f69e64faa1861b70ba1bba5419008eeb39743a90604fbd4e0f939a0bcfd0da",
-        "src/tutor_given/module_tools.py": "2e4455157915029a990406ea11939d671badb22b839c521bac0cf6ec419c5a4a",
+        "src/tutor_given/memory_text.py": "6a93d05868e869c9a6513a77275c50474271d489b583ab8cd67947aac263f6c5",
+        "src/tutor_given/module_tools.py": "1f22b7997a2d5f87fec64ffb8acc8df6b31413069050ab2f0425d475a1e754ca",
         "src/tutor_given/paths.py": "d03a726b2af112772ac22969a12a1045de86e1cd8c802a605fe3f06e96beb9ad",
-        "src/tutor_given/provider_counts.py": "77e02027fd80b4db0a2bc4995df808fc3521d6fbd21fe65ddf2df427d84cb671",
-        "src/tutor_given/stand_ins.py": "f1085d93a482e1a2f5a572ae5bacbdc7f99c8ad844f9408a68272fa110b7aaca",
-        "src/tutor_given/unfinished.py": "1b25780a4c697f8e66923d6243de549f61122d457c6ef0169abeced6dea53765"
+        "src/tutor_given/provider_counts.py": "6d97bad61fd2d0e10042a1c8fd2eb76aca6d6976d16188fe7a4e4be48d5ac1d4",
+        "src/tutor_given/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "src/tutor_given/stand_ins.py": "c97860edfc5c5353cc9e34c23d465c60ca9a3e2d8965da43eafe25207cd2adc4",
+        "src/tutor_given/unfinished.py": "d9648dd31611c4d3931968769b6b0f5ee2b2160e0a480399798d86781fb263fd"
       },
       "includes": [],
       "note": ""
@@ -123,7 +165,7 @@
         "show-capabilities",
         "tutor-given"
       ],
-      "note": "Three small edits to your own files go with this (they are yours, so they are not copied):\n\n  .gitignore      add:  /work/\n  pyproject.toml  add under [tool.ruff]:   extend-exclude = [\"sample_code\", \"work\"]\n                  mypy exclude:            \"^sample_code/\", \"^work/\"\n                  add under [tool.pytest]: addopts = [\"--ignore=sample_code\", \"--ignore=work\"]"
+      "note": "Small edits to your own files go with this (they are yours, so they are not copied):\n\n  .gitignore      add:  /work/\n  pyproject.toml  add under [tool.uv.build-backend]: module-name = [\"pydantic_tutor\", \"tutor_given\"]\n                  add under [tool.ruff]:   extend-exclude = [\"sample_code\", \"work\"]\n                  mypy exclude:            \"^sample_code/\", \"^work/\"\n                  add under [tool.pytest]: addopts = [\"--ignore=sample_code\", \"--ignore=work\"]"
     }
   }
 }
