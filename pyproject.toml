@@ -1,0 +1,47 @@
+[project]
+name = "pydantic-tutor"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Chris Lomeli", email = "chrisjlomeli@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic-ai==2.56.0",
+    "pydantic-ai-harness==0.56.0",
+]
+
+[project.scripts]
+pydantic-tutor = "pydantic_tutor:main"
+
+[build-system]
+requires = ["uv_build>=0.13.1,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "mypy==2.4.0",
+    "pytest==9.1.1",
+    "ruff==0.16.10",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "W",  # style: pycodestyle
+    "F",       # unused imports and names, undefined names
+    "I",       # import order
+    "N",       # PEP 8 names
+    "UP",      # modern syntax for this Python
+    "B",       # likely bugs
+    "ANN",     # every parameter and return annotated; ANN401 flags Any
+    "FBT",     # no booleans by position, in a call or a def
+    "SIM",     # simpler equivalents
+    "RUF",     # Ruff's own rules
+]
+ignore = ["E501"]  # line length is the formatter's job
+
+[tool.mypy]
+strict = true
+plugins = ["pydantic.mypy"]
+exclude = ["^tests/"]  # the series' lesson tests refer to code you have not written yet
