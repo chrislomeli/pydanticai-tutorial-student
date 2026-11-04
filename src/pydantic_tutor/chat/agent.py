@@ -14,16 +14,18 @@ Built from these pieces:
 - Token redaction: secrets removed before the model sees them.
 """
 
+from collections.abc import Sequence
 from pathlib import Path
 
 from pydantic_ai import Agent
 from pydantic_ai.capabilities import (
-    AbstractCapability,
+    AgentCapability,
     Hooks,
     LocalWorkspace,
     Toolset,
     WebSearch,
 )
+from pydantic_ai.settings import ModelSettings
 from pydantic_ai_harness import FileSystem, Shell
 from pydantic_ai_harness.memory import FileStore
 
@@ -54,11 +56,11 @@ TOKEN_PATTERN = r"tj-[A-Za-z0-9-]+"
 PROMPT_PATH = Path(__file__).parents[1] / "prompts" / "chat.md"
 
 
-def build_chat_agent(
+def chat_capabilities(
     *, web_search: bool, workspace_root: Path, activity_log: Hooks[None] | None = None
-) -> Agent[None, str]:
-    """Build the chat's agent."""
-    capabilities: list[AbstractCapability[None]] = [
+) -> list[AgentCapability[None]]:
+    """Everything the chat does, as a list of capabilities, each one new."""
+    capabilities: list[AgentCapability[None]] = [
         # The chat's instructions, read from PROMPT_PATH when the agent is
         # built. Text, so it is sent ahead of any computed for a request.
         PromptFile(path=PROMPT_PATH),
@@ -87,8 +89,35 @@ def build_chat_agent(
         # First: its `before_` hooks see every attempt, and its `after_` hooks
         # run last, so they see the result the model gets.
         capabilities.insert(0, activity_log)
+    return capabilities
+
+
+def build_chat_agent(
+    *,
+    web_search: bool,
+    workspace_root: Path,
+    activity_log: Hooks[None] | None = None,
+    capabilities: Sequence[AgentCapability[None]] | None = None,
+) -> Agent[None, str]:
+    """Build the chat's agent: what it is here, what it does in `capabilities`.
+
+    The constructor sets what no capability can. `capabilities` defaults to
+    `chat_capabilities(...)`; pass another list to rearrange or extend the
+    stack, and the other arguments are not used.
+    """
+    if capabilities is None:
+        capabilities = chat_capabilities(
+            web_search=web_search,
+            workspace_root=workspace_root,
+            activity_log=activity_log,
+        )
     return Agent[None, str](
         name="chat",
+        # The type the type checker holds every run to.
+        output_type=str,
+        # Each attempt at a request that takes longer fails; most hosted
+        # models honour it, the given stand-in models do not.
+        model_settings=ModelSettings(timeout=120),
         capabilities=capabilities,
     )
 

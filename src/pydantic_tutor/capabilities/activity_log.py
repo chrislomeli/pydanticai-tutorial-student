@@ -15,7 +15,7 @@ from typing import Any
 
 from pydantic import BaseModel
 from pydantic_ai import ModelRequestContext, RunContext
-from pydantic_ai.capabilities import Hooks
+from pydantic_ai.capabilities import CapabilityOrdering, Hooks
 from pydantic_ai.messages import ToolCallPart
 from pydantic_ai.tools import ToolDefinition
 
@@ -121,4 +121,7 @@ def build_activity_hooks(
         after_tool_execute=(
             after_tool_execute if HookName.AFTER_TOOL_EXECUTE in hooks else None
         ),
+        # Outermost, wherever it is listed: its `before_` hooks see every
+        # attempt, and its `after_` hooks see the result the model gets.
+        ordering=CapabilityOrdering(position="outermost"),
     )
