@@ -7,15 +7,22 @@ Built from these pieces:
 - Workspace: the folder the tools work in.
 - File tools: read and write files there.
 - Shell tools: run a few commands there.
+- Toolset: the workspace's own tools.
 - Web search: switched on by a setting.
 """
 
 from pathlib import Path
 
 from pydantic_ai import Agent
-from pydantic_ai.capabilities import AbstractCapability, LocalWorkspace, WebSearch
+from pydantic_ai.capabilities import (
+    AbstractCapability,
+    LocalWorkspace,
+    Toolset,
+    WebSearch,
+)
 from pydantic_ai_harness import FileSystem, Shell
 
+from pydantic_tutor.tools.workspace_toolset import build_workspace_toolset
 from tutor_given.paths import project_root
 
 # File names the file tools may not touch. A precaution, not a complete
@@ -38,6 +45,8 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
         FileSystem(denied_patterns=SECRET_PATTERNS),
         # Shell tools: run the allowed commands in that workspace.
         Shell(allowed_commands=SHELL_COMMANDS),
+        # Toolset: the workspace's own tools, built for this folder.
+        Toolset(toolset=build_workspace_toolset(root=workspace_root)),
     ]
     if web_search:
         # Web search: the model may search when it needs to. Each search is
