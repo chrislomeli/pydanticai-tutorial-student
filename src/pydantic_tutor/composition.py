@@ -11,6 +11,7 @@ from pydantic_ai import Agent
 from pydantic_ai.exceptions import UserError
 from pydantic_ai.models import Model, infer_model
 
+from pydantic_tutor.capabilities.activity_log import build_activity_hooks
 from pydantic_tutor.chat.agent import build_chat_agent
 from pydantic_tutor.providers import ProviderFactory, build_provider
 from pydantic_tutor.settings import Settings
@@ -38,7 +39,11 @@ def build_app(*, settings: Settings) -> App:
         )
     return App(
         agent=build_chat_agent(
-            web_search=settings.web_search, workspace_root=settings.workspace_root
+            web_search=settings.web_search,
+            workspace_root=settings.workspace_root,
+            activity_log=build_activity_hooks(
+                path=settings.activity_log_path, hooks=settings.activity_log
+            ),
         ),
         model=build_model(settings=settings),
     )

@@ -9,6 +9,7 @@ Built from these pieces:
 - Shell tools: run a few commands there.
 - Toolset: the workspace's own tools.
 - Web search: switched on by a setting.
+- Activity log: a record of the run, if one is given.
 """
 
 from pathlib import Path
@@ -16,6 +17,7 @@ from pathlib import Path
 from pydantic_ai import Agent
 from pydantic_ai.capabilities import (
     AbstractCapability,
+    Hooks,
     LocalWorkspace,
     Toolset,
     WebSearch,
@@ -34,7 +36,9 @@ SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
 SHELL_COMMANDS = ("pytest", "pwd", "ls", "cat")
 
 
-def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, str]:
+def build_chat_agent(
+    *, web_search: bool, workspace_root: Path, activity_log: Hooks[None] | None = None
+) -> Agent[None, str]:
     """Build the chat's agent."""
     capabilities: list[AbstractCapability[None]] = [
         # Workspace: a place for tools to work in. It adds no tool: they use
@@ -52,6 +56,10 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
         # Web search: the model may search when it needs to. Each search is
         # billed by the provider, on top of the tokens.
         capabilities.append(WebSearch())
+    if activity_log is not None:
+        # Activity log: last, so it records what the other capabilities have
+        # left.
+        capabilities.append(activity_log)
     return Agent[None, str](
         name="chat",
         instructions="You are a helpful assistant. Answer briefly.",

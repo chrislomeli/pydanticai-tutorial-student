@@ -9,6 +9,7 @@ from pathlib import Path
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from pydantic_tutor.capabilities.activity_log import HookName
 from pydantic_tutor.model import CHAT_MODEL
 from tutor_given.paths import project_root
 
@@ -34,6 +35,11 @@ class Settings(BaseSettings):
     web_search: bool = True
     # The folder the chat works in. `demos/fresh_copy.py` makes the default.
     workspace_root: Path = project_root() / "work" / "tinyjobs"
+    # The activity log's file. Beside the workspace and not in it, so the file
+    # tools can't reach it. `work/` is already ignored by git.
+    activity_log_path: Path = project_root() / "work" / "activity.jsonl"
+    # Which hooks the activity log records. An empty list turns it off.
+    activity_log: frozenset[HookName] = frozenset(HookName)
     # One key per provider the composition root can build. SecretStr:
     # printing the settings shows `**********`, never the key.
     openai_api_key: SecretStr | None = Field(
