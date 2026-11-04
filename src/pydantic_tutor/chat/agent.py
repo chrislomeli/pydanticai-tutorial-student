@@ -27,6 +27,7 @@ from pydantic_ai.capabilities import (
 from pydantic_ai_harness import FileSystem, Shell
 
 from pydantic_tutor.capabilities.guards import guards
+from pydantic_tutor.capabilities.prompt_file import PromptFile
 from pydantic_tutor.capabilities.redact_tokens import RedactTokens
 from pydantic_tutor.tools.workspace_toolset import build_workspace_toolset
 from tutor_given.paths import project_root
@@ -42,12 +43,19 @@ SHELL_COMMANDS = ("pytest", "pwd", "ls", "cat")
 # The shape of this project's tokens.
 TOKEN_PATTERN = r"tj-[A-Za-z0-9-]+"
 
+# The chat's prompt, in the package's `prompts` folder, so it is found whichever
+# folder the program runs from.
+PROMPT_PATH = Path(__file__).parents[1] / "prompts" / "chat.md"
+
 
 def build_chat_agent(
     *, web_search: bool, workspace_root: Path, activity_log: Hooks[None] | None = None
 ) -> Agent[None, str]:
     """Build the chat's agent."""
     capabilities: list[AbstractCapability[None]] = [
+        # The chat's instructions, read from PROMPT_PATH when the agent is
+        # built. Text, so it is sent ahead of any computed for a request.
+        PromptFile(path=PROMPT_PATH),
         # Workspace: a place for tools to work in. It adds no tool: they use
         # `ctx.workspace`.
         LocalWorkspace(working_dir=workspace_root),
@@ -72,7 +80,6 @@ def build_chat_agent(
         capabilities.insert(0, activity_log)
     return Agent[None, str](
         name="chat",
-        instructions="You are a helpful assistant. Answer briefly.",
         capabilities=capabilities,
     )
 
