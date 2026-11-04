@@ -6,6 +6,7 @@ each run.
 Built from these pieces:
 - Workspace: the folder the tools work in.
 - File tools: read and write files there.
+- Shell tools: run a few commands there.
 - Web search: switched on by a setting.
 """
 
@@ -13,13 +14,17 @@ from pathlib import Path
 
 from pydantic_ai import Agent
 from pydantic_ai.capabilities import AbstractCapability, LocalWorkspace, WebSearch
-from pydantic_ai_harness import FileSystem
+from pydantic_ai_harness import FileSystem, Shell
 
 from tutor_given.paths import project_root
 
 # File names the file tools may not touch. A precaution, not a complete
 # data-security policy.
 SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
+
+# The commands the shell may start. A precaution, not a boundary: it checks
+# only a command's first word, so `ls && cat .env` still runs.
+SHELL_COMMANDS = ("pytest", "pwd", "ls", "cat")
 
 
 def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, str]:
@@ -31,6 +36,8 @@ def build_chat_agent(*, web_search: bool, workspace_root: Path) -> Agent[None, s
         # File tools: read and write files in that workspace, minus the secret
         # patterns.
         FileSystem(denied_patterns=SECRET_PATTERNS),
+        # Shell tools: run the allowed commands in that workspace.
+        Shell(allowed_commands=SHELL_COMMANDS),
     ]
     if web_search:
         # Web search: the model may search when it needs to. Each search is
