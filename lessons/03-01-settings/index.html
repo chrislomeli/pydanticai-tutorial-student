@@ -1,0 +1,2083 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Give the chat's choices one typed home, Settings, and build the objects they call for in one place, so a bad setting or a missing key stops the app before the chat opens.">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/03-01-settings/">
+      
+      
+        <link rel="prev" href="../03-00-application-and-workspace/">
+      
+      
+        <link rel="next" href="../03-02-models/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Settings and a composition root - Pydantic AI tutorial</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#settings-and-a-composition-root" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pydantic AI tutorial" class="md-header__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic AI tutorial
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Settings and a composition root
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pydantic AI tutorial" class="md-nav__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic AI tutorial
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-configuration-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the configuration lives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-create-the-chats-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Create the chat's settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Create the chat&#39;s settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-pydantic-settings-as-a-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add pydantic-settings as a dependency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-settings-with-two-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create Settings with two defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-change-a-setting-without-editing-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Change a setting without editing Python
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Change a setting without editing Python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#override-a-setting-from-the-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Override a setting from the environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-a-setting-from-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read a setting from a file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-assemble-the-agent-and-model-from-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Assemble the agent and model from settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-update-the-chat-loop-to-use-the-configured-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Update the chat loop to use the configured application
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-the-configuration-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the configuration lives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-create-the-chats-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Create the chat's settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Create the chat&#39;s settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-pydantic-settings-as-a-dependency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add pydantic-settings as a dependency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-settings-with-two-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create Settings with two defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-change-a-setting-without-editing-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Change a setting without editing Python
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Change a setting without editing Python">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#override-a-setting-from-the-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Override a setting from the environment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-a-setting-from-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read a setting from a file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-assemble-the-agent-and-model-from-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Assemble the agent and model from settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-update-the-chat-loop-to-use-the-configured-application" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Update the chat loop to use the configured application
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="settings-and-a-composition-root">Settings and a composition root</h1>
+<h2 id="welcome">Welcome</h2>
+<p>Welcome back. Your chat now remembers conversations, streams answers, and
+searches the web. We're beginning to turn it into an application you can
+configure without rewriting it.</p>
+<p>Right now two decisions are made in Python code: the model's name lives
+in <code>model.py</code>, and web search is switched on inside <code>chat/agent.py</code>.
+That's a reasonable way to start. But suppose you want to switch off
+web search for one run, or choose a different model on another machine.
+Why should either choice require an edit?</p>
+<p>Applications usually have a way to collect these choices, often called <strong>configuration</strong>.
+Some values have sensible defaults in code; others come from a file or
+from the environment where the program runs. We'll bring our two choices
+into a typed <code>Settings</code> class, try changing their values without
+editing Python, and then build the chat from those settings at startup.</p>
+<p>There's a second payoff: a missing API key currently makes the chat fail
+<em>after</em> you type your first message. We'll move that failure to startup,
+before the chat invites you to type.</p>
+<p>By the end, you'll be able to:</p>
+<ol>
+<li><strong>Separate values from objects:</strong> read every choice into one typed
+   <code>Settings</code>, and build the agent and model from it in one place.</li>
+<li><strong>Make a bad setting or a missing key stop the app at startup</strong>, by
+   name, before the chat opens.</li>
+</ol>
+<p>About 15 minutes. From Step 2 on, no API key is needed.</p>
+<h2 id="where-the-configuration-lives">Where the configuration lives</h2>
+<p>Our chat has two choices built into Python: which model it uses and
+whether web search is available. We'll collect them in a <code>Settings</code>
+class. Each setting has a name, a Python type, and a default value.</p>
+<p>Pydantic Settings can read those choices from several places, including
+environment variables and files. It interprets incoming text according
+to the field's type: for example, <code>false</code> from the environment becomes
+the Python boolean <code>False</code>. That gives our application one consistent
+way to obtain its configuration, even when the values come from
+different places.</p>
+<p>Later in the lesson, we'll use those settings to assemble the agent and
+model. For now, we'll concentrate on gathering the choices and seeing
+how overrides work.</p>
+<h2 id="what-youll-build">What you'll build</h2>
+<div class="highlight"><pre><span></span><code>pydantic-tutor/
+├── pyproject.toml                    changed: pydantic-settings, pinned
+├── uv.lock                           changed: the same, resolved
+└── src/
+    └── pydantic_tutor/
+        ├── chat/
+        │   ├── agent.py              changed: build_chat_agent(web_search=...)
+        │   └── loop.py               changed: reads the settings, runs on the built app
+        ├── composition.py            new: App and build_app, the one place objects are built
+        └── settings.py               new: Settings, every choice, typed
+</code></pre></div>
+<p>And the steps, in order:</p>
+<ol>
+<li><strong>Create settings:</strong> collect the chat's two defaults in one class.</li>
+<li><strong>Try overrides:</strong> read settings from the environment and a file.</li>
+<li><strong>Assemble the application:</strong> build an agent and model from settings.</li>
+<li><strong>Update the chat loop:</strong> use the assembled application.</li>
+</ol>
+<p>Each step ends with a <strong>Check</strong>. If it doesn't show what it says, stop
+there: the next step builds on it.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>Continue with the <code>pydantic-tutor</code> project you've been building. From
+its root folder, check that the Chapter 2 chat still works:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pydantic_tutor
+</code></pre></div>
+<p><strong>Check:</strong> send one short message, confirm that the agent replies, then
+end the chat with an empty line. Use the API key you set up in Chapter 2.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Only start fresh if you need to.</strong></p>
+<p>If you've been following the lessons, <strong>keep using your existing
+project</strong>. Do not run these commands.</p>
+<p>If you're joining at this lesson or starting again without an existing
+project, run these commands from a parent directory where <strong>no folder
+named <code>pydantic-tutor</code> exists</strong>. Every lesson uses that same project
+folder name. If you already have <code>pydantic-tutor</code>, keep using it; do
+not run the clone commands or overwrite that folder. Starting again
+would lose the work and settings in your existing project.</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span><span class="m">02</span>-05-web-search/end<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/chrislomeli/pydanticai-tutorial-student.git<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>sync
+</code></pre></div>
+</div>
+<h2 id="step-1-create-the-chats-settings">Step 1: Create the chat's settings</h2>
+<blockquote>
+<p><strong>Goal:</strong> put the two existing choices in one typed class, with
+defaults that keep the chat behaving as before.</p>
+</blockquote>
+<h3 id="add-pydantic-settings-as-a-dependency">Add <code>pydantic-settings</code> as a dependency</h3>
+<p>We're about to import <code>pydantic-settings</code> directly, so add it to our
+project's dependencies even if another package already installed it:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>add<span class="w"> </span>pydantic-settings<span class="o">==</span><span class="m">2</span>.16.0
+</code></pre></div>
+<p><strong>Check:</strong> open <code>pyproject.toml</code> and confirm that <code>pydantic-settings</code>
+appears in its dependencies. If the command reported an error, stop
+before continuing.</p>
+<h3 id="create-settings-with-two-defaults">Create <code>Settings</code> with two defaults</h3>
+<p>Now create <code>src/pydantic_tutor/settings.py</code>. This is a new class with
+two fields: <code>chat_model</code> holds the model name, and <code>web_search</code> holds
+a true-or-false choice. <strong>Both start with the same values our chat
+already used in Python code.</strong> We're moving them into one place, not
+changing the behavior yet.</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""Every value the app is configured with, typed and checked at startup.</span>
+
+<span class="sd">Values only: strings and flags read from the environment. The objects built</span>
+<span class="sd">from them are in `composition.py`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseSettings</span><span class="p">,</span> <span class="n">SettingsConfigDict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">CHAT_MODEL</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Settings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Read from variables named `PYDANTIC_TUTOR_&lt;FIELD&gt;`; frozen once created."""</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">SettingsConfigDict</span><span class="p">(</span><span class="n">env_prefix</span><span class="o">=</span><span class="s2">"PYDANTIC_TUTOR_"</span><span class="p">,</span> <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># A `&lt;provider&gt;:&lt;model&gt;` string, the name of the model: not the model.</span>
+    <span class="n">chat_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">CHAT_MODEL</span>
+    <span class="c1"># Whether the chat may search the web. Each search is billed.</span>
+    <span class="n">web_search</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+<p>A <code>Settings</code> instance can read environment variables as well as those
+defaults. <code>frozen=True</code> prevents assigning a new value to a field
+after it has been created.</p>
+<p>Let's first see the defaults:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.settings import Settings; print(Settings())"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> if you have no <code>PYDANTIC_TUTOR_</code> overrides in your shell:</p>
+<div class="highlight"><pre><span></span><code>chat_model='openai:gpt-4o-mini' web_search=True
+</code></pre></div>
+</div>
+<p>The chat's two choices now have one home. We haven't yet made the
+running chat use this class.</p>
+<h2 id="step-2-change-a-setting-without-editing-python">Step 2: Change a setting without editing Python</h2>
+<blockquote>
+<p><strong>Goal:</strong> see how the same typed setting can get a value from an
+environment variable or a file without changing the class.</p>
+</blockquote>
+<h3 id="override-a-setting-from-the-environment">Override a setting from the environment</h3>
+<p>Try changing web search for just this one command:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PYDANTIC_TUTOR_WEB_SEARCH</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.settings import Settings; print(Settings().web_search)"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> it prints <code>False</code>.</p>
+</div>
+<p>The environment supplies text, but Pydantic Settings interprets
+<code>false</code> as a Python boolean. We didn't change the class or its default.</p>
+<h3 id="read-a-setting-from-a-file">Read a setting from a file</h3>
+<p>So far, the values came from Python defaults or variables on a command
+line. If you regularly run the chat with web search off, you might not
+want to type that override every time. A <code>.env</code> file is a plain text
+file of <code>NAME=value</code> lines. Create a practice file in the project root with an ordinary setting.
+We use a separate name so we don't overwrite your real <code>.env</code> file,
+which might contain an API key:</p>
+<div class="highlight"><pre><span></span><code><span class="nb">printf</span><span class="w"> </span><span class="s1">'PYDANTIC_TUTOR_WEB_SEARCH=false\n'</span><span class="w"> </span>&gt;<span class="w"> </span>lesson-settings.env
+</code></pre></div>
+<p><strong>Check:</strong> open <code>lesson-settings.env</code> and confirm it contains
+the line <code>PYDANTIC_TUTOR_WEB_SEARCH=false</code>.</p>
+<p>Now ask <code>Settings</code> to read it:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.settings import Settings; print(Settings(_env_file='lesson-settings.env').web_search)"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> it prints <code>False</code>. The file overrides the Python default.</p>
+</div>
+<p>Finally, override the file with an environment variable:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PYDANTIC_TUTOR_WEB_SEARCH</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.settings import Settings; print(Settings(_env_file='lesson-settings.env').web_search)"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> this time it prints <code>True</code>.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p>The class hasn't changed. Its Python default is <code>True</code>; the file
+overrides it with <code>false</code>; and a variable supplied for that command
+takes precedence over the file. That's the useful idea: <strong>one setting,
+several possible sources, a predictable result</strong>. We're opting into the
+file for this experiment with <code>_env_file</code>. In the next lesson we'll
+configure <code>Settings</code> to read it routinely, including the credentials
+needed by model providers.</p>
+<p>Your real <code>.env</code> is excluded by the project's <code>.gitignore</code>; keep it
+that way. You can delete <code>lesson-settings.env</code> after this experiment.
+Don't put real credentials in the practice file. A file on your
+machine is convenient configuration, not a secure secret store.</p>
+<h2 id="step-3-assemble-the-agent-and-model-from-settings">Step 3: Assemble the agent and model from settings</h2>
+<blockquote>
+<p><strong>Goal:</strong> <code>build_app(settings=...)</code> returns the agent and the model,
+built from the settings.</p>
+</blockquote>
+<p>We've seen where configuration values can come from. Now it's time to
+make them change the running application. The agent needs the web-search
+flag, while the chat loop needs a model object rather than a name.
+We'll assemble those two pieces in <code>build_app</code>, so the loop doesn't
+need to know how either was chosen.</p>
+<p>First we'll <strong>define</strong> a new <code>build_chat_agent</code> function. Instead of
+constructing the agent immediately with web search hard-coded, the
+function takes a <code>web_search</code> argument and builds the agent accordingly.
+This is a <em>factory function</em>—one straightforward way to configure an
+agent before using it. In the next file we'll <strong>call</strong> that function
+from <code>build_app</code>. We're separating those two actions deliberately.
+Replace <code>src/pydantic_tutor/chat/agent.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""The agent the chat talks to.</span>
+
+<span class="sd">No model here, as for every agent in this project: the chat passes one on</span>
+<span class="sd">each run.</span>
+
+<span class="sd">Built from these pieces:</span>
+<span class="sd">- Web search: switched on by a setting.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractCapability</span><span class="p">,</span> <span class="n">WebSearch</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_chat_agent</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">web_search</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Build the chat's agent."""</span>
+    <span class="n">capabilities</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractCapability</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">web_search</span><span class="p">:</span>
+        <span class="c1"># Web search: the model may search when it needs to. Each search is</span>
+        <span class="c1"># billed by the provider, on top of the tokens.</span>
+        <span class="n">capabilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">WebSearch</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">](</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"chat"</span><span class="p">,</span>
+        <span class="n">instructions</span><span class="o">=</span><span class="s2">"You are a helpful assistant. Answer briefly."</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># Earlier demos import this name; the console chat builds its agent in build_app.</span>
+<span class="n">chat_agent</span> <span class="o">=</span> <span class="n">build_chat_agent</span><span class="p">(</span><span class="n">web_search</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>The header lists the pieces the agent is built from, and each is marked in the code by name. Each lesson that changes this file adds one.</p>
+<p>We have now defined the factory, but our running chat doesn't use it
+yet. Next we'll call it from <code>build_app</code>, together with <code>infer_model</code>,
+which creates the model from its name. That gives us a single place to
+assemble the application's main pieces before the chat opens. This
+assembly point is often called the <strong>composition root</strong>.</p>
+<p>Create <code>src/pydantic_tutor/composition.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""The composition root: the one place the app's objects are built.</span>
+
+<span class="sd">`build_app` turns `Settings` (values) into the agent and the model (objects).</span>
+<span class="sd">The model is built here, at startup, so an unknown provider or a missing API key</span>
+<span class="sd">stops the app before the chat opens, not when the first message is sent.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">infer_model</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.chat.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_chat_agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">App</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What the chat needs to run, built once from the settings."""</span>
+
+    <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_app</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="n">Settings</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the agent and the model from `settings`.</span>
+
+<span class="sd">    Raises `pydantic_ai.exceptions.UserError` if the model name's provider is</span>
+<span class="sd">    unknown or its API key is not set.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">App</span><span class="p">(</span>
+        <span class="n">agent</span><span class="o">=</span><span class="n">build_chat_agent</span><span class="p">(</span><span class="n">web_search</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">web_search</span><span class="p">),</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">infer_model</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">chat_model</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><code>App</code> is a small frozen container for the agent and model. Notice
+the two different jobs in <code>build_app</code>: <code>build_chat_agent</code> uses the
+web-search choice to configure the agent; <code>infer_model</code> turns the model
+name into an object. The latter also builds the provider and checks for
+its key. That is why this is an application <em>assembly</em> step, rather than
+another way to read settings.</p>
+<p>Try assembling an app with Pydantic AI's keyless test model. No model
+request will be sent:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.composition import build_app; from pydantic_tutor.settings import Settings; app = build_app(settings=Settings(chat_model='test')); print(type(app.model).__name__, app.agent.name)"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the output is <code>TestModel chat</code>.</p>
+</div>
+<p>The string <code>test</code> was a configuration value; <code>build_app</code> constructed
+a <code>TestModel</code> and an agent. A real provider's missing key can now be
+noticed at assembly time, before the conversation starts.</p>
+<h2 id="step-4-update-the-chat-loop-to-use-the-configured-application">Step 4: Update the chat loop to use the configured application</h2>
+<blockquote>
+<p><strong>Goal:</strong> run the same chat using the agent and model assembled from
+<code>Settings</code>.</p>
+</blockquote>
+<p>Our chat already handles keyboard input, streams replies, and remembers
+message history. None of that needs to change. What <em>does</em> change is
+where the chat gets its agent and model.</p>
+<p>Previously the loop imported a ready-made <code>chat_agent</code> and passed a
+hard-coded model name on each run. Now we'll build both at the beginning of <code>main</code>, before the first
+prompt. In the loop itself,
+<code>app.agent</code> and <code>app.model</code> replace those two old values.</p>
+<p>We'll also handle startup configuration errors here. If settings are
+invalid or the model can't be built, the program should explain why
+<strong>before</strong> showing the <code>you&gt;</code> prompt. We aren't going to trigger an
+error deliberately.</p>
+<p>Replace <code>src/pydantic_tutor/chat/loop.py</code> with this complete version;
+compare the configuration block at the beginning of <code>main</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""The terminal chat, with streaming and conversation history.</span>
+
+<span class="sd">The application is assembled from Settings before the chat opens.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelMessage</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.chat.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">blue</span><span class="p">,</span> <span class="n">dim</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.composition</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_app</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the app, then run the chat with streaming and history."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">app</span> <span class="o">=</span> <span class="n">build_app</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">Settings</span><span class="p">())</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">ValidationError</span><span class="p">,</span> <span class="n">UserError</span><span class="p">)</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+        <span class="c1"># A bad setting or a missing key: say which, and do not open the chat.</span>
+        <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"pydantic-tutor cannot start:</span><span class="se">\n</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Chat with the agent. An empty line ends it."</span><span class="p">)</span>
+    <span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ModelMessage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># every message of the chat so far</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">"you&gt; "</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">EOFError</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">agent</span><span class="o">.</span><span class="n">run_stream_sync</span><span class="p">(</span>
+            <span class="n">user_prompt</span><span class="o">=</span><span class="n">line</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">app</span><span class="o">.</span><span class="n">model</span><span class="p">,</span> <span class="n">message_history</span><span class="o">=</span><span class="n">history</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">blue</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="s2">"agent&gt; "</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">piece</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stream_text</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">blue</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">piece</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">dim</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="sa">f</span><span class="s2">"  (the model was sent </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">input_tokens</span><span class="si">}</span><span class="s2"> tokens)"</span><span class="p">))</span>
+        <span class="n">history</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">all_messages</span><span class="p">()</span>
+</code></pre></div>
+<p>Notice the division of work: the beginning of <code>main</code> assembles the
+application once; the loop that follows only runs the conversation.
+The project's existing <code>__main__.py</code> can still call <code>main()</code> as before.</p>
+<p>Run the chat with the keyless test model. Since that model doesn't
+support provider-hosted web search, disable web search for this run:</p>
+<div class="highlight"><pre><span></span><code>env<span class="w"> </span>-u<span class="w"> </span>OPENAI_API_KEY<span class="w"> </span><span class="nv">PYDANTIC_AI_NO_BANNER</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">PYDANTIC_TUTOR_CHAT_MODEL</span><span class="o">=</span><span class="nb">test</span><span class="w"> </span><span class="nv">PYDANTIC_TUTOR_WEB_SEARCH</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pydantic_tutor
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> type <code>hello</code>, then an empty line. You should see:</p>
+<div class="highlight"><pre><span></span><code>Chat with the agent. An empty line ends it.
+you&gt; hello
+agent&gt; success (no tool calls)
+(the model was sent 51 tokens)
+you&gt;
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>We've changed the agent's capabilities and the model with configuration,
+not by editing the conversation loop for each choice. The same chat
+still streams responses and carries its message history from one turn
+to the next.</p>
+<p>Because assembly now happens before the chat opens, a missing key or
+an unknown provider is also reported earlier. (A misspelled model with a
+known provider, such as <code>openai:gpt-4o-minii</code>, isn't caught here: it
+builds, and the mistake shows only when the first message is sent.) That's a useful benefit of
+this design, although configuration—not failure handling—is the main
+idea of the lesson.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<ul>
+<li><strong>Separate values from objects:</strong> <code>Settings</code> holds the chat's choices as
+  typed values read from the environment, and <code>build_app</code> is the one place
+  that builds the agent and model from them.</li>
+<li><strong>Make a bad setting or a missing key stop the app at startup:</strong> a
+  value that doesn't fit its type, an unknown provider and a missing key
+  each end the app with a message before the chat opens.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p>The chat now reads configuration before it opens. In the next lesson you
+give that place more to decide: which provider the name resolves to, and
+how the provider gets its key.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

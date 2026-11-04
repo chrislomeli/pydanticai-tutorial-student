@@ -1,0 +1,2299 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Give the chat a workspace, a folder its tools will work in, built once at startup from a setting, and see what a local workspace gives you and what it does not.">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/03-03-workspace/">
+      
+      
+        <link rel="prev" href="../03-02-models/">
+      
+      
+        <link rel="next" href="../03-04-files/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>A workspace - Pydantic AI tutorial</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#a-workspace" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pydantic AI tutorial" class="md-header__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic AI tutorial
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              A workspace
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pydantic AI tutorial" class="md-nav__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic AI tutorial
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-folder-for-our-existing-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A folder for our existing chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Before you start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fetch-the-starter-files-for-this-lesson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fetch the starter files for this lesson
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keep-the-disposable-copy-out-of-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keep the disposable copy out of git
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keep-the-example-project-out-of-our-routine-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keep the example project out of our routine checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#package-the-given-code-with-yours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package the given code with yours
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-name-and-create-the-workspace-folder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Name and create the workspace folder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Name and create the workspace folder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-a-path-to-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a path to Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-a-disposable-working-copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a disposable working copy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-the-configured-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read the configured location
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-attach-the-workspace-to-the-existing-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Attach the workspace to the existing agent
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Attach the workspace to the existing agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-localworkspace-to-the-agent-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add LocalWorkspace to the agent builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-the-folder-when-the-app-starts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check the folder when the app starts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confirm-the-chat-still-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confirm the chat still works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-observe-what-the-workspace-allows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Observe what the workspace allows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-folder-for-our-existing-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A folder for our existing chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Before you start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fetch-the-starter-files-for-this-lesson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fetch the starter files for this lesson
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keep-the-disposable-copy-out-of-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keep the disposable copy out of git
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keep-the-example-project-out-of-our-routine-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Keep the example project out of our routine checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#package-the-given-code-with-yours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Package the given code with yours
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-name-and-create-the-workspace-folder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Name and create the workspace folder
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 1: Name and create the workspace folder">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-a-path-to-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add a path to Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-a-disposable-working-copy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Create a disposable working copy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#read-the-configured-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Read the configured location
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-attach-the-workspace-to-the-existing-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Attach the workspace to the existing agent
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Attach the workspace to the existing agent">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-localworkspace-to-the-agent-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add LocalWorkspace to the agent builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-the-folder-when-the-app-starts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Check the folder when the app starts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#confirm-the-chat-still-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Confirm the chat still works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-observe-what-the-workspace-allows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Observe what the workspace allows
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="a-workspace">A workspace</h1>
+<h2 id="welcome">Welcome</h2>
+<p>Welcome back. We now have one place to choose the model, hand it its key,
+and build the chat before it opens. Next we'll give that chat somewhere
+to work.</p>
+<p>Imagine asking it to inspect a small Python project. Before it can read
+a file or run tests, we need to answer a mundane question: <strong>which
+project?</strong> A workspace is the place its tools will start from. In this
+lesson we'll choose a folder through <code>Settings</code> and attach it while
+building the application.</p>
+<p>We're deliberately <strong>not</strong> adding file or shell tools yet. The chat
+will still only talk. That separation helps us see an important
+distinction: a workspace tells tools <em>where to begin</em>, but doesn't
+itself grant the model permission to do anything—or keep tools from
+reaching beyond that folder.</p>
+<p>By the end, you'll be able to:</p>
+<ol>
+<li><strong>Attach a workspace to the chat:</strong> name its folder in <code>Settings</code>, build
+   it at the composition root, and have the app refuse to start without
+   the folder.</li>
+<li><strong>Say what a local workspace does not give you:</strong> it gives the agent
+   no tools, and it does not keep anything inside its folder.</li>
+</ol>
+<p>About 15 minutes. No API key is needed.</p>
+<h2 id="a-folder-for-our-existing-chat">A folder for our existing chat</h2>
+<p>In 03-02, <code>Settings</code> chose a model and <code>build_app</code> built it before the conversation opened. Now suppose you ask the chat to inspect a Python project. Which project should it inspect?</p>
+<p>A <strong>workspace</strong> gives the tools of an agent a starting place for file operations. We'll use a disposable working copy of a small project called <code>tinyjobs</code>. This lesson attaches the workspace but <strong>does not add file tools to the chat</strong>. That distinction matters: naming a folder doesn't give a model the ability to read it.</p>
+<p>We'll also see why a local workspace is <strong>not a sandbox</strong>. It starts paths at a folder, but it does not automatically keep them inside that folder. We'll demonstrate this using only a supplied sample project, never your private files.</p>
+<h2 id="what-youll-build">What you'll build</h2>
+<div class="highlight"><pre><span></span><code>pydantic-tutor/
+├── sample_code/tinyjobs/       given: original sample project
+├── demos/
+│   ├── fresh_copy.py          given: creates disposable work/tinyjobs
+│   └── workspace_reach.py     new: explore what paths a tool can read
+├── work/tinyjobs/             generated: disposable copy, not committed
+└── src/pydantic_tutor/
+    ├── settings.py            edit: add workspace_root
+    ├── chat/agent.py          edit: attach LocalWorkspace
+    └── composition.py         edit: check the folder and pass the setting
+</code></pre></div>
+<p>We'll name and create the folder, attach it when the app starts, then observe what it does and does not allow. Stop at any check that doesn't match before moving on.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>Continue in your existing <code>pydantic-tutor</code> directory from 03-02. From the project root, check that the keyless chat still works:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PYDANTIC_TUTOR_CHAT_MODEL</span><span class="o">=</span><span class="nb">test</span><span class="w"> </span><span class="nv">PYDANTIC_TUTOR_WEB_SEARCH</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pydantic_tutor
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> type <code>hello</code>. You should see <code>success (no tool calls)</code>; then finish with an empty line. No API key or paid model request is needed.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Already have <code>pydantic-tutor</code>? Do not run these clone commands.</strong></p>
+<p>Only if you're entering directly at this lesson, or starting again without an existing project, run them from a parent directory where <strong>no <code>pydantic-tutor</code> folder already exists</strong>. Do not delete or replace your existing project: starting again would lose the work and settings you have already added.</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span><span class="m">03</span>-02-models/end<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/chrislomeli/pydanticai-tutorial-student.git<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>sync
+</code></pre></div>
+</div>
+<h3 id="fetch-the-starter-files-for-this-lesson">Fetch the starter files for this lesson</h3>
+<p>The next steps use a sample Python project and some helpers that weren't in 03-02. We can add them to <strong>your existing project</strong>, without starting another clone.</p>
+<p>From the root of <code>pydantic-tutor</code> (where <code>pyproject.toml</code> lives), run:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>https://raw.githubusercontent.com/chrislomeli/pydanticai-tutorial-student/main/starter/get_starter.py<span class="w"> </span>workspace
+</code></pre></div>
+<p>This fetches <code>sample_code/tinyjobs/</code>, <code>demos/fresh_copy.py</code>, <code>demos/show_chat_request.py</code>, <code>demos/show_capabilities.py</code>, and <code>src/tutor_given/</code>. The supplied <code>tutor_given</code> code and the two <code>show_</code> scripts also support later lessons; you won't need to recreate them.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the utility lists the files it installed as <code>wrote</code>, or <code>same</code> if an identical file was already there. It then reminds you about the configuration edits below. If a file already exists with different content, the utility stops without replacing it. Review such a conflict before taking any further action; don't use <code>--force</code> without understanding what would be overwritten.</p>
+</div>
+<h3 id="keep-the-disposable-copy-out-of-git">Keep the disposable copy out of git</h3>
+<p>Later we'll make <code>work/tinyjobs/</code>, a disposable copy where tools can work. It isn't project source and shouldn't be committed.</p>
+<p>Open the existing <code>.gitignore</code>. Keep the other entries, <strong>especially <code>.env</code></strong>, and add at the bottom:</p>
+<div class="highlight"><pre><span></span><code>/work/
+</code></pre></div>
+<p><strong>Check:</strong> the existing <code>.env</code> rule is unchanged; the new rule excludes the <code>work/</code> folder at the project root.</p>
+<h3 id="keep-the-example-project-out-of-our-routine-checks">Keep the example project out of our routine checks</h3>
+<p>The fetched sample has its own code and tests. We want Ruff, mypy and pytest to check our tutorial project without treating the sample and its disposable copy as part of our application.</p>
+<p>Open <code>pyproject.toml</code>. First, before the existing <code>[tool.ruff.lint]</code> section, add this new section:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.ruff]</span>
+<span class="n">extend-exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"sample_code"</span><span class="p">,</span><span class="w"> </span><span class="s2">"work"</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Check:</strong> <code>[tool.ruff.lint]</code> and its existing rules are still there. The new section is separate from them.</p>
+<p>Inside <code>[tool.mypy]</code>, replace <strong>only</strong> the existing <code>exclude = ...</code> line with these entries:</p>
+<div class="highlight"><pre><span></span><code><span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"^tests/"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"^sample_code/"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"^work/"</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+<p><strong>Check:</strong> <code>strict = true</code> and the Pydantic mypy plugin remain intact.</p>
+<p>Finally, after the <code>[tool.mypy]</code> section, add a section for pytest, the test runner:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.pytest]</span>
+<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"--ignore=sample_code"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--ignore=work"</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Check:</strong> none of the project dependencies or build settings were changed. These exclusions protect the example project from <em>our</em> routine checks; they do not remove the files.</p>
+<h3 id="package-the-given-code-with-yours">Package the given code with yours</h3>
+<p><code>src/tutor_given/</code> is a second package beside <code>pydantic_tutor</code>. Unless told otherwise, uv's build backend packages only the one named after the project, so a wheel built from it would leave <code>tutor_given</code> out. Your own runs still work without this, because <code>uv sync</code> installs the project in place, but the project should build the same way it runs.</p>
+<p>In <code>pyproject.toml</code>, after the <code>[build-system]</code> section, add:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.uv.build-backend]</span>
+<span class="n">module-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"pydantic_tutor"</span><span class="p">,</span><span class="w"> </span><span class="s2">"tutor_given"</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Check:</strong> the section matches the one in the finished file below.</p>
+<p>Use the complete result below to compare placement. <strong>Do not paste it over your own file</strong>; the edits above are the exercise.</p>
+<details>
+<summary>Show the finished <code>pyproject.toml</code> (reference only)</summary>
+
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"pydantic-tutor"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Add your description here"</span>
+<span class="n">readme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"README.md"</span>
+<span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"Ada Student"</span><span class="p">,</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ada@example.com"</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;=3.14"</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"pydantic==2.14.1"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"pydantic-ai==2.56.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"pydantic-ai-harness==0.56.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"pydantic-settings==2.16.0"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[project.scripts]</span>
+<span class="n">pydantic-tutor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"pydantic_tutor:main"</span>
+
+<span class="k">[build-system]</span>
+<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"uv_build&gt;=0.13.1,&lt;0.14.0"</span><span class="p">]</span>
+<span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"uv_build"</span>
+
+<span class="k">[tool.uv.build-backend]</span>
+<span class="n">module-name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"pydantic_tutor"</span><span class="p">,</span><span class="w"> </span><span class="s2">"tutor_given"</span><span class="p">]</span>
+
+<span class="k">[dependency-groups]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"mypy==2.4.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"pytest==9.1.1"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"ruff==0.16.10"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[tool.ruff]</span>
+<span class="n">extend-exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"sample_code"</span><span class="p">,</span><span class="w"> </span><span class="s2">"work"</span><span class="p">]</span><span class="w">  </span><span class="c1"># code the agent reads, not code you write</span>
+
+<span class="k">[tool.ruff.lint]</span>
+<span class="n">select</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"E"</span><span class="p">,</span><span class="w"> </span><span class="s2">"W"</span><span class="p">,</span><span class="w">  </span><span class="c1"># style: pycodestyle</span>
+<span class="w">    </span><span class="s2">"F"</span><span class="p">,</span><span class="w">       </span><span class="c1"># unused imports and names, undefined names</span>
+<span class="w">    </span><span class="s2">"I"</span><span class="p">,</span><span class="w">       </span><span class="c1"># import order</span>
+<span class="w">    </span><span class="s2">"N"</span><span class="p">,</span><span class="w">       </span><span class="c1"># PEP 8 names</span>
+<span class="w">    </span><span class="s2">"UP"</span><span class="p">,</span><span class="w">      </span><span class="c1"># modern syntax for this Python</span>
+<span class="w">    </span><span class="s2">"B"</span><span class="p">,</span><span class="w">       </span><span class="c1"># likely bugs</span>
+<span class="w">    </span><span class="s2">"ANN"</span><span class="p">,</span><span class="w">     </span><span class="c1"># every parameter and return annotated; ANN401 flags Any</span>
+<span class="w">    </span><span class="s2">"FBT"</span><span class="p">,</span><span class="w">     </span><span class="c1"># no booleans by position, in a call or a def</span>
+<span class="w">    </span><span class="s2">"SIM"</span><span class="p">,</span><span class="w">     </span><span class="c1"># simpler equivalents</span>
+<span class="w">    </span><span class="s2">"RUF"</span><span class="p">,</span><span class="w">     </span><span class="c1"># Ruff's own rules</span>
+<span class="p">]</span>
+<span class="n">ignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"E501"</span><span class="p">]</span><span class="w">  </span><span class="c1"># line length is the formatter's job</span>
+
+<span class="k">[tool.mypy]</span>
+<span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"pydantic.mypy"</span><span class="p">]</span>
+<span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"^tests/"</span><span class="p">,</span><span class="w">        </span><span class="c1"># the series' lesson tests refer to code you have not written yet</span>
+<span class="w">    </span><span class="s2">"^sample_code/"</span><span class="p">,</span><span class="w">  </span><span class="c1"># code the agent reads, not code you write</span>
+<span class="w">    </span><span class="s2">"^work/"</span><span class="p">,</span><span class="w">         </span><span class="c1"># the agent's working copy of it</span>
+<span class="p">]</span>
+
+<span class="k">[tool.pytest]</span>
+<span class="n">addopts</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"--ignore=sample_code"</span><span class="p">,</span><span class="w"> </span><span class="s2">"--ignore=work"</span><span class="p">]</span><span class="w">  </span><span class="c1"># the sample's tests are not ours</span>
+</code></pre></div>
+
+</details>
+
+<p>The starter files and these three small configuration updates are now in place. You can continue to Step 1 without changing projects.</p>
+<h2 id="step-1-name-and-create-the-workspace-folder">Step 1: Name and create the workspace folder</h2>
+<p>In 03-01 you gave the model choice a home in <code>Settings</code>. We'll do the same for the folder. We want the app to know the project location before it opens.</p>
+<h3 id="add-a-path-to-settings">Add a path to Settings</h3>
+<p>Python's <code>Path</code> represents a filesystem path. Unlike a plain string, it also has convenient operations, such as <code>is_dir()</code> to check whether a folder exists. A <strong>relative</strong> path such as <code>Path("work/tinyjobs")</code> begins at the directory where we launch the application.</p>
+<p>Open <code>src/pydantic_tutor/settings.py</code>. Add this import with the other imports near the top:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+</code></pre></div>
+<p><strong>Check:</strong> the import is outside <code>class Settings</code>, above the existing third-party imports.</p>
+<p>The app's paths shouldn't depend on where a program is started, or a run from your IDE would look for them in the wrong folder. <code>project_root()</code>, a given function in the <code>tutor_given</code> you just fetched, finds the folder holding <code>pyproject.toml</code>. Import it after the <code>pydantic_tutor.model</code> import:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">project_root</span>
+</code></pre></div>
+<p>In <code>model_config</code>, change <code>env_file</code> to use it:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">env_file</span><span class="o">=</span><span class="n">project_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">".env"</span><span class="p">,</span>
+</code></pre></div>
+<p>Inside <code>Settings</code>, add the new field <strong>just below <code>web_search</code> and above the API-key fields</strong>:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># The folder the chat works in. `demos/fresh_copy.py` makes the default.</span>
+    <span class="n">workspace_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">project_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"work"</span> <span class="o">/</span> <span class="s2">"tinyjobs"</span>
+</code></pre></div>
+<p><strong>Check:</strong> <code>chat_model</code>, <code>web_search</code>, and the provider-key fields still appear as before. The new field sets a default; a shell variable named <code>PYDANTIC_TUTOR_WORKSPACE_ROOT</code> can override it.</p>
+<p>For comparison, here is the resulting file. <strong>Don't replace your file</strong>; use this only if you want to confirm the placement of the two edits.</p>
+<details>
+<summary>Show the finished <code>src/pydantic_tutor/settings.py</code> (reference only)</summary>
+
+<div class="highlight"><pre><span></span><code><span class="sd">"""Every value the app is configured with, typed and checked at startup.</span>
+
+<span class="sd">Values only: strings and flags read from the environment. The objects built</span>
+<span class="sd">from them are in `composition.py`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">SecretStr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseSettings</span><span class="p">,</span> <span class="n">SettingsConfigDict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.model</span><span class="w"> </span><span class="kn">import</span> <span class="n">CHAT_MODEL</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">project_root</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Settings</span><span class="p">(</span><span class="n">BaseSettings</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Read from variables named `PYDANTIC_TUTOR_&lt;FIELD&gt;`; frozen once created."""</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">SettingsConfigDict</span><span class="p">(</span>
+        <span class="n">env_prefix</span><span class="o">=</span><span class="s2">"PYDANTIC_TUTOR_"</span><span class="p">,</span>
+        <span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="c1"># Read here, into these fields only: a key in `.env` never enters</span>
+        <span class="c1"># the process environment. A shell variable wins over `.env`.</span>
+        <span class="n">env_file</span><span class="o">=</span><span class="n">project_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">".env"</span><span class="p">,</span>
+        <span class="c1"># `OPENAI_API_KEY=` with nothing after it counts as unset.</span>
+        <span class="n">env_ignore_empty</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="c1"># `.env` may hold variables for other tools; skip them.</span>
+        <span class="n">extra</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># A `&lt;provider&gt;:&lt;model&gt;` string, the name of the model: not the model.</span>
+    <span class="n">chat_model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">CHAT_MODEL</span>
+    <span class="c1"># Whether the chat may search the web. Each search is billed.</span>
+    <span class="n">web_search</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="c1"># The folder the chat works in. `demos/fresh_copy.py` makes the default.</span>
+    <span class="n">workspace_root</span><span class="p">:</span> <span class="n">Path</span> <span class="o">=</span> <span class="n">project_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"work"</span> <span class="o">/</span> <span class="s2">"tinyjobs"</span>
+    <span class="c1"># One key per provider the composition root can build. SecretStr:</span>
+    <span class="c1"># printing the settings shows `**********`, never the key.</span>
+    <span class="n">openai_api_key</span><span class="p">:</span> <span class="n">SecretStr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validation_alias</span><span class="o">=</span><span class="s2">"OPENAI_API_KEY"</span>
+    <span class="p">)</span>
+    <span class="n">anthropic_api_key</span><span class="p">:</span> <span class="n">SecretStr</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">validation_alias</span><span class="o">=</span><span class="s2">"ANTHROPIC_API_KEY"</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<h3 id="create-a-disposable-working-copy">Create a disposable working copy</h3>
+<p>The default names <code>work/tinyjobs</code>, but naming a folder doesn't create it. The given helper copies the small project from <code>sample_code/tinyjobs</code> into that working directory. <strong>Running it again replaces the disposable copy.</strong> Keep your own work elsewhere.</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the script reports:</p>
+<div class="highlight"><pre><span></span><code>work/tinyjobs: a fresh copy of sample_code/tinyjobs, with a fake .env
+</code></pre></div>
+</div>
+<p>That fake <code>.env</code> belongs to the sample project, not your own project credentials. Leave your actual <code>.env</code> untouched.</p>
+<h3 id="read-the-configured-location">Read the configured location</h3>
+<p>Now ask <code>Settings</code> what it will use:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.settings import Settings; print(Settings().workspace_root)"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> it prints the full path of <code>work/tinyjobs</code> inside your project, ending in <code>pydantic-tutor/work/tinyjobs</code>.</p>
+</div>
+<p>We have chosen a location and made it exist. Nothing has yet connected it to the agent.</p>
+<h2 id="step-2-attach-the-workspace-to-the-existing-agent">Step 2: Attach the workspace to the existing agent</h2>
+<p>In 03-02, <code>build_app</code> assembled the model from settings before the chat opened. We want the same startup process to attach our workspace.</p>
+<p>Pydantic AI calls this sort of agent feature a <strong>capability</strong>. You've already seen <code>WebSearch</code> in the chat's capabilities. <code>LocalWorkspace</code> is a different capability: it tells tools where to work on this machine. <strong>It does not itself give the model a file tool.</strong></p>
+<h3 id="add-localworkspace-to-the-agent-builder">Add LocalWorkspace to the agent builder</h3>
+<p>This adds a <code>workspace_root</code> parameter to <code>build_chat_agent</code>, and <code>LocalWorkspace</code> as the first capability. Replace <code>src/pydantic_tutor/chat/agent.py</code> with:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""The agent the chat talks to.</span>
+
+<span class="sd">No model here, as for every agent in this project: the chat passes one on</span>
+<span class="sd">each run.</span>
+
+<span class="sd">Built from these pieces:</span>
+<span class="sd">- Workspace: the folder the tools work in.</span>
+<span class="sd">- Web search: switched on by a setting.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractCapability</span><span class="p">,</span> <span class="n">LocalWorkspace</span><span class="p">,</span> <span class="n">WebSearch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">project_root</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_chat_agent</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">web_search</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">workspace_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Build the chat's agent."""</span>
+    <span class="n">capabilities</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractCapability</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># Workspace: a place for tools to work in. It adds no tool: they use</span>
+        <span class="c1"># `ctx.workspace`.</span>
+        <span class="n">LocalWorkspace</span><span class="p">(</span><span class="n">working_dir</span><span class="o">=</span><span class="n">workspace_root</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">web_search</span><span class="p">:</span>
+        <span class="c1"># Web search: the model may search when it needs to. Each search is</span>
+        <span class="c1"># billed by the provider, on top of the tokens.</span>
+        <span class="n">capabilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">WebSearch</span><span class="p">())</span>
+    <span class="k">return</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">](</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"chat"</span><span class="p">,</span>
+        <span class="n">instructions</span><span class="o">=</span><span class="s2">"You are a helpful assistant. Answer briefly."</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># Earlier demos import this name; the console chat builds its agent in build_app.</span>
+<span class="n">chat_agent</span> <span class="o">=</span> <span class="n">build_chat_agent</span><span class="p">(</span>
+    <span class="n">web_search</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">workspace_root</span><span class="o">=</span><span class="n">project_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"work"</span> <span class="o">/</span> <span class="s2">"tinyjobs"</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><code>working_dir</code> is the folder relative paths will start from. The <code>web_search</code> block is unchanged: we added a capability and removed none, so the workspace is present whether or not web search is on.</p>
+<p>The ready-made <code>chat_agent</code> at the bottom needs a default workspace too, because earlier scripts still import it. This doesn't create the folder; Step 1 already did that.</p>
+<h3 id="check-the-folder-when-the-app-starts">Check the folder when the app starts</h3>
+<p>We could attach <code>LocalWorkspace</code> without checking the folder. But then the chat might open and only report a missing folder when a future tool tries to read it. Let's instead give the learner a useful startup error.</p>
+<p>Open <code>src/pydantic_tutor/composition.py</code>. Add the <code>UserError</code> import beside the existing Pydantic AI imports:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserError</span>
+</code></pre></div>
+<p><strong>Check:</strong> the existing <code>Agent</code> and model imports remain unchanged.</p>
+<p>Within <code>build_app</code>, <strong>before <code>return App(...)</code></strong>, insert the folder check:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">workspace_root</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">UserError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"PYDANTIC_TUTOR_WORKSPACE_ROOT is </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">workspace_root</span><span class="p">)</span><span class="si">!r}</span><span class="s2">, "</span>
+            <span class="s2">"which is not a folder. Make the default with "</span>
+            <span class="s2">"`uv run demos/fresh_copy.py`, or set the variable to another folder."</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>The <code>is_dir()</code> method checks that a folder exists. <code>UserError</code> is an error the existing chat loop already catches at startup; we don't need to modify the loop.</p>
+<p><strong>Check:</strong> the new <code>if</code> block is indented inside <code>build_app</code>, before its <code>return</code>.</p>
+<p>One more focused change in the same <code>return App(...)</code>: add <code>workspace_root</code> to the call that builds the agent, leaving model construction as it was:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">agent</span><span class="o">=</span><span class="n">build_chat_agent</span><span class="p">(</span>
+            <span class="n">web_search</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">web_search</span><span class="p">,</span> <span class="n">workspace_root</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">workspace_root</span>
+        <span class="p">),</span>
+</code></pre></div>
+<p><strong>Check:</strong> <code>model=build_model(settings=settings)</code> still appears underneath. The chat loop remains untouched.</p>
+<p>Here is the finished module for comparison only:</p>
+<details>
+<summary>Show the finished <code>src/pydantic_tutor/composition.py</code> (reference only)</summary>
+
+<div class="highlight"><pre><span></span><code><span class="sd">"""The composition root: the one place the app's objects are built.</span>
+
+<span class="sd">`build_app` turns `Settings` (values) into the agent and the model (objects).</span>
+<span class="sd">The model is built here, at startup, so an unknown provider or a missing API key</span>
+<span class="sd">stops the app before the chat opens, not when the first message is sent.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">UserError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Model</span><span class="p">,</span> <span class="n">infer_model</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.chat.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_chat_agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.providers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProviderFactory</span><span class="p">,</span> <span class="n">build_provider</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">App</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""What the chat needs to run, built once from the settings."""</span>
+
+    <span class="n">agent</span><span class="p">:</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span>
+    <span class="n">model</span><span class="p">:</span> <span class="n">Model</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_app</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="n">Settings</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">App</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the agent and the model from `settings`.</span>
+
+<span class="sd">    Raises `pydantic_ai.exceptions.UserError` if the model name's provider is</span>
+<span class="sd">    unknown or its API key is not set.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">workspace_root</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="c1"># Checked here so the chat stops now, by the setting's name, instead</span>
+        <span class="c1"># of at the first tool that uses the workspace.</span>
+        <span class="k">raise</span> <span class="n">UserError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"PYDANTIC_TUTOR_WORKSPACE_ROOT is </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">workspace_root</span><span class="p">)</span><span class="si">!r}</span><span class="s2">, "</span>
+            <span class="s2">"which is not a folder. Make the default with "</span>
+            <span class="s2">"`uv run demos/fresh_copy.py`, or set the variable to another folder."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">App</span><span class="p">(</span>
+        <span class="n">agent</span><span class="o">=</span><span class="n">build_chat_agent</span><span class="p">(</span>
+            <span class="n">web_search</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">web_search</span><span class="p">,</span> <span class="n">workspace_root</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">workspace_root</span>
+        <span class="p">),</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">build_model</span><span class="p">(</span><span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_model</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span> <span class="n">settings</span><span class="p">:</span> <span class="n">Settings</span><span class="p">,</span> <span class="n">provider_factory</span><span class="p">:</span> <span class="n">ProviderFactory</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Model</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the model `settings.chat_model` names, its provider holding its key.</span>
+
+<span class="sd">    `infer_model` picks the model class from the string, and asks</span>
+<span class="sd">    `provider_factory` for the provider, by the part before the colon. The</span>
+<span class="sd">    default is `build_provider`; pass another function to replace it.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">infer_model</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">chat_model</span><span class="p">,</span>
+        <span class="c1"># `infer_model` calls this with one argument, the provider's name.</span>
+        <span class="n">provider_factory</span><span class="o">=</span><span class="n">provider_factory</span>
+        <span class="ow">or</span> <span class="p">(</span><span class="k">lambda</span> <span class="n">name</span><span class="p">:</span> <span class="n">build_provider</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">settings</span><span class="o">=</span><span class="n">settings</span><span class="p">)),</span>
+    <span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<h3 id="confirm-the-chat-still-works">Confirm the chat still works</h3>
+<p>With the sample folder in place, run the same keyless chat command from Before you start:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PYDANTIC_TUTOR_CHAT_MODEL</span><span class="o">=</span><span class="nb">test</span><span class="w"> </span><span class="nv">PYDANTIC_TUTOR_WEB_SEARCH</span><span class="o">=</span><span class="nb">false</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pydantic_tutor
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> you can still send <code>hello</code> and see <code>success (no tool calls)</code>. End with an empty line.</p>
+</div>
+<p>The agent now has a local workspace, but the conversation behaves just as before. We haven't given the model anything new to call.</p>
+<p>The folder check also means a missing folder will stop the app <strong>before</strong> the first <code>you&gt;</code> prompt, with a message naming <code>PYDANTIC_TUTOR_WORKSPACE_ROOT</code>. We don't need to break a working setup to demonstrate that in this lesson.</p>
+<h2 id="step-3-observe-what-the-workspace-allows">Step 3: Observe what the workspace allows</h2>
+<p>We've attached a workspace without adding tools to our chat. There are two separate questions now: <strong>does the model have a file-reading tool?</strong> And <strong>if a tool is provided, does the workspace constrain its paths?</strong></p>
+<p>A tool that reads through the workspace uses <code>ctx.workspace</code>, the workspace available during a run. Its <code>read_text</code> method is asynchronous: the tool uses <code>async def</code> and <code>await</code> while it waits for a read. You'll see those details in this demonstration; the next lessons will work with file tools directly.</p>
+<p>The demo uses <code>TestModel</code> to count the tools offered to the existing agent, then a given stand-in model to request a temporary file-reading tool. <code>FunctionToolset</code> supplies that tool <strong>for these runs</strong>, without permanently adding it to the chat. The path is chosen by the stand-in model, not by the workspace itself.</p>
+<p>We're going to read just the first lines of <strong>known, non-secret files</strong>: one within the disposable copy and one in our tutorial project. No real credential files are involved.</p>
+<p>Create the <strong>new</strong> file <code>demos/workspace_reach.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""Show what the chat's workspace is, and what it is not.</span>
+
+<span class="sd">Needs no API key. Run `demos/fresh_copy.py`</span>
+<span class="sd">first.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.models.test</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.toolsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionToolset</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.chat.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_chat_agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.stand_ins</span><span class="w"> </span><span class="kn">import</span> <span class="n">calls_tool_with_the_prompt</span>
+
+<span class="n">root</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span><span class="o">.</span><span class="n">workspace_root</span>
+<span class="n">agent</span> <span class="o">=</span> <span class="n">build_chat_agent</span><span class="p">(</span><span class="n">web_search</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">workspace_root</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
+
+<span class="c1"># Offer the tools without calling them: this run only counts them.</span>
+<span class="n">test_model</span> <span class="o">=</span> <span class="n">TestModel</span><span class="p">(</span><span class="n">call_tools</span><span class="o">=</span><span class="p">[])</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">user_prompt</span><span class="o">=</span><span class="s2">"hello"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">test_model</span><span class="p">)</span>
+<span class="n">parameters</span> <span class="o">=</span> <span class="n">test_model</span><span class="o">.</span><span class="n">last_model_request_parameters</span>
+<span class="k">assert</span> <span class="n">parameters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># the run made a request</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"tools the model is offered: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">parameters</span><span class="o">.</span><span class="n">function_tools</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">first_line</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">RunContext</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Read the first line of a file, by a path the model gives."""</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">workspace</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="c1"># The folder is `work/tinyjobs`: `..` is `work/`, and `../..` is the project.</span>
+<span class="n">outside</span> <span class="o">=</span> <span class="s2">"../../pyproject.toml"</span>
+<span class="n">paths</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"README.md"</span><span class="p">:</span> <span class="s2">"README.md"</span><span class="p">,</span>
+    <span class="n">outside</span><span class="p">:</span> <span class="n">outside</span><span class="p">,</span>
+    <span class="s2">"absolute path"</span><span class="p">:</span> <span class="nb">str</span><span class="p">((</span><span class="n">root</span> <span class="o">/</span> <span class="n">outside</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()),</span>
+<span class="p">}</span>
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+        <span class="n">user_prompt</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">calls_tool_with_the_prompt</span><span class="p">(</span><span class="n">tool_name</span><span class="o">=</span><span class="s2">"first_line"</span><span class="p">,</span> <span class="n">argument</span><span class="o">=</span><span class="s2">"path"</span><span class="p">),</span>
+        <span class="c1"># A tool for this run only: the chat has none of its own yet.</span>
+        <span class="n">toolsets</span><span class="o">=</span><span class="p">[</span><span class="n">FunctionToolset</span><span class="p">(</span><span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">first_line</span><span class="p">])],</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">output</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</code></pre></div>
+<p>The path <code>../../pyproject.toml</code> starts from <code>work/tinyjobs</code>, moves up twice, and reaches the tutorial's own project file. The absolute path points at that same file without using the workspace root as a starting point.</p>
+<p>Run the demo:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/workspace_reach.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the important four lines are:</p>
+<div class="highlight"><pre><span></span><code>tools the model is offered: 0
+README.md: # tinyjobs
+../../pyproject.toml: [project]
+absolute path: [project]
+</code></pre></div>
+<p>If the disposable working copy is missing, rerun <code>uv run demos/fresh_copy.py</code>, then try again.</p>
+</div>
+<p><strong>What happened?</strong> The configured chat offered the model <strong>zero</strong> function tools; its workspace alone adds none. In the demonstration runs, we temporarily supplied <code>first_line</code>. That tool could read a relative file <em>inside</em> the workspace, then <code>../../pyproject.toml</code> <em>outside</em> it, and finally the same file by an absolute path.</p>
+<p>That's the key limitation: <strong>a local workspace is a starting directory, not a permission boundary</strong>. A tool must validate paths and permissions independently. <code>LocalWorkspace</code> works with the permissions of your process on this machine; it isn't a sandbox. Never try the same experiment with a real <code>.env</code> file, because the demo prints what it reads.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<p>You can <strong>configure a workspace for the same chat</strong>: <code>Settings</code> names the folder, <code>build_app</code> checks it, and <code>build_chat_agent</code> attaches a <code>LocalWorkspace</code> before the conversation starts. The chat still streams and remembers messages, and no file tool has been added to it.</p>
+<p>You can also explain what the workspace <strong>does not guarantee</strong>: tools can resolve paths outside its starting folder unless the tools enforce a boundary. This distinction matters in the next lesson, where we finally give the chat file tools.</p>
+<h2 id="next">Next</h2>
+<p>The chat has a place to work. Next we'll give it file tools that can use the workspace—and must decide which paths they will accept.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

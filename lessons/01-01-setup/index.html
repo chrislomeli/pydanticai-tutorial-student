@@ -1,0 +1,2361 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/01-01-setup/">
+      
+      
+        <link rel="prev" href="../00-07-the-tinyjobs-example/">
+      
+      
+        <link rel="next" href="../01-02-agent/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>01-01 Setting up the environment - Pydantic AI tutorial</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#setting-up-the-environment" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pydantic AI tutorial" class="md-header__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic AI tutorial
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              01-01 Setting up the environment
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pydantic AI tutorial" class="md-nav__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic AI tutorial
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-check-your-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Check your tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-create-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Create the project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-install-pydantic-ai-and-the-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Install Pydantic AI and the harness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-run-your-first-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Run your first agent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-keep-secrets-out-of-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Keep secrets out of git
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-check-your-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Check your code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Commit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docs-vs-reality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docs vs reality
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#going-further" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Going further
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-check-your-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Check your tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-create-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Create the project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-install-pydantic-ai-and-the-harness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Install Pydantic AI and the harness
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-run-your-first-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Run your first agent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-keep-secrets-out-of-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Keep secrets out of git
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-check-your-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Check your code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Commit
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#docs-vs-reality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Docs vs reality
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#going-further" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Going further
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="setting-up-the-environment">Setting up the environment</h1>
+<h2 id="welcome">Welcome</h2>
+<p>Let's create the project you'll build in for the rest of the series.
+You start from an empty folder, run a handful of commands, and write one
+small file: check your tools, create a Python project with <code>uv</code>, install
+Pydantic AI and its harness at pinned versions, run a five-line agent —
+no API key, no cost — protect a secrets file you haven't made yet, add
+the code checks, and commit the lot to git.</p>
+<p>That commit is on your own machine; nothing needs a GitHub account. From
+the next lesson on you can keep building on this project, or clone the
+lesson starting points we publish — handy if you skip a lesson or yours
+breaks. A starting point isn't always identical to what you built: some
+lessons add files on it, such as their own tests. Both routes work, and
+each lesson says which files it expects.</p>
+<p>By the end, you'll be able to:</p>
+<ol>
+<li><strong>Check your tools</strong>: <code>git</code>, and <code>uv</code> 0.13.1 or newer.</li>
+<li><strong>Create a <code>uv</code> project</strong> pinned to <code>pydantic-ai</code> 2.56.0 and
+   <code>pydantic-ai-harness</code> 0.56.0 on Python 3.14, say why those two pins
+   must move together, and check its code with Ruff and mypy.</li>
+<li><strong>Run an agent with no API key</strong>, and make sure your <code>.env</code> file can't
+   be committed by accident.</li>
+</ol>
+<p>About 15 minutes, not counting installing tools. The series is tested with
+Python 3.14, <code>uv</code> 0.13.1, Ruff 0.16.10 and mypy 2.4.0.</p>
+<h2 id="what-youll-build">What you'll build</h2>
+<p>You start from an empty folder and end with a Python project, in its own
+git repository, with a first agent in it. Almost every file is made by a
+command you run. You write one file yourself, add an empty one, and add a few
+lines to two others:</p>
+<div class="highlight"><pre><span></span><code>pydantic-tutor/
+├── .gitignore              made by uv; you add one line for .env
+├── .python-version         made by uv: 3.14
+├── README.md               made by uv, empty
+├── hello_agent.py          you write it: a five-line agent that needs no API key
+├── pyproject.toml          made by uv: the project, its dependencies and their pins;
+│                           you add the code checks' settings
+├── uv.lock                 made by uv: the exact version of every package installed
+└── src/
+    └── pydantic_tutor/
+        ├── __init__.py     made by uv: the package, with a hello-world command
+        └── py.typed        you add it, empty: the package's types can be trusted
+</code></pre></div>
+<p>There's nothing to fetch first: this lesson starts from an empty folder.
+The steps, in order:</p>
+<ol>
+<li><strong>Check your tools</strong>: <code>git</code> and <code>uv</code>, and that git knows your name.</li>
+<li><strong>Create the project</strong> with <code>uv init</code>, and run its command.</li>
+<li><strong>Install Pydantic AI</strong> and the harness, at pinned versions.</li>
+<li><strong>Run your first agent</strong>: five lines of Python on <code>TestModel</code>.</li>
+<li><strong>Keep secrets out of git</strong>: make sure <code>.env</code> can't be committed by
+   accident.</li>
+<li><strong>Check your code</strong>: add Ruff and mypy, and run them until they report
+   nothing.</li>
+<li><strong>Commit.</strong></li>
+</ol>
+<p>Each step ends with a <strong>Check</strong>. If it doesn't show what it says, stop
+there: the next step builds on it.</p>
+<h2 id="step-1-check-your-tools">Step 1: Check your tools</h2>
+<blockquote>
+<p><strong>Goal:</strong> confirm you have <code>git</code>, and <code>uv</code> 0.13.1 or newer, and that git
+knows your name and email.</p>
+</blockquote>
+<p>Everything in this lesson runs in a terminal, on macOS or Linux, with two
+tools: <code>git</code> and <code>uv</code>. You don't need to install Python: <code>uv</code> downloads
+the version the project asks for, the first time it needs it.</p>
+<p>Check that both tools are there:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>--version
+uv<span class="w"> </span>--version
+</code></pre></div>
+<p>If either command isn't found, or <code>uv</code> is older than 0.13.1, follow the
+guide for your system, then come back:</p>
+<ul>
+<li>macOS</li>
+<li>Linux</li>
+<li>Windows: you work inside WSL, a Linux system on
+  Windows</li>
+</ul>
+<p>Then check that git knows who you are:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>config<span class="w"> </span>user.name
+git<span class="w"> </span>config<span class="w"> </span>user.email
+</code></pre></div>
+<p>If either prints nothing, set it:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>user.name<span class="w"> </span><span class="s2">"Your Name"</span>
+git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>user.email<span class="w"> </span><span class="s2">"you@example.com"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the first two commands print versions, such as:</p>
+<div class="highlight"><pre><span></span><code>git version 2.50.1 (Apple Git-155)
+uv 0.13.1 (62faed335 2026-10-13 aarch64-apple-darwin)
+</code></pre></div>
+<p><code>uv</code> is 0.13.1 or newer, and the two <code>git config</code> commands each print a
+value.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p>Your versions may be newer than these; that's fine. Your name and email
+matter because two things use them. <code>uv</code> copies them into the project's
+<code>pyproject.toml</code> in the next step, and every commit records who made it.
+On some systems a commit fails without them. On others git guesses, and
+the guess ends up in your history.</p>
+<h2 id="step-2-create-the-project">Step 2: Create the project</h2>
+<blockquote>
+<p><strong>Goal:</strong> create a <code>uv</code> project for Python 3.14, and run the command it
+comes with.</p>
+</blockquote>
+<p>This makes the project every later lesson adds to. It comes first
+because every other command runs inside it.</p>
+<p>Make an empty folder for the project, outside any other git repository,
+and go into it. Every command from here on runs inside this folder.</p>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
+</code></pre></div>
+<p>You should see:</p>
+<div class="highlight"><pre><span></span><code>Initialized project `pydantic-tutor`
+</code></pre></div>
+<p>List what's there now:</p>
+<div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-A
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>.git
+.gitignore
+.python-version
+README.md
+pyproject.toml
+src
+</code></pre></div>
+<p>The order can differ on your system, which sorts names its own way; the
+six names must all be there.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> run the command the project comes with:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pydantic-tutor
+</code></pre></div>
+<p>You should see this. Your paths and timings will differ, and so may
+Python's patch version (3.14.8 here). If <code>uv</code> already has a Python 3.14,
+the two download lines are missing:</p>
+<div class="highlight"><pre><span></span><code>Downloading cpython-3.14.8-macos-aarch64-none (download) (25.4MiB)
+Downloaded cpython-3.14.8-macos-aarch64-none (download)
+Using CPython 3.14.8
+Creating virtual environment at: .venv
+Building pydantic-tutor @ file:///Users/you/pydantic-tutor
+Built pydantic-tutor @ file:///Users/you/pydantic-tutor
+Installed 1 package in 1ms
+Hello from pydantic-tutor!
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>The last line is a small hello-world that <code>uv init</code> wrote for you: a
+<code>main()</code> function in <code>src/pydantic_tutor/__init__.py</code>, which
+<code>pyproject.toml</code> turns into the <code>pydantic-tutor</code> command you ran.</p>
+<p>Everything above it is <code>uv</code>'s one habit: sync, then run. Every <code>uv run</code>
+first makes the environment match the project, then runs your command.
+Before running yours, <code>uv</code> downloaded Python 3.14 (only the first time),
+created <code>.venv</code> — the project's private virtual environment, where its
+packages live — and installed your project into it. <code>ls -A</code> showed no
+<code>.venv</code> a moment ago. It exists now because you ran <code>uv run</code>.</p>
+<p>The two flags shaped what you got. <code>--package</code> makes the project
+installable, with its code under <code>src/</code>; that's already <code>uv</code>'s default at
+0.13.1, so passing it makes the layout explicit in the command itself.
+<code>--python 3.14</code> wrote <code>3.14</code> to <code>.python-version</code>, which <code>uv</code> reads to
+choose this project's Python. It also added <code>requires-python = "&gt;=3.14"</code>
+to <code>pyproject.toml</code>: the project runs on 3.14 here, and declares that it
+needs 3.14 or newer wherever it runs next. <code>uv</code> also filled in your name
+and email there, from your git settings.</p>
+<p>The folder wasn't a git repository yet, so <code>uv init</code> made it one
+(<code>.git</code>) and wrote a <code>.gitignore</code> along with it. That's why the folder
+had to be outside any other repository: inside one, <code>uv init</code> skips both,
+and steps 5 and 7 won't work as written.</p>
+<h2 id="step-3-install-pydantic-ai-and-the-harness">Step 3: Install Pydantic AI and the harness</h2>
+<blockquote>
+<p><strong>Goal:</strong> add the two packages the series is built on, at pinned
+versions, and see the third one they bring in.</p>
+</blockquote>
+<p>The project runs, but it has no Pydantic AI in it yet. One command adds
+it, at the versions this lesson was tested with:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">"pydantic-ai==2.56.0"</span><span class="w"> </span><span class="s2">"pydantic-ai-harness==0.56.0"</span>
+</code></pre></div>
+<p><code>uv</code> prints a few lines of progress (the first time, it names the larger
+packages as it downloads them). Then it prints one line for every
+package it installed: about a hundred, each starting with <code>+</code>, in
+alphabetical order. Your two, <code>+ pydantic-ai==2.56.0</code> and
+<code>+ pydantic-ai-harness==0.56.0</code>, are somewhere in the middle. You don't
+need to read the list. The check below shows what matters.</p>
+<p>Why two pins? <code>pydantic-ai</code> installs the framework through
+<code>pydantic-ai-slim</code>, along with optional integrations.
+<code>pydantic-ai-harness</code> adds capabilities such as access to files and a
+shell. For these releases, both depend on the same exact version of
+<code>pydantic-ai-slim</code>: 2.56.0. That's why we pin them together. You don't
+need to remember the packaging details; the check below lets you see
+the shared dependency for yourself.</p>
+<p>Open <code>pyproject.toml</code>. Yours should look like this, with your own name
+and email:</p>
+<p><code>pyproject.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"pydantic-tutor"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Add your description here"</span>
+<span class="n">readme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"README.md"</span>
+<span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"Ada Student"</span><span class="p">,</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ada@example.com"</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;=3.14"</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"pydantic-ai==2.56.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"pydantic-ai-harness==0.56.0"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[project.scripts]</span>
+<span class="n">pydantic-tutor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"pydantic_tutor:main"</span>
+
+<span class="k">[build-system]</span>
+<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"uv_build&gt;=0.13.1,&lt;0.14.0"</span><span class="p">]</span>
+<span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"uv_build"</span>
+</code></pre></div>
+<p>Before you run the check, predict: you asked for two packages. Which
+package do you think both of them depend on?</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> ask <code>uv</code> what depends on <code>pydantic-ai-slim</code>:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>tree<span class="w"> </span>--invert<span class="w"> </span>--package<span class="w"> </span>pydantic-ai-slim<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span>
+</code></pre></div>
+<p>You should see this. Check that <code>pydantic-ai-slim</code> says <code>v2.56.0</code> and
+<code>pydantic-ai-harness</code> says <code>v0.56.0</code>. The number of packages resolved
+can differ: <code>uv</code> picks the newest releases of the packages your pins
+don't fix, and those change over time:</p>
+<div class="highlight"><pre><span></span><code>Resolved 107 packages in 2ms
+pydantic-ai-slim v2.56.0
+├── pydantic-ai[anthropic, cli, evals, google, logfire, mcp, openai, web] v2.56.0
+├── pydantic-ai-harness v0.56.0
+└── pydantic-evals v2.56.0
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>There's the shared dependency: <code>pydantic-ai-slim</code> at 2.56.0. The
+square brackets on the <code>pydantic-ai</code> line list optional integrations;
+<code>pydantic-evals</code> is another dependency in the tree. You don't need to
+study those packages now. The important point is that your two pins
+resolve to a compatible framework version. When you upgrade later,
+check that the versions still agree.</p>
+<p>Notice that you didn't edit <code>pyproject.toml</code> at all: <code>uv init</code> and
+<code>uv add</code> wrote all of it between them. Keep adding and removing
+dependencies through <code>uv</code>, never by hand, so the file always matches
+what's installed.</p>
+<h2 id="step-4-run-your-first-agent">Step 4: Run your first agent</h2>
+<blockquote>
+<p><strong>Goal:</strong> run an agent with no API key, and read what Pydantic AI's
+banner tells you.</p>
+</blockquote>
+<p>This first agent is deliberately small: it creates an <code>Agent</code> with
+<code>TestModel</code>, runs it on a greeting, and prints the result. <strong>Notice
+<code>TestModel()</code></strong>: that's why this first run needs neither an API key nor
+a paid model. You don't need to understand the rest of the agent yet;
+the next lesson will unpack it.</p>
+<p>Create a file called <code>hello_agent.py</code> in the project folder, next to
+<code>pyproject.toml</code>, with this content:</p>
+<p><code>hello_agent.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.models.test</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestModel</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">TestModel</span><span class="p">())</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">user_prompt</span><span class="o">=</span><span class="s2">"Hello!"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> run it:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>hello_agent.py
+</code></pre></div>
+<p>You should see this. The banner's layout depends on how wide your
+terminal is: in a narrower one, its lines wrap differently, and below
+about 60 columns the drawing is left out. Check the first line's
+versions and the last line:</p>
+<div class="highlight"><pre><span></span><code>pydantic-ai v2.56.0 • pydantic-ai-harness v0.56.0 • Python 3.14.8
+/ \
+/   \       agent: agent • model: test:test • tools: 0 • capabilities: 0
+/___.___\
+/    |    \    observability: off — see every model and tool call live, with cost
+/      |      \    set it up free with Logfire and a GitHub login: https://pydantic.dev/ai-setup.md
+`---.._|_..---'    or use any OpenTelemetry backend: https://pydantic.dev/docs/ai/logfire/#otel
+
+goes away once observability is on — or PYDANTIC_AI_NO_BANNER=1
+success (no tool calls)
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>The last line is your first agent answering. <code>run_sync</code> ran the agent
+and waited for the result, and <code>result.output</code> is the answer. It came
+from <code>TestModel</code>, a stand-in model that ships with Pydantic AI: it
+answers at once, inside your own program, calling no provider, so it
+needs no API key and costs nothing. Unless you tell it what to say, it
+replies <code>success (no tool calls)</code> whenever no tool was called.</p>
+<p>Everything above that line is the banner. Pydantic AI prints it once
+per process, the first time an agent runs. It confirms the versions you
+installed, the agent's name (taken from the variable you assigned it to,
+<code>agent</code>) and the model it used. It also points you toward observability,
+a way to watch every model and tool call, which a later lesson covers.</p>
+<p>The banner is only there to confirm what you already know. Guess what
+the output looks like with it turned off, then set
+<code>PYDANTIC_AI_NO_BANNER</code> and check your guess:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">PYDANTIC_AI_NO_BANNER</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>hello_agent.py
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>success (no tool calls)
+</code></pre></div>
+<p>Notice the code itself: <code>Agent(model=...)</code>, <code>run_sync(user_prompt=...)</code>.
+Every argument has its name. Python would accept them without the names,
+but this series passes arguments by keyword everywhere, so every call
+says plainly what it's doing.</p>
+<p>Keep <code>hello_agent.py</code> after this lesson. Whenever your environment looks
+wrong later on, running it again tells you in a second whether Pydantic
+AI still works.</p>
+<h2 id="step-5-keep-secrets-out-of-git">Step 5: Keep secrets out of git</h2>
+<blockquote>
+<p><strong>Goal:</strong> make sure a <code>.env</code> file can't be committed by accident, before
+it exists.</p>
+</blockquote>
+<p>You don't create <code>.env</code> yet. You make sure git will never pick it up by
+accident, because the only reliable time is before the file exists: from
+the chat lesson on, <code>.env</code> will hold your API key, and a key that reaches
+git history can be used by anyone with a copy of the repository — it
+stays there even if you delete the file in a later commit.</p>
+<p>Ask git whether it would ignore a <code>.env</code> file now:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>check-ignore<span class="w"> </span>-v<span class="w"> </span>.env
+</code></pre></div>
+<p>It prints nothing: nothing in <code>.gitignore</code> covers <code>.env</code> yet.</p>
+<p>Open <code>.gitignore</code> and add these lines at the end, starting with the blank
+line:</p>
+<p><code>.gitignore</code> (add at the end):</p>
+<div class="highlight"><pre><span></span><code># Secrets: holds your API key from the chat lesson on. Never commit it.
+.env
+.env.*
+</code></pre></div>
+<p>The whole file should now read:</p>
+<div class="highlight"><pre><span></span><code># Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Secrets: holds your API key from the chat lesson on. Never commit it.
+.env
+.env.*
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> ask git again:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>check-ignore<span class="w"> </span>-v<span class="w"> </span>.env
+</code></pre></div>
+<p>You should see:</p>
+<div class="highlight"><pre><span></span><code>.gitignore:13:.env  .env
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>Git named the rule that matched: line 13 of <code>.gitignore</code>, the line you
+added. And there's still no <code>.env</code> in the folder. Git checks a name
+against <code>.gitignore</code>, not a file, so <code>git add</code> will skip <code>.env</code> from the
+day you create it. That stops accidents, not decisions: <code>git add -f
+.env</code> adds it anyway, so never use <code>-f</code> on a file that holds a secret.</p>
+<p>The rest of the file is what <code>uv init</code> wrote. It already ignored
+Python's caches, build files and <code>.venv</code>, but it said nothing about
+secrets until you added that line.</p>
+<h2 id="step-6-check-your-code">Step 6: Check your code</h2>
+<blockquote>
+<p><strong>Goal:</strong> add Ruff and mypy to the project, and run them until they
+report nothing.</p>
+</blockquote>
+<p>The code runs. Now you add the two checkers from the tools lesson —
+Ruff, which formats and lints, and mypy, which checks every use of a
+value against its type — so the code is also written to a standard
+before the first commit.</p>
+<p>Add them to the project as development tools, with a third beside them,
+pytest, the test runner, at the versions this lesson was tested with:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>add<span class="w"> </span>--dev<span class="w"> </span><span class="s2">"ruff==0.16.10"</span><span class="w"> </span><span class="s2">"mypy==2.4.0"</span><span class="w"> </span><span class="s2">"pytest==9.1.1"</span>
+</code></pre></div>
+<p><code>uv</code> lists what it installed, in lines starting with <code>+</code>: <code>ruff</code>, <code>mypy</code>,
+<code>pytest</code>, and six small packages they need. One line starts with <code>~</code>:
+<code>uv</code> rebuilt your own project, <code>pydantic-tutor</code>.</p>
+<p>The commands still need a little configuration. Add the following
+settings to <code>pyproject.toml</code> so the checks run consistently in later
+lessons. You don't need to study the individual settings now.</p>
+<p>Add these lines at the end of the file, starting with the blank line:</p>
+<p><code>pyproject.toml</code> (add at the end):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.ruff.lint]</span>
+<span class="n">select</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"E"</span><span class="p">,</span><span class="w"> </span><span class="s2">"W"</span><span class="p">,</span><span class="w">  </span><span class="c1"># style: pycodestyle</span>
+<span class="w">    </span><span class="s2">"F"</span><span class="p">,</span><span class="w">       </span><span class="c1"># unused imports and names, undefined names</span>
+<span class="w">    </span><span class="s2">"I"</span><span class="p">,</span><span class="w">       </span><span class="c1"># import order</span>
+<span class="w">    </span><span class="s2">"N"</span><span class="p">,</span><span class="w">       </span><span class="c1"># PEP 8 names</span>
+<span class="w">    </span><span class="s2">"UP"</span><span class="p">,</span><span class="w">      </span><span class="c1"># modern syntax for this Python</span>
+<span class="w">    </span><span class="s2">"B"</span><span class="p">,</span><span class="w">       </span><span class="c1"># likely bugs</span>
+<span class="w">    </span><span class="s2">"ANN"</span><span class="p">,</span><span class="w">     </span><span class="c1"># every parameter and return annotated; ANN401 flags Any</span>
+<span class="w">    </span><span class="s2">"FBT"</span><span class="p">,</span><span class="w">     </span><span class="c1"># no booleans by position, in a call or a def</span>
+<span class="w">    </span><span class="s2">"SIM"</span><span class="p">,</span><span class="w">     </span><span class="c1"># simpler equivalents</span>
+<span class="w">    </span><span class="s2">"RUF"</span><span class="p">,</span><span class="w">     </span><span class="c1"># Ruff's own rules</span>
+<span class="p">]</span>
+<span class="n">ignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"E501"</span><span class="p">]</span><span class="w">  </span><span class="c1"># line length is the formatter's job</span>
+
+<span class="k">[tool.mypy]</span>
+<span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"pydantic.mypy"</span><span class="p">]</span>
+<span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"^tests/"</span><span class="p">]</span><span class="w">  </span><span class="c1"># the series' lesson tests refer to code you have not written yet</span>
+</code></pre></div>
+<p>The whole file should now read, with your own name and email:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"pydantic-tutor"</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"0.1.0"</span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Add your description here"</span>
+<span class="n">readme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"README.md"</span>
+<span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"Ada Student"</span><span class="p">,</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">"ada@example.com"</span><span class="w"> </span><span class="p">}</span>
+<span class="p">]</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"&gt;=3.14"</span>
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"pydantic-ai==2.56.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"pydantic-ai-harness==0.56.0"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[project.scripts]</span>
+<span class="n">pydantic-tutor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"pydantic_tutor:main"</span>
+
+<span class="k">[build-system]</span>
+<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"uv_build&gt;=0.13.1,&lt;0.14.0"</span><span class="p">]</span>
+<span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"uv_build"</span>
+
+<span class="k">[dependency-groups]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"mypy==2.4.0"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"pytest==9.1.1"</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">"ruff==0.16.10"</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[tool.ruff.lint]</span>
+<span class="n">select</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">"E"</span><span class="p">,</span><span class="w"> </span><span class="s2">"W"</span><span class="p">,</span><span class="w">  </span><span class="c1"># style: pycodestyle</span>
+<span class="w">    </span><span class="s2">"F"</span><span class="p">,</span><span class="w">       </span><span class="c1"># unused imports and names, undefined names</span>
+<span class="w">    </span><span class="s2">"I"</span><span class="p">,</span><span class="w">       </span><span class="c1"># import order</span>
+<span class="w">    </span><span class="s2">"N"</span><span class="p">,</span><span class="w">       </span><span class="c1"># PEP 8 names</span>
+<span class="w">    </span><span class="s2">"UP"</span><span class="p">,</span><span class="w">      </span><span class="c1"># modern syntax for this Python</span>
+<span class="w">    </span><span class="s2">"B"</span><span class="p">,</span><span class="w">       </span><span class="c1"># likely bugs</span>
+<span class="w">    </span><span class="s2">"ANN"</span><span class="p">,</span><span class="w">     </span><span class="c1"># every parameter and return annotated; ANN401 flags Any</span>
+<span class="w">    </span><span class="s2">"FBT"</span><span class="p">,</span><span class="w">     </span><span class="c1"># no booleans by position, in a call or a def</span>
+<span class="w">    </span><span class="s2">"SIM"</span><span class="p">,</span><span class="w">     </span><span class="c1"># simpler equivalents</span>
+<span class="w">    </span><span class="s2">"RUF"</span><span class="p">,</span><span class="w">     </span><span class="c1"># Ruff's own rules</span>
+<span class="p">]</span>
+<span class="n">ignore</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"E501"</span><span class="p">]</span><span class="w">  </span><span class="c1"># line length is the formatter's job</span>
+
+<span class="k">[tool.mypy]</span>
+<span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"pydantic.mypy"</span><span class="p">]</span>
+<span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">"^tests/"</span><span class="p">]</span><span class="w">  </span><span class="c1"># the series' lesson tests refer to code you have not written yet</span>
+</code></pre></div>
+<p>One more file, and it stays empty. Create <code>src/pydantic_tutor/py.typed</code>
+beside <code>__init__.py</code>, with nothing in it.</p>
+<p>It's a marker, defined by <a href="https://peps.python.org/pep-0561/">PEP 561</a>:
+it tells type checkers that your package's annotations can be trusted.
+<code>mypy .</code> doesn't need it, because it reads the package as part of the
+project. But check one script on its own, <code>uv run mypy some_script.py</code>,
+and mypy finds <code>pydantic_tutor</code> as an installed package. Without the
+marker, it refuses to read its types and reports <code>module is installed,
+but missing library stubs or py.typed marker</code>.</p>
+<p>Last, let Ruff lay out your code in its style. Run this whenever you've
+written or pasted code:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format
+</code></pre></div>
+<p>It says how many files it reformatted and how many it left unchanged;
+the numbers depend on your files. This is the first <code>uv</code> command since
+you edited <code>pyproject.toml</code>, so <code>uv</code> first rebuilds the project and
+prints a few lines of its own (<code>Building pydantic-tutor</code>,
+<code>Built pydantic-tutor</code>, <code>Uninstalled 1 package</code>, <code>Installed 1 package</code>).</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> run the two checks:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check
+uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>.
+</code></pre></div>
+<p>You should see:</p>
+<div class="highlight"><pre><span></span><code>All checks passed!
+Success: no issues found in 2 source files
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>Clean, which is the normal state from here on, and the habit that keeps
+it that way: format, then check, before every commit. When a check finds
+something, fix it; a comment such as <code># noqa</code> or <code># type: ignore</code> hides
+a finding instead, so save it for the rare case where there's truly no
+better way. The three commands ran in a deliberate order. <code>ruff format</code> went first, so <code>ruff check</code> has nothing
+left to say about layout. Ruff looked at your two Python files and
+<code>README.md</code>, since it also formats any Python code blocks it finds inside
+Markdown. <code>mypy .</code> checked the project's two Python files.</p>
+<p>You don't see a finding today, so here's one. Before you look, guess: a
+file has <code>def greet(name):</code> with no types at all, and calls it as
+<code>greet("hello")</code>. What would mypy say about it? Here's what it says:</p>
+<div class="highlight"><pre><span></span><code>bad.py:3: error: Function is missing a type annotation  [no-untyped-def]
+bad.py:6: error: Call to untyped function "greet" in typed context  [no-untyped-call]
+Found 2 errors in 1 file (checked 1 source file)
+</code></pre></div>
+<p>Every finding names the file, the line and the rule, which makes it easy
+to find and fix. Both of these come from <code>strict = true</code>, which makes
+mypy treat a missing annotation, and a call to a function that has none,
+as an error rather than a pass.</p>
+<p>The rest of the settings you added work the same way. Ruff's <code>select</code>
+list turns on rule sets by their code. A few hold you to the most: <code>ANN</code>
+means every parameter and return value is annotated, with <code>ANN401</code>
+flagging <code>Any</code>; <code>FBT</code> means no <code>True</code> or <code>False</code> passed by position, and
+no <code>bool</code> parameter that could be; <code>N</code> is Python's naming conventions.
+The <code>pydantic.mypy</code> plugin teaches mypy how Pydantic models are built.</p>
+<p>The <code>--dev</code> flag made these three a <strong>development dependency</strong>: a package
+you need to work on the project, but not to run it. <code>uv</code> records them
+under <code>[dependency-groups]</code> rather than <code>dependencies</code>, and <code>uv run</code>
+installs both. This lesson writes no tests, but pytest is there for the
+tests the project ends up holding, run with <code>uv run pytest</code>.</p>
+<p>This is the one time in the lesson you edited <code>pyproject.toml</code> by hand.
+The dependencies are still <code>uv</code>'s to write. The <code>[tool.…]</code> tables are
+settings <code>uv</code> never touches, so they're yours.</p>
+<h2 id="step-7-commit">Step 7: Commit</h2>
+<blockquote>
+<p><strong>Goal:</strong> commit the project, and say why <code>.venv</code> isn't in it.</p>
+</blockquote>
+<p>The project is complete and clean. Save it in git, so every later lesson
+starts from here.</p>
+<p>See what you're about to commit:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>status<span class="w"> </span>--short<span class="w"> </span>--untracked-files<span class="o">=</span>all
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>?? .gitignore
+?? .python-version
+?? README.md
+?? hello_agent.py
+?? pyproject.toml
+?? src/pydantic_tutor/__init__.py
+?? src/pydantic_tutor/py.typed
+?? uv.lock
+</code></pre></div>
+<p>Commit them:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Set up the project"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> you should see:</p>
+<div class="highlight"><pre><span></span><code>[main (root-commit) 84c723c] Set up the project
+8 files changed, 2294 insertions(+)
+create mode 100644 .gitignore
+create mode 100644 .python-version
+create mode 100644 README.md
+create mode 100644 hello_agent.py
+create mode 100644 pyproject.toml
+create mode 100644 src/pydantic_tutor/__init__.py
+create mode 100644 src/pydantic_tutor/py.typed
+create mode 100644 uv.lock
+</code></pre></div>
+<p>Your commit id will differ, and your branch may be called <code>master</code>
+rather than <code>main</code>, depending on your git settings. The number of
+insertions can differ too, with the size of <code>uv.lock</code>. None of these
+matters here.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p>Eight files, and the biggest folder in the project, <code>.venv</code>, isn't among
+them: <code>.gitignore</code> leaves it out, and <code>uv.lock</code> goes in, so a copy of the
+project can rebuild <code>.venv</code> with the same versions you have. <code>uv</code> wrote <code>uv.lock</code> at your first
+<code>uv run</code> and updated it each time you added packages.</p>
+<p>There's no <code>.ruff_cache</code> or <code>.mypy_cache</code> in the list either. Both tools
+keep a folder like that to run faster next time, and each one holds a
+<code>.gitignore</code> of its own that ignores everything inside it.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<p>That's the project, set up. You know what it asked for, what
+that resolved to and what's installed; why the framework's two pins move
+together; that an agent can run with no key; and that your code and your
+secrets are checked before anything is committed. Here's what you hold
+now:</p>
+<table>
+<thead>
+<tr>
+<th>File or command</th>
+<th>What it's for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pyproject.toml</code></td>
+<td>What you asked for: the project, its pinned dependencies, and the checks' settings</td>
+</tr>
+<tr>
+<td><code>uv.lock</code></td>
+<td>What that resolved to: one exact version of every package, for every system</td>
+</tr>
+<tr>
+<td><code>.venv</code></td>
+<td>What's installed. Every <code>uv run</code> makes it match the lockfile first, so it's never committed</td>
+</tr>
+<tr>
+<td><code>pydantic-ai-slim</code></td>
+<td>The framework you import. <code>pydantic-ai</code> and the harness both require it at one exact version, so they move together</td>
+</tr>
+<tr>
+<td><code>uv run ruff format</code>, <code>ruff check</code>, <code>mypy .</code></td>
+<td>Your code checks, run before every commit</td>
+</tr>
+<tr>
+<td><code>hello_agent.py</code></td>
+<td>A one-second check that Pydantic AI works, with no API key</td>
+</tr>
+<tr>
+<td><code>.env</code> in <code>.gitignore</code></td>
+<td>Your key stays out of git, from the day you create it</td>
+</tr>
+</tbody>
+</table>
+<h2 id="docs-vs-reality">Docs vs reality</h2>
+<p>The Pydantic AI
+<a href="https://pydantic.dev/docs/ai/overview/install/">installation page</a>
+covers <code>pydantic-ai</code> and <code>pydantic-ai-slim</code>, and says they need Python
+3.11 or newer, which matches the 2.56.0 release. It doesn't mention
+<code>pydantic-ai-harness</code>, that the harness pins the library to one exact
+version, or the banner. When you upgrade this project later, upgrade the
+two packages together.</p>
+<h2 id="going-further">Going further</h2>
+<p>Nothing here is needed for the next lesson. Each item is for when you're
+curious.</p>
+<ul>
+<li><strong>The commands, as a checklist.</strong> For when you set up the project
+  again, or on another machine. It's a checklist, not the whole recipe:
+  the steps above have the file contents and what each command should
+  print. Run it from the folder that will hold <code>pydantic-tutor</code>, with
+  <code>uv</code> 0.13.1 or newer:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>init<span class="w"> </span>--package<span class="w"> </span>--python<span class="w"> </span><span class="m">3</span>.14
+uv<span class="w"> </span>run<span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>add<span class="w"> </span><span class="s2">"pydantic-ai==2.56.0"</span><span class="w"> </span><span class="s2">"pydantic-ai-harness==0.56.0"</span>
+uv<span class="w"> </span>tree<span class="w"> </span>--invert<span class="w"> </span>--package<span class="w"> </span>pydantic-ai-slim<span class="w"> </span>--depth<span class="w"> </span><span class="m">1</span>
+<span class="c1"># write hello_agent.py (step 4)</span>
+uv<span class="w"> </span>run<span class="w"> </span>hello_agent.py
+<span class="c1"># add .env to .gitignore (step 5)</span>
+git<span class="w"> </span>check-ignore<span class="w"> </span>-v<span class="w"> </span>.env
+uv<span class="w"> </span>add<span class="w"> </span>--dev<span class="w"> </span><span class="s2">"ruff==0.16.10"</span><span class="w"> </span><span class="s2">"mypy==2.4.0"</span><span class="w"> </span><span class="s2">"pytest==9.1.1"</span>
+<span class="c1"># add the checks' settings to pyproject.toml, and an empty</span>
+<span class="c1"># src/pydantic_tutor/py.typed (step 6)</span>
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check
+uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>.
+git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">"Set up the project"</span>
+</code></pre></div>
+<ul>
+<li><strong>Put your project on GitHub (optional).</strong> No lesson needs it, and
+  you don't need a GitHub account to follow the series: each lesson's
+  starting point can be cloned without one. But a copy on GitHub is a
+  backup, a way to share your work, and an everyday habit worth having.
+  It takes three things, each covered by GitHub's own pages (theirs, so
+  they may change):
+  <a href="https://docs.github.com/en/account-and-profile/how-tos/account-management/creating-an-account-on-github">create an account</a>,
+  <a href="https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository">create a new repository</a>
+  with nothing in it (no README, license or <code>.gitignore</code>, since your
+  project already has them), and
+  <a href="https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github">push this project to it</a>.</li>
+<li><strong>Why pin exactly.</strong> The <code>==</code> pins are a choice for a tutorial: the
+  text you're reading was tested with exactly these versions, and your
+  code must match it. An application would usually allow a range
+  (<code>&gt;=2.56.0</code>) and let <code>uv.lock</code> fix the exact versions.</li>
+<li><strong>One lockfile, every system.</strong> <code>uv.lock</code> covers macOS, Linux and
+  Windows at once. A few packages are installed only on some systems:
+  Windows gets two that macOS and Linux don't. Everyone gets the same version of
+  every package they do install.</li>
+<li><strong><code>uv run</code> adds, <code>uv sync</code> also removes.</strong> <code>uv run</code> installs whatever
+  the lockfile lists and the environment lacks, but leaves anything extra
+  you installed by hand. <code>uv sync</code> makes <code>.venv</code> match the lockfile
+  exactly, removing extras.</li>
+<li><strong>What the <code>src/</code> layout protects you from.</strong> With your code under
+  <code>src/</code>, Python can't pick it up from the project folder by accident:
+  the tests and commands you run use the installed package, so they fail
+  if the install is wrong. (Setting <code>PYTHONPATH</code> by hand would get around
+  this.)</li>
+<li><strong>When the banner appears.</strong> It's written to stderr, and only when
+  stderr is a terminal or a coding agent is running the command:
+  redirecting the output (<code>&gt; out.txt</code>) still shows it; redirecting stderr
+  (<code>2&gt; err.txt</code>) leaves it out. It's also left out under pytest and in
+  CI, and goes away once observability is set up.</li>
+<li><strong>Installing less.</strong> If you need only one provider, <code>pydantic-ai-slim</code>
+  with extras such as <code>openai</code> installs a fraction of the packages. The
+  <a href="https://pydantic.dev/docs/ai/overview/install/">installation page</a>
+  lists the extras.</li>
+<li><strong>Fixing findings for you.</strong> A finding Ruff can fix itself is marked
+  <code>[*]</code>, and <code>uv run ruff check --fix</code> fixes those, such as an unused
+  import. Read the finding first: in code you copied, an unused import
+  usually means a line is missing, and <code>--fix</code> would delete the clue.
+  With the Ruff extension, most editors can format and fix on save, once
+  you switch that on in the editor's settings.</li>
+<li><strong>Checking without changing.</strong> <code>uv run ruff format --check</code> reports
+  which files it would reformat and changes nothing, for places where
+  nothing should change, such as a check run on every push.</li>
+<li><strong>Your editor and <code>.venv</code>.</strong> Editors such as VS Code, PyCharm and
+  Spyder ask which Python interpreter a project uses. Choose the one in
+  the project, <code>.venv/bin/python</code>: then the editor finds <code>pydantic_ai</code>
+  for its hints, and uses the versions of Ruff, mypy and pytest this
+  project pins. In PyCharm that's enough to run the tests from the
+  editor; other editors may also need their Python or testing extension
+  set up, which their own docs cover.</li>
+<li><strong>Your editor's files.</strong> Editors write settings folders into your
+  project: PyCharm makes <code>.idea/</code>, VS Code <code>.vscode/</code>. They belong to
+  you, not to the project, so keep them out of its <code>.gitignore</code> and
+  ignore them for every repository at once, in a personal ignore file:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nb">printf</span><span class="w"> </span><span class="s1">'.idea/\n.vscode/\n'</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.gitignore_global
+git<span class="w"> </span>config<span class="w"> </span>--global<span class="w"> </span>core.excludesFile<span class="w"> </span>~/.gitignore_global
+</code></pre></div>
+<p>Once your editor has made its folder, <code>git check-ignore -v .idea</code> names
+  <code>~/.gitignore_global</code> as the rule that matched. (Unlike step 5's check,
+  it prints nothing before the folder exists: a pattern ending in <code>/</code>
+  matches only folders.)
+- <strong><code>uv</code> itself.</strong> The <a href="https://docs.astral.sh/uv/"><code>uv</code> docs</a> cover
+  projects, lockfiles and Python versions in depth.</p>
+<h2 id="next">Next</h2>
+<p>You have a project and an agent that answers, but you haven't yet seen
+what an agent does. In the next lesson you build your first real
+<code>Agent</code>, look at the messages it sent and received (the same history you
+met in the orientation, now for real), and script its model yourself,
+still with no API key.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

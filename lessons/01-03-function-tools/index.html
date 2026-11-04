@@ -1,0 +1,1990 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/01-03-function-tools/">
+      
+      
+        <link rel="prev" href="../01-02-agent/">
+      
+      
+        <link rel="next" href="../01-04-deps/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>01-03 Tools, and the loop that calls them - Pydantic AI tutorial</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tools-and-the-loop-that-calls-them" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pydantic AI tutorial" class="md-header__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic AI tutorial
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              01-03 Tools, and the loop that calls them
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pydantic AI tutorial" class="md-nav__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic AI tutorial
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-a-tool-is" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a tool is
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-tool-call-makes-a-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A tool call makes a loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-model-writes-the-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The model writes the arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-write-two-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Write two tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-print-what-the-model-is-told" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Print what the model is told
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-watch-the-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Watch the loop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-a-tool-is" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a tool is
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-tool-call-makes-a-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A tool call makes a loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-model-writes-the-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The model writes the arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-write-two-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Write two tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-print-what-the-model-is-told" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Print what the model is told
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-watch-the-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Watch the loop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="tools-and-the-loop-that-calls-them">Tools, and the loop that calls them</h1>
+<h2 id="welcome">Welcome</h2>
+<p>Welcome back. In the last lesson you built an agent and read the messages
+of a run: one request, one response, and the model's text.</p>
+<p>This lesson follows one question: <strong>what actually happens when a model
+asks to use a tool?</strong> You'll see what the model is told about your
+functions, how the agent runs one on the model's behalf, and what happens
+when the model supplies an argument that needs correcting.</p>
+<p>By the end, you'll be able to:</p>
+<ol>
+<li><strong>Say what a tool is, and what the model is told about it.</strong></li>
+<li><strong>Trace the loop a tool call makes</strong>, and count its requests.</li>
+<li><strong>Check the arguments the model wrote</strong>, and tell it what to fix with
+   <code>ModelRetry</code>.</li>
+</ol>
+<p>About 15 minutes.</p>
+<h2 id="concepts">Concepts</h2>
+<h3 id="what-a-tool-is">What a tool is</h3>
+<p>A tool is a Python function you give the agent. The model can't run it.
+The model only reads messages and writes messages. When it needs a
+tool, it writes a <strong>tool call</strong> in its response: the tool's name, and the
+arguments to call it with. The agent runs your function and sends back
+what it returned, the <strong>tool return</strong>.</p>
+<p>So the model needs to know which tools exist and how to call them. With
+every request, the agent sends a <strong>tool definition</strong> for each tool, built
+from your function:</p>
+<table>
+<thead>
+<tr>
+<th>From your function</th>
+<th>What the model receives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The function's name</td>
+<td>The tool's name</td>
+</tr>
+<tr>
+<td>The docstring's description</td>
+<td>The tool's description</td>
+</tr>
+<tr>
+<td>Parameter names and types</td>
+<td>A JSON schema of the arguments</td>
+</tr>
+<tr>
+<td>Parameter descriptions, under <code>Args:</code></td>
+<td>Each argument's description</td>
+</tr>
+<tr>
+<td>The function's body</td>
+<td>Nothing</td>
+</tr>
+</tbody>
+</table>
+<p>The tool definition doesn't include your function's Python body. The
+docstring is the tool's manual: the clearer it is, the better the model
+can tell when to use the tool and what to pass.</p>
+<h3 id="a-tool-call-makes-a-loop">A tool call makes a loop</h3>
+<p>A run with a tool call takes more than one request:</p>
+<ol>
+<li>The agent sends your prompt and the tool definitions.</li>
+<li>The model's response is a tool call.</li>
+<li>The agent runs the tool, and sends the tool return in a new request.</li>
+<li>The model's response is the answer.</li>
+</ol>
+<pre class="mermaid"><code>sequenceDiagram
+    participant A as agent
+    participant M as model
+    participant T as your tool
+    A-&gt;&gt;M: request: your prompt, the tool definitions
+    M-&gt;&gt;A: response: a tool call
+    A-&gt;&gt;T: runs it
+    T-&gt;&gt;A: what it returned
+    A-&gt;&gt;M: request: the tool return
+    M-&gt;&gt;A: response: the answer</code></pre>
+<p>That's two requests instead of one. Each response that holds a tool call
+adds a request, and with a real model every request is billed.</p>
+<h3 id="the-model-writes-the-arguments">The model writes the arguments</h3>
+<p>The model decides when to call a tool and what arguments to send. Your
+program decides which tools exist and what they do with those arguments.
+So a tool treats its arguments like anything a stranger types into a
+form: it checks them before using them.</p>
+<p>Pydantic AI checks the types for you. A number where the schema says
+string never reaches your function. But a string of the right type can
+still be wrong, such as the name of a product that doesn't exist. That
+check is your tool's.</p>
+<p>When the value is wrong, the tool raises <strong><code>ModelRetry</code></strong> with a message
+saying what was wrong and what to do instead. The run doesn't stop: the
+agent sends the message back to the model, which can try again. Each
+tool gets one retry by default. If the model gets it wrong a second time,
+the run fails.</p>
+<h2 id="what-youll-build">What you'll build</h2>
+<p>A small agent with two tools over a price list, and two scripts that run
+it on stand-in models we give you, in <code>given/</code>. The prices sit in the same file as the tools,
+because this lesson is about the tools, not where data comes from.</p>
+<div class="highlight"><pre><span></span><code>pydantic-tutor/
+├── scripts/
+│   ├── show_tools.py       new: prints what the model is told about each tool
+│   └── tool_loop.py        new: a model that calls a tool, gets it wrong, then answers
+└── src/
+    └── pydantic_tutor/
+        ├── given/
+        │   └── tool_models.py  given: the stand-in models
+        └── prices.py       new: the price agent and its two tools
+</code></pre></div>
+<p>And the steps, in order:</p>
+<ol>
+<li><strong>Write two tools</strong>, and call them yourself.</li>
+<li><strong>Print what the model is told</strong> about them.</li>
+<li><strong>Watch the loop</strong>, with a model that gets the name wrong first.</li>
+</ol>
+<p>Each step ends with a <strong>Check</strong>. If it doesn't show what it says, stop
+there: the next step builds on it.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>Carry on in your <code>pydantic-tutor</code> project from the last lesson. This lesson hands you
+some code you run but don't write: stand-in models, in <code>src/pydantic_tutor/given/</code>.
+From the project folder, fetch them:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>https://raw.githubusercontent.com/chrislomeli/pydanticai-tutorial-student/main/starter/get_starter.py<span class="w"> </span>tool-models
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> from the project folder, run:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>hello_agent.py
+</code></pre></div>
+<p>After the banner, the last line should be:</p>
+<div class="highlight"><pre><span></span><code>success (no tool calls)
+</code></pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Joining here, or has your project gone wrong?</strong> If your project works,
+skip this. To refresh a broken project, delete its <code>pydantic-tutor</code> folder
+first: you lose your work and anything else in it, including local
+credentials. Then, from the folder that should hold the project:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span><span class="m">01</span>-02-agent/end<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/chrislomeli/pydanticai-tutorial-student.git<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>sync
+</code></pre></div>
+<p>The copy also has a <code>tests/</code> folder, our own checks for each lesson. You
+don't need it. Then run the check above.</p>
+</div>
+<h2 id="step-1-write-two-tools">Step 1: Write two tools</h2>
+<blockquote>
+<p><strong>Goal:</strong> two plain functions the model will be able to ask for.</p>
+</blockquote>
+<p>You write the tools and call them yourself, before any model is
+involved. The first function provides a list of products; the second
+looks up one price. <strong>Pay attention to their docstrings:</strong> those are
+part of what the model will later see when the functions become tools.</p>
+<p>Create <code>src/pydantic_tutor/prices.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""A small agent with two tools: a price list it can read for the model.</span>
+
+<span class="sd">The prices live in this file, to keep the example about its tools rather</span>
+<span class="sd">than where data comes from.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span><span class="p">,</span> <span class="n">ModelRetry</span>
+
+<span class="c1"># Whole cents, so no price is ever rounded.</span>
+<span class="n">PRICES_IN_CENTS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"apple"</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">"bread"</span><span class="p">:</span> <span class="mi">225</span><span class="p">,</span> <span class="s2">"coffee"</span><span class="p">:</span> <span class="mi">700</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">list_products</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""List the products that have a price."""</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">PRICES_IN_CENTS</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">price_of</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">product</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Look up the price of one product, in cents.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        product: The product's name, as `list_products` gives it.</span>
+<span class="sd">    """</span>
+    <span class="c1"># The model wrote `product`: check it before using it.</span>
+    <span class="k">if</span> <span class="n">product</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PRICES_IN_CENTS</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ModelRetry</span><span class="p">(</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">"There is no product </span><span class="si">{</span><span class="n">product</span><span class="si">!r}</span><span class="s2">. Call list_products to see them."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">PRICES_IN_CENTS</span><span class="p">[</span><span class="n">product</span><span class="p">]</span>
+
+
+<span class="c1"># No model here: each run says which model to use.</span>
+<span class="n">price_agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"prices"</span><span class="p">,</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">"You answer questions about prices. Answer briefly."</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">list_products</span><span class="p">,</span> <span class="n">price_of</span><span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> call both tools yourself:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.prices import list_products, price_of; print(list_products()); print(price_of(product='coffee'))"</span>
+</code></pre></div>
+<p>You should see:</p>
+<div class="highlight"><pre><span></span><code>['apple', 'bread', 'coffee']
+700
+</code></pre></div>
+<p>Now ask for a product that doesn't exist:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.prices import price_of; price_of(product='apples')"</span>
+</code></pre></div>
+<p>The last line of the error is your tool's message:</p>
+<div class="highlight"><pre><span></span><code>pydantic_ai.exceptions.ModelRetry: There is no product 'apples'. Call list_products to see them.
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>The tools are ordinary functions. <code>tools=[list_products, price_of]</code> is
+all it takes to give them to the agent.</p>
+<p><code>ModelRetry</code> is the only Pydantic AI name the tools use. Called directly,
+as here, it's an ordinary exception. Inside a run, the agent catches it
+and sends its message to the model, as step 3 shows.</p>
+<p>The message says what was wrong and what to do: call <code>list_products</code>.
+That's the model's only help, so make it specific.</p>
+<h2 id="step-2-print-what-the-model-is-told">Step 2: Print what the model is told</h2>
+<blockquote>
+<p><strong>Goal:</strong> see the tool definitions the model receives.</p>
+</blockquote>
+<p>The model for this step is given: <code>prints_tool_definitions()</code> is a
+<code>FunctionModel</code>, like the one you wrote in the last lesson. It prints the
+tool definitions it is sent, then answers "Done." so the run can finish.</p>
+<p>Here we aren't asking the model to call a tool yet. We're using the
+given <code>FunctionModel</code> to <strong>inspect the definitions</strong> the agent sends:
+the names, descriptions and arguments—not the Python function bodies.</p>
+<p>Create <code>scripts/show_tools.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""Print what the model is told about the price agent's tools."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.given.tool_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints_tool_definitions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.prices</span><span class="w"> </span><span class="kn">import</span> <span class="n">price_agent</span>
+
+<span class="n">price_agent</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+    <span class="n">user_prompt</span><span class="o">=</span><span class="s2">"How much is an apple?"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">prints_tool_definitions</span><span class="p">()</span>
+<span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>scripts/show_tools.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the banner now says <code>tools: 2</code>. After it:</p>
+<div class="highlight"><pre><span></span><code>list_products
+description: List the products that have a price.
+parameters: {
+"additionalProperties": false,
+"properties": {},
+"type": "object"
+}
+price_of
+description: Look up the price of one product, in cents.
+parameters: {
+"additionalProperties": false,
+"properties": {
+"product": {
+"description": "The product's name, as `list_products` gives it.",
+"type": "string"
+}
+},
+"required": [
+"product"
+],
+"type": "object"
+}
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>This is the whole of what the model knows about your tools. Match it to
+<code>prices.py</code>:</p>
+<ul>
+<li>The name is the function's name.</li>
+<li>The description is the docstring's first line.</li>
+<li>The <code>Args:</code> line for <code>product</code> became that argument's description in
+  the schema. <code>product</code> is <code>"required"</code> because it has no default.</li>
+</ul>
+<p><code>PRICES_IN_CENTS</code> and the <code>if</code> that checks the name aren't there. The
+model knows how to ask for <code>price_of</code>, not how it works.</p>
+<h2 id="step-3-watch-the-loop">Step 3: Watch the loop</h2>
+<blockquote>
+<p><strong>Goal:</strong> run a model that calls a tool, gets the name wrong, tries
+again, and answers.</p>
+</blockquote>
+<p>The model in this step is given too, <code>asks_with_a_wrong_name()</code>. It
+follows a fixed script:</p>
+<ol>
+<li>On the first request: call <code>price_of</code> with <code>product="apples"</code>, a name
+   that doesn't exist.</li>
+<li>If the latest request holds a retry: call it again, with <code>"apple"</code>.</li>
+<li>If it holds the tool return: answer with the price.</li>
+</ol>
+<p>A real model decides for itself. The script lets you see each message.</p>
+<p>Before you run it, guess: how many requests will the run make? Write
+your guess down.</p>
+<p>Now we'll watch a whole tool-call loop. The given model requests a tool,
+the agent runs it, and the model responds again. <strong>Follow the message
+order in the printed output:</strong> it makes the extra model request visible.</p>
+<p>Create <code>scripts/tool_loop.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""Run the price agent on a model that calls a tool, gets it wrong, then answers."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryPromptPart</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.given.tool_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">asks_with_a_wrong_name</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.prices</span><span class="w"> </span><span class="kn">import</span> <span class="n">price_agent</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">price_agent</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+    <span class="n">user_prompt</span><span class="o">=</span><span class="s2">"How much is an apple?"</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">asks_with_a_wrong_name</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">all_messages</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">kind</span><span class="p">,</span> <span class="p">[</span><span class="n">part</span><span class="o">.</span><span class="n">part_kind</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">parts</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">parts</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="n">RetryPromptPart</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">"  told the model:"</span><span class="p">,</span> <span class="n">part</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"output:"</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"requests:"</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">requests</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>scripts/tool_loop.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> after the banner, six messages, your tool's message, the
+answer, and the count:</p>
+<div class="highlight"><pre><span></span><code>request ['user-prompt']
+response ['tool-call']
+request ['retry-prompt']
+told the model: There is no product 'apples'. Call list_products to see them.
+response ['tool-call']
+request ['tool-return']
+response ['text']
+output: An apple costs 50 cents.
+requests: 3
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>Three requests. Was that your guess?</p>
+<ul>
+<li><strong>Request 1</strong> carries your question. The model asks for <code>price_of</code>
+  with <code>"apples"</code>.</li>
+<li><strong>Request 2</strong> carries your tool's <code>ModelRetry</code> message, as a
+  <code>retry-prompt</code> part. The model asks again, with <code>"apple"</code>.</li>
+<li><strong>Request 3</strong> carries the tool return, <code>50</code>. The model answers.</li>
+</ul>
+<p>Your tool ran twice, in your program, between the requests. The model
+never ran it.</p>
+<p>Without the wrong name, the run would have made two requests, as in
+Concepts. The retry cost one more. With a real model that's one more
+billed request, so a clear tool message is worth writing.</p>
+<p>The model gets your <code>ModelRetry</code> message with one line from Pydantic AI
+after it, asking it to fix the error and try again.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<ul>
+<li><strong>A tool</strong> is a Python function the agent runs for the model. The
+  model sees only its definition: the name, the docstring and a schema
+  of the arguments.</li>
+<li><strong>A tool call makes a loop.</strong> The model asks, the agent runs the tool,
+  and the tool return goes back in the next request. Each response that
+  holds a tool call adds a request.</li>
+<li><strong>The model writes the arguments</strong>, so your tool checks them. When one
+  is wrong, <code>ModelRetry</code> tells the model what to fix, and the run goes
+  on.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p>So far every value a tool uses is fixed in its file. In the next lesson
+each run hands the agent values of its own, its dependencies, which
+your tools and instructions can read and the model never sees.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2108 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/00-01-orientation/">
+      
+      
+        <link rel="prev" href="../..">
+      
+      
+        <link rel="next" href="../00-02-tools/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>00-01 From chat window to agent - Pydantic AI tutorial</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#from-chat-window-to-agent" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pydantic AI tutorial" class="md-header__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic AI tutorial
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              00-01 From chat window to agent
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pydantic AI tutorial" class="md-nav__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic AI tutorial
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-be-able-to-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll be able to do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taking-a-chat-apart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Taking a chat apart
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Taking a chat apart">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-prompts-and-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Prompts and instructions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-messages-and-the-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Messages and the history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-the-model-remembers-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The model remembers nothing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-the-conversation-as-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The conversation as data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-the-same-conversation-in-pydantic-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The same conversation in Pydantic AI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-the-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-tools-and-the-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Tools and the loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#going-further" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Going further
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-be-able-to-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll be able to do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#taking-a-chat-apart" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Taking a chat apart
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Taking a chat apart">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-the-model" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. The model
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-prompts-and-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Prompts and instructions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-messages-and-the-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Messages and the history
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-the-model-remembers-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The model remembers nothing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-the-conversation-as-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. The conversation as data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-the-same-conversation-in-pydantic-ai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. The same conversation in Pydantic AI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-the-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. The agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-tools-and-the-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Tools and the loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#going-further" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Going further
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="from-chat-window-to-agent">From chat window to agent</h1>
+<p><em>An orientation for Python developers who have used a chat assistant like
+ChatGPT, Claude or Gemini, but have never built an agent. The code
+examples use Pydantic AI.</em></p>
+<p>Welcome! This is the first lesson in the series, and it's a gentle one.
+There's nothing to install and no code to run. You read, you look at a few
+pictures, and you meet some ideas you already half know. It takes about 15
+to 20 minutes.</p>
+<p>Here's the thing: you know more about agentic programming than you think.
+Every time you use a chat assistant, you are working with the same
+building blocks a developer uses to build an agent. There's a <strong>model</strong>,
+some <strong>instructions</strong>, a list of <strong>messages</strong>, and often <strong>tools</strong>. The
+chat app hides them behind a friendly window. In this lesson we take that
+window apart, one piece at a time, and then look at the same conversation
+written as a short Python program.</p>
+<p>You won't learn everything about agents here.  You don't need to. The
+goal is to provide you with a mental model: a simple picture of how the pieces fit, which you
+can hang every later lesson on.</p>
+<p><strong>Keep a chat app open while you read</strong>, if you have one handy: Claude,
+ChatGPT, Gemini, whichever you like. Nothing here depends on it, but
+whenever the lesson describes something you've done in a chat, you can try
+it there and watch it happen.</p>
+<h2 id="what-youll-be-able-to-do">What you'll be able to do</h2>
+<p>By the end of this lesson, you'll be able to:</p>
+<ol>
+<li><strong>Spot the parts of an agent in a chat you already use</strong>: the model,
+   your prompts and the app's instructions, the messages and who each one
+   is from (you, the assistant, or the app itself), the history they add
+   up to, tools, and the loop that runs them.</li>
+<li><strong>Explain how a chat "remembers" what you said earlier</strong>: who sends
+   the earlier messages, and what your own code will have to do when you
+   build an agent.</li>
+<li><strong>Read a short Pydantic AI program and match it, line by line, to the
+   chat</strong>: where it picks the model, where it gives the instructions,
+   where it sends the history, and what a tool looks like.</li>
+</ol>
+<h2 id="taking-a-chat-apart">Taking a chat apart</h2>
+<p>Let's start somewhere familiar: a chat window.</p>
+<p><img alt="A generic chat app showing a model selector, saved chats, and a two-turn conversation" src="chat-mockup.svg" /></p>
+<p><em>① Model selector · ② Saved conversations · ③ The current conversation ·
+④ Where you type your message</em></p>
+<p>This is a drawing, not a screenshot. It isn't Claude, ChatGPT or Gemini,
+but a made-up app with the parts they all share. Real apps put those parts
+in different places and change their look often, so a drawing
+stays true longer than any screenshot would.</p>
+<p>Find the four numbers, because the rest of the lesson keeps pointing back
+at them:</p>
+<ul>
+<li><strong>① The model selector</strong>, where you choose which model answers. Your app
+  may tuck it into a menu, or not show it at all.</li>
+<li><strong>② Saved conversations</strong>, the list of past chats in the sidebar.</li>
+<li><strong>③ The current conversation</strong>: your messages and the replies.</li>
+<li><strong>④ The message box</strong>, where you type.</li>
+</ul>
+<p>The conversation in the drawing is the one this lesson follows all the
+way through. Someone asks why they should use a virtual environment for
+their Python projects, in exactly three bullet points, then asks a
+follow-up about the second point. Keep it in mind; you'll see it again as
+data, and then as code.</p>
+<p>The window is the part you see. Behind it, every time you press send, the
+app gathers some instructions and the conversation so far, sends them to a
+model, and shows you what comes back. An agent is the same arrangement,
+built by you: <strong>a model, plus instructions, plus the message history, plus
+tools, running in a loop.</strong></p>
+<p>That sentence probably doesn't mean much yet, and that's fine. The rest
+of this lesson unpacks it, one piece at a time.</p>
+<p><strong>Key ideas</strong> 
+An "agent" has a handful of moving parts, and you have
+used every one of them without knowing their names. We'll take them in
+the order you'd meet them in a chat:</p>
+<ol>
+<li><strong>The model</strong>: Is the AI 'brain' and the part that writes the replies.</li>
+<li><strong>Prompts and instructions</strong>: what you ask, and how you want it
+   answered.</li>
+<li><strong>Messages and the history</strong>: the conversation, as the app sees it.</li>
+<li><strong>The model remembers nothing</strong>: the surprise the whole series is
+   built on.</li>
+<li><strong>The conversation as data</strong>: what a chat looks like under the hood.</li>
+<li><strong>The same conversation in Pydantic AI</strong>: your first look at the code.</li>
+<li><strong>The agent</strong>: the program we write to send and receive messages to
+   and from the model.</li>
+<li><strong>Tools and the loop</strong>: how a model gets things done, and not only
+   talks about them.</li>
+</ol>
+<p>Each piece is short, and each one leans on the one before, so take them
+in order. Each starts with something you have done a hundred times, and
+ends with the thing you will write in code.</p>
+<h3 id="1-the-model">1. The model</h3>
+<p>Let's begin at the top of the window, with a part you have probably
+played with already.</p>
+<p>At the top of the window sits the model selector (①). The <strong>model</strong> is the
+large language model (LLM) that writes the replies: the part of the
+assistant that does the thinking.</p>
+<p>Switch it, and the replies change. The rest of the app stays exactly as it
+was: the same window, the same saved chats, the same conversation. That is
+the first thing to notice. <strong>The model is a swappable component.</strong> You can
+keep the task the same and change only the model, and in code that is a
+one-line change.</p>
+<p>If your app has no selector, it still uses a model. The app has picked one
+for you.</p>
+<h3 id="2-prompts-and-instructions">2. Prompts and instructions</h3>
+<p>You have a model. Now it needs something to do, and this is the part of
+the window you know best.</p>
+<p>What you type in the box (④) and send is a <strong>prompt</strong>: a question, or a
+task.</p>
+<div class="highlight"><pre><span></span><code>Why should I use a virtual environment for my Python projects?
+</code></pre></div>
+<p>You can also tell the model <em>how</em> to answer, not only <em>what</em> to answer.
+That is an <strong>instruction</strong>:</p>
+<div class="highlight"><pre><span></span><code>Why should I use a virtual environment for my Python projects? Answer in exactly three bullet points.
+</code></pre></div>
+<p>Same question, very different answer: three tidy bullets instead of a few
+paragraphs. Instructions shape an answer more than most people expect.
+They are not guarantees, though. Ask for three bullets and now and then
+you will get four. That is the model, not you, and building agents means
+planning for it.</p>
+<p>The instruction above applies to one message. Apps also attach
+<strong>standing instructions</strong> to every message, without you typing them. They
+have a name of their own, the <strong>system prompt</strong>, and you will meet them in
+"4. The model remembers nothing" below. For now, notice the difference: some
+instructions you type, and some are already there.</p>
+<h3 id="3-messages-and-the-history">3. Messages and the history</h3>
+<p>One question on its own is fine. Real conversations go back and forth,
+though, and that's where things start to get interesting.</p>
+<p>Now ask a follow-up in the same chat:</p>
+<div class="highlight"><pre><span></span><code>Can you expand on the second point?
+</code></pre></div>
+<p>The reply is about the second bullet, <em>Reproducibility</em> in the
+illustration. You never said which point you meant. The assistant knew
+anyway, from the conversation above it.</p>
+<p>That conversation (③) is made of <strong>messages</strong>. Each one has a <strong>role</strong>,
+which says who it is from:</p>
+<ul>
+<li>What you typed is a <strong>user</strong> message. Some frameworks call it a "human"
+  message.</li>
+<li>Each reply is an <strong>assistant</strong> message. Some call it an "AI" message.</li>
+</ul>
+<p>In order, the messages are the <strong>message history</strong>. It is the context
+that made "the second point" mean something.</p>
+<p>One question and its answer is a <strong>turn</strong>. The illustration shows two
+turns: the three-bullet question and its reply, then the follow-up and
+its reply. Hold on to that word; it comes back when tools arrive.</p>
+<h3 id="4-the-model-remembers-nothing">4. The model remembers nothing</h3>
+<p>So far, nothing here should have surprised you. This next piece usually
+does. It's also the most important idea in the lesson, and the rest of
+the series is built on it, so take this one slowly.</p>
+<p><strong>The model itself remembers nothing.</strong> It is <em>stateless</em>: every request
+starts from a blank page. Before you read on, take a guess: how did the
+follow-up work, then?</p>
+<p>When you sent "Can you expand on the second point?", the app did not send
+that sentence alone. It sent <strong>the whole conversation</strong>: the system
+prompt, your first question, the model's answer, and then your new
+question. The model "remembers" only because the app sends the history
+again, every time.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant You
+    participant App as Chat app
+    participant Model as Model (LLM)
+    You-&gt;&gt;App: Why use a virtual environment? Three bullets.
+    App-&gt;&gt;Model: system prompt + question 1
+    Model--&gt;&gt;App: answer 1
+    App--&gt;&gt;You: answer 1
+    You-&gt;&gt;App: Can you expand on the second point?
+    App-&gt;&gt;Model: system prompt + question 1 + answer 1 + question 2
+    Model--&gt;&gt;App: answer 2
+    App--&gt;&gt;You: answer 2</code></pre>
+<p>Look at the second arrow into the model. It carries everything.</p>
+<p>If that feels a little strange, you're in good company. Most people
+assume the model keeps track of the chat, the way a person would. It
+doesn't. The app does all the remembering.</p>
+<p>The diagram has one message you never see: the <strong>system prompt</strong>. Before
+your first message, the app adds standing instructions of its own,
+something like "You are a helpful assistant. Be concise. Use Markdown
+formatting." You never type it, and it shapes every answer. You can read
+real ones: Anthropic
+<a href="https://platform.claude.com/docs/en/release-notes/system-prompts/overview">publishes the system prompts</a>
+its Claude apps start every conversation with.</p>
+<p>Everything sent to the model on one request is its <strong>context</strong>. The
+context has a size limit, the <strong>context window</strong>. That is why a very long
+chat eventually gets trimmed or summarized, or stops with a message
+saying it is too long: the history no longer fits.</p>
+<p>Two things in your chat app work the same way:</p>
+<ul>
+<li><strong>Saved chats</strong> (②) are stored message histories. Reopen one, and the
+  app loads the history back and carries on sending it. Nothing was kept
+  inside the model.</li>
+<li><strong>"Memory" features</strong>, which some apps offer, add facts from earlier
+  chats to the context. The model still remembers nothing. The app sent
+  it more.</li>
+</ul>
+<p>Some model APIs can keep the history on their side for you. Pydantic AI
+sends it each time unless you ask otherwise. In a chat app, all of this is
+done for you. <strong>When you build an agent, your code does it.</strong></p>
+<h3 id="5-the-conversation-as-data">5. The conversation as data</h3>
+<p>You've seen the conversation the way the app shows it to you. Time for a
+peek underneath. There's no code to write here, only a short list to
+read.</p>
+<p>Underneath the window, a conversation is a list of messages. Here is the
+one from the illustration, written in the form many model APIs take,
+OpenAI's among them:</p>
+<div class="highlight"><pre><span></span><code><span class="n">messages</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"system"</span><span class="p">,</span>    <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"You are a helpful assistant for Python developers. Be concise."</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span>      <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Why should I use a virtual environment for my Python projects? "</span>
+                                     <span class="s2">"Answer in exactly three bullet points."</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"assistant"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"• Isolation: ...</span><span class="se">\n</span><span class="s2">• Reproducibility: ...</span><span class="se">\n</span><span class="s2">• Safety: ..."</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"user"</span><span class="p">,</span>      <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Can you expand on the second point?"</span><span class="p">},</span>
+    <span class="p">{</span><span class="s2">"role"</span><span class="p">:</span> <span class="s2">"assistant"</span><span class="p">,</span> <span class="s2">"content"</span><span class="p">:</span> <span class="s2">"Sure. Reproducibility means anyone (including future you) ..."</span><span class="p">},</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>Every piece of the window is here. The first entry is the system prompt
+you never saw, with the role <code>system</code>. Then the two turns: a <code>user</code>
+message and an <code>assistant</code> message each.</p>
+<p>Look at the last <code>user</code> message on its own: "Can you expand on the second
+point?" It means nothing by itself. With the list in front of it, it is
+clear. That is the follow-up from the illustration, as data.</p>
+<p>Not every API takes exactly this shape. Some keep the system prompt apart
+from the list. The idea is the list, not the field names.</p>
+<h3 id="6-the-same-conversation-in-pydantic-ai">6. The same conversation in Pydantic AI</h3>
+<p>Here's the moment the chat app turns into code. Everything you have met
+so far comes back, under new names, so this should feel like recognizing
+old friends.</p>
+<p>Pydantic AI gives you typed objects instead of raw dictionaries, and makes
+the calls to the model for you. Here is the same session as a program.
+Read it; you run nothing until the next lesson sets up Python.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="s2">"openai:gpt-6.1-sol"</span><span class="p">,</span>  <span class="c1"># 1. choose a model</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">"You are a helpful assistant for Python developers. Be concise."</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Turn 1: send a prompt (with a per-message instruction)</span>
+<span class="n">result1</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+    <span class="s2">"Why should I use a virtual environment for my Python projects? "</span>
+    <span class="s2">"Answer in exactly three bullet points."</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result1</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+
+<span class="c1"># Turn 2: continue the conversation by passing the history back in</span>
+<span class="n">result2</span> <span class="o">=</span> <span class="n">agent</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+    <span class="s2">"Can you expand on the second point?"</span><span class="p">,</span>
+    <span class="n">message_history</span><span class="o">=</span><span class="n">result1</span><span class="o">.</span><span class="n">all_messages</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result2</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+
+<span class="c1"># Look at the full message history</span>
+<span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">result2</span><span class="o">.</span><span class="n">all_messages</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</code></pre></div>
+<p>Match it to the window:</p>
+<ul>
+<li><strong><code>Agent(...)</code></strong> is the thing you build. It bundles a model with its
+  standing instructions (and, soon, tools). In the chat app, it is the
+  assistant you talk to.</li>
+<li><strong><code>"openai:gpt-6.1-sol"</code></strong> is the model selector. The string names a
+  provider and one of its models; swapping it is the one-line change from
+  piece 1. Model names change often, so check the provider's own list
+  for current ones.</li>
+<li><strong><code>instructions=</code></strong> is the system prompt. In a chat app the vendor
+  writes it. Here, you do.</li>
+<li><strong>Each <code>run_sync(...)</code> is one turn</strong>: one prompt in, one answer out.
+  Pydantic AI calls it a <strong>run</strong>.</li>
+<li><strong><code>message_history=result1.all_messages()</code></strong> is the big idea from
+  piece 4, done by you: on turn 2 the whole conversation goes back to
+  the model, and that re-sent history is how the model "remembers".
+  Leave it out, and the second run is a new chat with no history — the
+  model has no idea what "the second point" refers to.</li>
+</ul>
+<p>Each printed message is long: it also holds timestamps, token usage and
+IDs. Trimmed to what matters here, the history it prints is below. (It was
+run with a stand-in for the model that gives the illustration's answers; a
+real model's words would differ, and the shape would not.)</p>
+<div class="highlight"><pre><span></span><code><span class="n">ModelRequest</span><span class="p">(</span>
+    <span class="n">parts</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">UserPromptPart</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">'Why should I use a virtual environment for my Python projects? Answer in exactly three bullet points.'</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s1">'You are a helpful assistant for Python developers. Be concise.'</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ModelResponse</span><span class="p">(</span>
+    <span class="n">parts</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">TextPart</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">'• Isolation: ...</span><span class="se">\n</span><span class="s1">• Reproducibility: ...</span><span class="se">\n</span><span class="s1">• Safety: ...'</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="n">ModelRequest</span><span class="p">(</span>
+    <span class="n">parts</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">UserPromptPart</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">'Can you expand on the second point?'</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s1">'You are a helpful assistant for Python developers. Be concise.'</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">ModelResponse</span><span class="p">(</span>
+    <span class="n">parts</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">TextPart</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s1">'Sure. Reproducibility means anyone (including future you) ...'</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>It is the list from piece 5, in the same order, with
+better names. A <strong><code>ModelRequest</code></strong> is what your code sends; a
+<strong><code>ModelResponse</code></strong> is what the model sends back. The <strong>parts</strong> inside
+them are the pieces: your prompt is a <code>UserPromptPart</code>, the reply a
+<code>TextPart</code>.</p>
+<p>One difference is worth a second look. The list wrote the system prompt
+as a message with the role <code>system</code>. Pydantic AI keeps the instructions
+<em>beside</em> each request instead, which is why every <code>ModelRequest</code> above
+records them. They are not sent over and over: on each call, only the
+agent's current instructions go to the model, once.</p>
+<p>And because the history is plain data, you can do what the sidebar (②)
+does. Turn it into JSON, store it in a file or a database, and load it
+back later to carry on the conversation.</p>
+<h3 id="7-the-agent">7. The agent</h3>
+<p>One piece left to name, and it's the one the others all live inside.</p>
+<p>Think back over what the chat app did for you in this lesson. It held the
+model you picked. It kept the instructions you never typed. It gathered
+the whole message history and sent it along with every request. All of
+that "chat" — everything except the model itself — is work the app does
+around the model.</p>
+<p><strong>The agent is that work, as a program you write.</strong> In Pydantic AI, the
+<code>Agent</code> object you met in section 6 wraps it all in one place: you hand
+it the model and the instructions once, then each <code>run_sync</code> call does
+what the chat app did behind its window — it assembles the request,
+sends it to the model, and hands you back the answer along with the
+history it built up on the way.</p>
+<p>A model on its own can only answer one request at a time, from a blank
+page. The agent is the part that turns it into a conversation. One thing
+is still missing, though: so far it can only <em>talk</em>. The last piece is
+what lets it act.</p>
+<h3 id="8-tools-and-the-loop">8. Tools and the loop</h3>
+<p>Here's the last piece, and it's where things start to get fun.</p>
+<p>Everything your agent has done so far is chat: text in, text out. What
+makes it <strong>agentic</strong> is that the model can get things <em>done</em>, not only
+talk about them. It does that with tools.</p>
+<p>You have seen one. Ask a chat app something it cannot know from its
+training, such as the newest release of Python, and it may show
+"Searching the web…" before it answers. That is a <strong>tool</strong>.</p>
+<p>Here is the surprise: <strong>the model does not search the web.</strong> It cannot
+run anything. What it can do is reply with a request instead of an
+answer: "call the search tool, with these words". The app runs the
+search, adds the result to the conversation, and sends everything back.
+The model reads the result, and either asks for another tool or writes
+its answer.</p>
+<p>That going round is <strong>the loop</strong>:</p>
+<pre class="mermaid"><code>flowchart LR
+    Q[User question] --&gt; M[Model]
+    M -- "I need data: call a tool" --&gt; T[Your Python function]
+    T -- "result added to the message history" --&gt; M
+    M -- "I have enough" --&gt; A[Final answer]</code></pre>
+<ol>
+<li>The model reads the question and the list of tools it may use.</li>
+<li>If it needs information or an action, it replies with a <strong>tool call</strong>
+   instead of an answer: "call <code>get_server_python_version</code>".</li>
+<li>Your code runs the function and adds the result to the message
+   history.</li>
+<li>The model reads the result, and either calls another tool or writes
+   the final answer.</li>
+</ol>
+<p>Now the two words fit together. A <strong>turn</strong> is one question and its final
+answer. The <strong>loop</strong> is what can happen <em>inside</em> a turn: the model asks
+for a tool, the result comes back, and round it goes until the model can
+answer. A turn with no tools goes round once. A turn that searches, reads
+the result, then searches again, sends three requests to the model before
+you see a word. Each trip round the loop is one more request, and the
+model starts from a blank page every time. That is why each trip carries
+the whole history, tool calls and results included.</p>
+<p>Tool calls and their results are more messages. Everything from the
+earlier sections still holds; the history gets a few extra entries.</p>
+<p>In Pydantic AI, a tool can be a function with a decorator. Added to the
+agent from the program above:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@agent</span><span class="o">.</span><span class="n">tool_plain</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_server_python_version</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the Python version installed on the build server."""</span>
+    <span class="k">return</span> <span class="s2">"3.13.2"</span>  <span class="c1"># in a real app: query the server</span>
+</code></pre></div>
+<p>The docstring matters: it is how the model learns what the tool is for,
+and so when to ask for it.</p>
+<p>Some tools, web search among them, can also be run by the model's
+provider rather than by your code. Pydantic AI offers those as built-in
+tools. The loop is the same; only who runs the tool changes.</p>
+<p><strong>This is why we build agents.</strong> In a chat app, the vendor decides which
+tools exist. When you build an agent, <em>you</em> do. Your tools can query your
+database, call your company's APIs, read your files, or move a robot arm.
+The model decides <em>when</em> and <em>how</em> to use them; your code supplies what
+they can do.</p>
+<p><strong>And that's the whole map.</strong> Eight pieces, and every one of them was
+already in the chat window you use every day. You now know their names,
+and what each looks like in code. Next, a quick look back at all eight
+side by side.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<p>That's it! Here is everything from the lesson on one page: on the left, something
+you already do in a chat app; on the right, what it's called when you
+build an agent.</p>
+<table>
+<thead>
+<tr>
+<th>In your chat app</th>
+<th>When you build an agent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Picking a model from a menu</td>
+<td>Choosing the agent's <strong>model</strong></td>
+</tr>
+<tr>
+<td>Typing "answer in three bullets"</td>
+<td>Giving <strong>instructions</strong>, for one message or, as a <strong>system prompt</strong>, for every message</td>
+</tr>
+<tr>
+<td>The conversation on screen</td>
+<td>The <strong>message history</strong>: a list your code keeps</td>
+</tr>
+<tr>
+<td>A follow-up that "remembers"</td>
+<td>Your code <strong>sending the history again</strong> with every request</td>
+</tr>
+<tr>
+<td>Saved chats in the sidebar</td>
+<td><strong>Storing</strong> the message history and loading it back</td>
+</tr>
+<tr>
+<td>One question and its answer</td>
+<td>A <strong>turn</strong> (Pydantic AI calls it a <strong>run</strong>)</td>
+</tr>
+<tr>
+<td>"Searching the web…"</td>
+<td>A <strong>tool</strong>: a function the model can ask your code to run</td>
+</tr>
+<tr>
+<td>"Searching…", then an answer</td>
+<td><strong>The loop</strong>: a tool call, its result, and round again until the model can answer</td>
+</tr>
+</tbody>
+</table>
+<p>Put together, it's the sentence you met at the start, and now it should
+mean something: <strong>an agent is a model, plus instructions, plus the message
+history, plus tools, running in a loop.</strong> The chat app you use every day
+is one of them.</p>
+<h2 id="going-further">Going further</h2>
+<ul>
+<li><strong>Two ways to give standing instructions.</strong> Pydantic AI has
+  <code>instructions=</code>, which this series uses, and <code>system_prompt=</code>. The
+  difference is where they live. A system prompt becomes part of the
+  first request in the message history, and travels with that history
+  wherever it goes. Instructions are added fresh to each request as it
+  goes out, from whatever the agent's instructions are at that moment. A
+  later lesson in Chapter 1 shows when that difference matters.</li>
+<li><strong>The official pages.</strong> Pydantic AI's own pages on
+  <a href="https://pydantic.dev/docs/ai/core-concepts/agent/">agents</a>,
+  <a href="https://pydantic.dev/docs/ai/core-concepts/message-history/">message history</a>
+  and <a href="https://pydantic.dev/docs/ai/tools-toolsets/tools/">tools</a> go into
+  each idea in depth. You won't need them to follow this series, but
+  they're there when you're curious.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p>Time to leave the chat window behind. In the next lesson, you set up
+Python, <code>uv</code> and Pydantic AI on your own machine, and run your first
+agent. The lesson after that builds an agent like the one you read here,
+and prints the messages of a real run, so you can see the history for
+yourself.</p>
+<p>You install nothing in this lesson.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2014 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/01-06-typed-answer/">
+      
+      
+        <link rel="prev" href="../01-05-instructions/">
+      
+      
+        <link rel="next" href="../01-07-output-trap/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>01-06 Structured output: a typed answer - Pydantic AI tutorial</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#structured-output-a-typed-answer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Pydantic AI tutorial" class="md-header__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Pydantic AI tutorial
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              01-06 Structured output: a typed answer
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Pydantic AI tutorial" class="md-nav__button md-logo" aria-label="Pydantic AI tutorial" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Pydantic AI tutorial
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-changes-when-you-ask-for-a-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What changes when you ask for a type?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#who-does-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Who does what?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-validation-canand-cannottell-you" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What validation can—and cannot—tell you
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-describe-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Describe the answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-check-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Check the answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-changes-when-you-ask-for-a-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What changes when you ask for a type?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#who-does-what" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Who does what?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-validation-canand-cannottell-you" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What validation can—and cannot—tell you
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-describe-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Describe the answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-check-the-answer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Check the answer
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="structured-output-a-typed-answer">Structured output: a typed answer</h1>
+<h2 id="welcome">Welcome</h2>
+<p>Welcome back. In the last lesson each run handed the agent a shop. The
+answer was still a text sentence.</p>
+<p>This lesson is about <strong>structured output</strong>: asking a model to return
+data in a known shape, so your program receives an object it can use.
+We'll extract an <code>Invoice</code> from a document, then catch an incorrect total.</p>
+<p>By the end, you'll be able to:</p>
+<ol>
+<li><strong>Explain the division of work</strong> between the model, Pydantic AI and
+   Pydantic when an agent returns a typed answer.</li>
+<li><strong>Get an <code>Invoice</code> from an agent</strong> without expecting the model to make
+   a Python object.</li>
+<li><strong>Add a validation rule</strong> and understand what it can—and cannot—check.</li>
+</ol>
+<p>About 15 minutes.</p>
+<h2 id="concepts">Concepts</h2>
+<h3 id="what-changes-when-you-ask-for-a-type">What changes when you ask for a type?</h3>
+<p>So far, your agents have answered in words: <code>result.output</code> was a
+string. But imagine you're writing a program that needs an invoice
+number, a date, and a total. You don't want to search a paragraph for
+those values. You want an <code>Invoice</code> object with named fields.</p>
+<p>You can tell Pydantic AI what kind of answer your program needs:</p>
+<div class="highlight"><pre><span></span><code><span class="n">extractor</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span><span class="n">output_type</span><span class="o">=</span><span class="n">Invoice</span><span class="p">)</span>
+</code></pre></div>
+<p>When the run succeeds, <code>result.output</code> is an instance of <code>Invoice</code>.
+If the model cannot supply a valid answer within the allowed attempts,
+the run fails instead.</p>
+<p><strong>But the model doesn't create that Python object.</strong> So who does?</p>
+<h3 id="who-does-what">Who does what?</h3>
+<p>There are four parts to the exchange:</p>
+<ol>
+<li><strong>You define the answer.</strong> You write a Pydantic <code>Invoice</code> class
+   with fields such as <code>number: str</code> and <code>total: Decimal</code>, then pass
+   it as <code>output_type</code>.</li>
+<li><strong>Pydantic AI tells the model what to return.</strong> From your class it
+   prepares a schema describing the fields. With the default
+   tool-based structured-output mode used here, it offers the model a
+   special <em>output tool</em> whose arguments must follow that schema.
+   This isn't a Python function you'll write or run.</li>
+<li><strong>The model proposes the field values.</strong> It reads the document and
+   responds with a structured output-tool call: data containing an
+   invoice number, dates, line items and a total. These are <strong>not</strong>
+   Python <code>Invoice</code> or <code>Decimal</code> instances.</li>
+<li><strong>Pydantic AI and Pydantic process the response.</strong> Pydantic AI
+   receives the model's proposed data and passes it to Pydantic for
+   validation and construction. If it passes, your program receives
+   <code>result.output</code> as an <code>Invoice</code>. If not, Pydantic AI can send the
+   validation error back to the model and request another attempt.</li>
+</ol>
+<p>Here's the important part of step 3. The model's response contains
+structured values <em>conceptually like</em> these output-tool arguments:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">"number"</span><span class="p">:</span><span class="w"> </span><span class="s2">"INV-0042"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"issued"</span><span class="p">:</span><span class="w"> </span><span class="s2">"2026-09-30"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"supplier"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Acme Paper Co."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"currency"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GBP"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"lines"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A4 paper, box of 5"</span><span class="p">,</span><span class="w"> </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="nt">"unit_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"24.50"</span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Stapler"</span><span class="p">,</span><span class="w"> </span><span class="nt">"quantity"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">"unit_price"</span><span class="p">:</span><span class="w"> </span><span class="s2">"12.00"</span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="s2">"73.50"</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The model supplies these values; it doesn't execute Python or call
+<code>Invoice(...)</code>. Pydantic interprets them according to your class,
+including converting the date and decimal strings into Python values.</p>
+<p>Other Pydantic AI output modes can ask for JSON text instead of an
+output-tool call. The format of the model response changes; the division
+of work does not.</p>
+<h3 id="what-validation-canand-cannottell-you">What validation can—and cannot—tell you</h3>
+<p>Pydantic first checks that the supplied data fits your model: required
+fields exist and the values can be interpreted as the declared types.
+But a well-formed <code>Invoice</code> isn't necessarily an accurate extraction.</p>
+<p>The document below says the total is 85.50. The model might send 73.50
+instead. That's still a perfectly valid <code>Decimal</code>, so the type check
+alone won't catch the mistake.</p>
+<p>We can add another rule to the <code>Invoice</code> class: <strong>the total must equal
+the sum of each line's quantity times its unit price</strong>. Pydantic then
+checks that rule too. If it fails, Pydantic AI sends the error to the
+model and asks for another attempt, once by default.</p>
+<pre class="mermaid"><code>sequenceDiagram
+    participant C as your Python code
+    participant A as Pydantic AI agent
+    participant M as model
+    participant P as Pydantic
+    C-&gt;&gt;A: run_sync(invoice document)
+    A-&gt;&gt;M: document + Invoice output schema
+    M--&gt;&gt;A: structured values (total 73.50)
+    A-&gt;&gt;P: validate and build Invoice
+    P--&gt;&gt;A: validation error (sum is 85.50)
+    A-&gt;&gt;M: validation error - try again
+    M--&gt;&gt;A: corrected values (total 85.50)
+    A-&gt;&gt;P: validate and build Invoice
+    P--&gt;&gt;A: Invoice instance
+    A--&gt;&gt;C: result.output (Invoice)</code></pre>
+<p><strong>A rule checks only what it knows how to check.</strong> If the model copies
+the wrong quantity <em>and</em> returns a matching total, the arithmetic rule
+can pass even though the extraction is wrong. Validation enforces types
+and rules you define; it doesn't prove every value matches the source.</p>
+<h2 id="what-youll-build">What you'll build</h2>
+<p>An agent called <code>extractor</code> whose answer is an <code>Invoice</code>, and a script
+that runs it on one document with a stand-in model we give you. That
+model gets the total wrong the first time, on purpose.</p>
+<div class="highlight"><pre><span></span><code>pydantic-tutor/
+├── pyproject.toml               changed: pydantic, pinned
+├── scripts/
+│   └── extract_invoice.py       new: the extractor on one invoice
+└── src/
+    └── pydantic_tutor/
+        ├── given/
+        │   └── invoice_model.py given: the invoice, and the stand-in model
+        └── invoices.py          new: Invoice, and the extractor agent
+</code></pre></div>
+<p>And the steps, in order:</p>
+<ol>
+<li><strong>Describe the answer</strong>: write <code>Invoice</code> and the extractor, and run
+   it.</li>
+<li><strong>Check the answer</strong>: give <code>Invoice</code> a rule, and see a wrong answer
+   sent back.</li>
+</ol>
+<p>Each step ends with a <strong>Check</strong>. If it doesn't show what it says, stop
+there: the next step builds on it.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>Carry on in your <code>pydantic-tutor</code> project from the last lesson. This lesson hands you one
+more stand-in model, with the invoice it reads. From the project folder, fetch it:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>https://raw.githubusercontent.com/chrislomeli/pydanticai-tutorial-student/main/starter/get_starter.py<span class="w"> </span>invoice-model
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> from the project folder, run:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>hello_agent.py
+</code></pre></div>
+<p>After the banner, the last line should be:</p>
+<div class="highlight"><pre><span></span><code>success (no tool calls)
+</code></pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Joining here, or has your project gone wrong?</strong> If your project works,
+skip this. To refresh a broken project, delete its <code>pydantic-tutor</code> folder
+first: you lose your work and anything else in it, including local
+credentials. Then, from the folder that should hold the project:</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span><span class="m">01</span>-05-instructions/end<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/chrislomeli/pydanticai-tutorial-student.git<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>sync
+</code></pre></div>
+<p>The copy also has a <code>tests/</code> folder, our own checks for each lesson. You
+don't need it. Then run the check above.</p>
+</div>
+<h2 id="step-1-describe-the-answer">Step 1: Describe the answer</h2>
+<blockquote>
+<p><strong>Goal:</strong> write the answer as a type, <code>Invoice</code>, and an agent whose
+answer is one.</p>
+</blockquote>
+<p>Here's the invoice the agent reads:</p>
+<div class="highlight"><pre><span></span><code>ACME PAPER CO.
+12 Mill Lane, Leeds LS1 4AB
+
+INVOICE                                  No. INV-0042
+Date: 30 September 2026
+Bill to: Harbour Books Ltd, 4 Harbour Street, Hull HU1 2AA
+
+Description                     Qty    Unit price      Amount
+A4 paper, box of 5                3         24.50       73.50
+Stapler                           1         12.00       12.00
+
+Total due (GBP)                                         85.50
+
+Payment within 30 days. Thank you for your business.
+</code></pre></div>
+<p>Add up the total yourself: three boxes of paper at 24.50, plus one
+stapler at 12.00. Keep that number in mind.</p>
+<p>We're going to describe the answer before asking a model to extract
+anything. <code>LineItem</code> describes one product on the invoice; <code>Invoice</code>
+brings those lines together with the invoice number, date, supplier and
+total. <strong>Look at the agent declaration at the bottom:</strong>
+<code>output_type=Invoice</code> is the line that tells Pydantic AI what kind of
+answer our program expects.</p>
+<p>We're about to import <code>pydantic</code> directly, so add it to our project's
+dependencies, pinned to the version this lesson was tested with.
+<code>pydantic-ai</code> already installed a version of it; if that one is newer,
+<code>uv</code> moves it to the pin:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>add<span class="w"> </span><span class="s2">"pydantic==2.14.1"</span>
+</code></pre></div>
+<p>Create <code>src/pydantic_tutor/invoices.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""An invoice, as a type, and an agent that reads one out of a document."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LineItem</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One line of an invoice."""</span>
+
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">quantity</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">unit_price</span><span class="p">:</span> <span class="n">Decimal</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The price of one, as printed."</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Invoice</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An invoice, as printed on the document."""</span>
+
+    <span class="n">number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The invoice number, as printed."</span><span class="p">)</span>
+    <span class="n">issued</span><span class="p">:</span> <span class="n">date</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The date the invoice was issued."</span><span class="p">)</span>
+    <span class="n">supplier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Who sent the invoice."</span><span class="p">)</span>
+    <span class="n">currency</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The three-letter currency code, such as GBP."</span><span class="p">)</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineItem</span><span class="p">]</span>
+    <span class="n">total</span><span class="p">:</span> <span class="n">Decimal</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The total due, as printed."</span><span class="p">)</span>
+
+
+<span class="c1"># No model here: each run says which model to use.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"invoice_extractor"</span><span class="p">,</span>
+    <span class="n">output_type</span><span class="o">=</span><span class="n">Invoice</span><span class="p">,</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">"Extract the invoice from the document you are given. Copy every value as printed."</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The money fields are <code>Decimal</code>, not <code>float</code>, because money needs exact
+decimals. We've defined the structure of an invoice, but we haven't
+written any code to read values out of the document. That is the model's
+job; Pydantic AI and Pydantic handle the structured result.</p>
+<p>Next, we'll run the extractor on the invoice above. The given <code>DOCUMENT</code>
+contains its text, and <code>misreads_the_total()</code> is a stand-in model that
+intentionally copies the first line's amount instead of the invoice total.
+<strong>Notice <code>result.output</code>:</strong> the script treats it as an <code>Invoice</code> and
+reads its fields directly. It also prints the number of model requests.</p>
+<p>Create <code>scripts/extract_invoice.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""Extract an invoice from a text document, on a model that misreads it once."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.given.invoice_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">DOCUMENT</span><span class="p">,</span> <span class="n">misreads_the_total</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.invoices</span><span class="w"> </span><span class="kn">import</span> <span class="n">extractor</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">user_prompt</span><span class="o">=</span><span class="n">DOCUMENT</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">misreads_the_total</span><span class="p">())</span>
+<span class="n">invoice</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">output</span>  <span class="c1"># an Invoice, not text</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"number:"</span><span class="p">,</span> <span class="n">invoice</span><span class="o">.</span><span class="n">number</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"issued:"</span><span class="p">,</span> <span class="n">invoice</span><span class="o">.</span><span class="n">issued</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"total:"</span><span class="p">,</span> <span class="n">invoice</span><span class="o">.</span><span class="n">total</span><span class="p">,</span> <span class="n">invoice</span><span class="o">.</span><span class="n">currency</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"requests:"</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">requests</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>scripts/extract_invoice.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> after the banner, you should see:</p>
+<div class="highlight"><pre><span></span><code>number: INV-0042
+issued: 2026-09-30
+total: 73.50 GBP
+requests: 1
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>The model returned structured field values, not a Python object.
+Pydantic AI handed those values to Pydantic, which built an <code>Invoice</code>.
+So <code>invoice.total</code> is a <code>Decimal</code>, and <code>invoice.issued</code> is a <code>date</code>:
+the document says "30 September 2026", and your code gets <code>2026-09-30</code>.</p>
+<p>Now compare the total with yours. The invoice says 85.50, but this
+printed 73.50, the first line's amount. Every field passed the type
+checks, so Pydantic accepted the values. The object is valid according
+to the rules we've written so far, but its total is wrong.</p>
+<h2 id="step-2-check-the-answer">Step 2: Check the answer</h2>
+<blockquote>
+<p><strong>Goal:</strong> give <code>Invoice</code> a rule, that its total is the sum of its
+lines, and see the agent send a wrong answer back to the model.</p>
+</blockquote>
+<p>The rule is a Pydantic <strong>model validator</strong>: a method marked
+<code>@model_validator(mode="after")</code>. It runs after Pydantic has interpreted
+the fields and raises <code>ValueError</code> if the line totals don't add up.</p>
+<p>We're keeping the same <code>Invoice</code> and the same extractor. The new part
+is <code>check_total</code>, a method on <code>Invoice</code> marked with <code>@model_validator</code>.
+<strong>Watch what it compares:</strong> it computes a total from the quantities and
+unit prices, then raises <code>ValueError</code> if that sum disagrees with the
+model's proposed total. We aren't teaching the model arithmetic here;
+we're adding a check that runs in Python.</p>
+<p>In <code>src/pydantic_tutor/invoices.py</code>, import <code>Self</code> and <code>model_validator</code>,
+and add the method to <code>Invoice</code>. The whole file is now:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""An invoice, as a type, and an agent that reads one out of a document."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">decimal</span><span class="w"> </span><span class="kn">import</span> <span class="n">Decimal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Self</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">model_validator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LineItem</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One line of an invoice."""</span>
+
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">quantity</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">unit_price</span><span class="p">:</span> <span class="n">Decimal</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The price of one, as printed."</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Invoice</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""An invoice, as printed on the document."""</span>
+
+    <span class="n">number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The invoice number, as printed."</span><span class="p">)</span>
+    <span class="n">issued</span><span class="p">:</span> <span class="n">date</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The date the invoice was issued."</span><span class="p">)</span>
+    <span class="n">supplier</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"Who sent the invoice."</span><span class="p">)</span>
+    <span class="n">currency</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The three-letter currency code, such as GBP."</span><span class="p">)</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">LineItem</span><span class="p">]</span>
+    <span class="n">total</span><span class="p">:</span> <span class="n">Decimal</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">"The total due, as printed."</span><span class="p">)</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"after"</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_total</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Refuse a total that is not the sum of the lines."""</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">quantity</span> <span class="o">*</span> <span class="n">line</span><span class="o">.</span><span class="n">unit_price</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">),</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">Decimal</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">total</span> <span class="o">!=</span> <span class="n">expected</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"The total </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">total</span><span class="si">}</span><span class="s2"> is not the sum of the lines, </span><span class="si">{</span><span class="n">expected</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+<span class="c1"># No model here: each run says which model to use.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"invoice_extractor"</span><span class="p">,</span>
+    <span class="n">output_type</span><span class="o">=</span><span class="n">Invoice</span><span class="p">,</span>
+    <span class="n">instructions</span><span class="o">=</span><span class="s2">"Extract the invoice from the document you are given. Copy every value as printed."</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>The script from Step 1 hasn't changed. What changes is what happens
+to its first proposed result: the validation error sends the model back
+for another attempt. Before you run it, guess: how many requests will
+the run make this time?</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>scripts/extract_invoice.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> after the banner, you should see what the model was sent
+back, then the corrected invoice:</p>
+<div class="highlight"><pre><span></span><code>sent back to the model:
+1 validation error:
+```json
+[
+{
+"type": "value_error",
+"loc": [],
+"msg": "Value error, The total 73.50 is not the sum of the lines, 85.50.",
+"input": {
+"number": "INV-0042",
+"issued": "2026-09-30",
+"supplier": "Acme Paper Co.",
+"currency": "GBP",
+"lines": [
+{
+"description": "A4 paper, box of 5",
+"quantity": 3,
+"unit_price": "24.50"
+},
+{
+"description": "Stapler",
+"quantity": 1,
+"unit_price": "12.00"
+}
+],
+"total": "73.50"
+}
+}
+]
+```
+
+Fix the errors and try again.
+number: INV-0042
+issued: 2026-09-30
+total: 85.50 GBP
+requests: 2
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>Two requests, where step 1 took one. Pydantic ran <code>check_total</code> and
+rejected the model's first values. Pydantic AI then sent that error back
+to the model instead of ending the run. The retry prompt holds:</p>
+<ul>
+<li>the error your <code>ValueError</code> raised, in <code>msg</code>;</li>
+<li>the model's own answer, in <code>input</code>;</li>
+<li>then "Fix the errors and try again."</li>
+</ul>
+<p>The second answer passed Pydantic's checks, so the run ended with an
+<code>Invoice</code> instance.</p>
+<p>The rule belongs to <code>Invoice</code>, not to the agent. Other Python code that
+constructs the same model gets the same validation rule. And notice
+what we <em>haven't</em> established: a matching total doesn't prove the model
+copied the correct quantities, prices or supplier from the document.
+This rule catches an arithmetic inconsistency, not every extraction error.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<ul>
+<li><strong>A typed answer has several participants:</strong> you define <code>Invoice</code>;
+  Pydantic AI tells the model the expected structure; the model returns
+  structured values; Pydantic validates them and constructs the Python
+  object available in <code>result.output</code>.</li>
+<li><strong>Validation isn't fact-checking:</strong> types and your own validators
+  enforce specific rules. They can catch errors such as a mismatched
+  total, but they cannot guarantee that every value was copied from the
+  document correctly. Pydantic AI can send a validation error back to
+  the model for another attempt.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p>The extractor answers with an <code>Invoice</code>, always. What if someone says
+"Hello"? In the next lesson you find out, and meet the trap waiting for
+an agent that should sometimes answer in words.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
