@@ -10,6 +10,7 @@ Built from these pieces:
 - Toolset: the workspace's own tools.
 - Web search: switched on by a setting.
 - Activity log: a record of the run, if one is given.
+- Guards: our rules for tool calls.
 """
 
 from pathlib import Path
@@ -24,6 +25,7 @@ from pydantic_ai.capabilities import (
 )
 from pydantic_ai_harness import FileSystem, Shell
 
+from pydantic_tutor.capabilities.guards import guards
 from pydantic_tutor.tools.workspace_toolset import build_workspace_toolset
 from tutor_given.paths import project_root
 
@@ -51,15 +53,17 @@ def build_chat_agent(
         Shell(allowed_commands=SHELL_COMMANDS),
         # Toolset: the workspace's own tools, built for this folder.
         Toolset(toolset=build_workspace_toolset(root=workspace_root)),
+        # Our rules for tool calls: see the module's limits.
+        guards,
     ]
     if web_search:
         # Web search: the model may search when it needs to. Each search is
         # billed by the provider, on top of the tokens.
         capabilities.append(WebSearch())
     if activity_log is not None:
-        # Activity log: last, so it records what the other capabilities have
-        # left.
-        capabilities.append(activity_log)
+        # First: its `before_` hooks see every attempt, and its `after_` hooks
+        # run last, so they see the result the model gets.
+        capabilities.insert(0, activity_log)
     return Agent[None, str](
         name="chat",
         instructions="You are a helpful assistant. Answer briefly.",

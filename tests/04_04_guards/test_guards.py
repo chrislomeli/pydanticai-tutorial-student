@@ -1,6 +1,6 @@
-"""Checks that the project from the activity log lesson is in place.
+"""Checks that the project from the guards lesson is in place.
 
-Our checks for the activity log lesson: they verify the lesson, and the student
+Our checks for the guards lesson: they verify the lesson, and the student
 is not asked to run them. Run them with `uv run pytest`. They fail until
 the lesson is done. None of them needs an API key or makes a request:
 every run is on a stand-in model.
@@ -22,9 +22,7 @@ import sys
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
 from pydantic_ai import models
-from pydantic_ai.capabilities import Hooks
 from pydantic_ai.messages import (
     ModelMessage,
     ModelResponse,
@@ -35,10 +33,11 @@ from pydantic_ai.messages import (
 )
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 
-# This file is tests/04_03_activity_log/test_activity_log.py: two folders below the root.
+# This file is tests/04_04_guards/test_guards.py: two folders below the root.
 PROJECT_ROOT: Path = Path(__file__).resolve().parents[2]
 PREFIX = "PYDANTIC_TUTOR_"
 KEY_VARIABLES = ("OPENAI_API_KEY", "ANTHROPIC_API_KEY")
+TOKEN = "tj-FAKE-0000-not-a-real-secret"
 
 
 @pytest.fixture(autouse=True)
@@ -102,107 +101,77 @@ class Scripted:
 
 
 def run_chat(
-    *,
-    project: Path,
-    calls: list[tuple[str, dict[str, str]]],
-    hooks: frozenset[str] | None = None,
+    *, project: Path, calls: list[tuple[str, dict[str, str]]]
 ) -> tuple[list[dict[str, object]], Scripted]:
     """Run the chat's agent with the log on; return the log's lines and the model."""
-    from pydantic_tutor.capabilities.activity_log import HookName, build_activity_hooks
+    from pydantic_tutor.capabilities.activity_log import build_activity_hooks
     from pydantic_tutor.chat.agent import build_chat_agent
 
     path = project / "work" / "activity.jsonl"
-    chosen = (
-        frozenset(HookName)
-        if hooks is None
-        else frozenset(HookName(name) for name in hooks)
-    )
     agent = build_chat_agent(
         web_search=False,
         workspace_root=project / "work" / "tinyjobs",
-        activity_log=build_activity_hooks(path=path, hooks=chosen),
+        activity_log=build_activity_hooks(path=path),
     )
     model = Scripted(calls=calls)
     agent.run_sync(user_prompt="x", model=FunctionModel(function=model.reply))
-    lines = path.read_text().splitlines() if path.exists() else []
-    return [json.loads(line) for line in lines], model
+    return [json.loads(line) for line in path.read_text().splitlines()], model
 
 
-# Point 1: the chat keeps the record, through the composition root.
+def with_a_token(*, project: Path) -> None:
+    (project / "work" / "tinyjobs" / "deploy.toml").write_text(f'token = "{TOKEN}"\n')
 
 
-def test_the_chat_gets_the_log_from_the_composition_root(project: Path) -> None:
-    from pydantic_tutor.composition import build_app
-    from pydantic_tutor.settings import Settings
+# Point 1: a hook changes a run by returning something else, or refuses.
 
-    settings = Settings(
-        chat_model="test",
-        web_search=True,
-        workspace_root=project / "work" / "tinyjobs",
+
+def test_a_token_in_a_tool_result_never_reaches_the_model(project: Path) -> None:
+    with_a_token(project=project)
+    _, model = run_chat(project=project, calls=[("read_file", {"path": "deploy.toml"})])
+    assert isinstance(model.returns[0], ToolReturnPart)
+    assert TOKEN not in str(model.returns[0].content)
+    assert "[token removed]" in str(model.returns[0].content)
+
+
+def test_the_file_itself_is_left_as_it_was(project: Path) -> None:
+    with_a_token(project=project)
+    run_chat(project=project, calls=[("read_file", {"path": "deploy.toml"})])
+    assert TOKEN in (project / "work" / "tinyjobs" / "deploy.toml").read_text()
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "pytest --version && cat .env",
+        "pytest --version; cat .env",
+        "pytest --version | cat",
+        "pytest $(cat .env)",
+    ],
+)
+def test_a_chained_command_is_refused_and_the_model_is_told(
+    project: Path, command: str
+) -> None:
+    _, model = run_chat(project=project, calls=[("run_command", {"command": command})])
+    assert isinstance(model.returns[0], RetryPromptPart)
+    assert "one command at a time" in str(model.returns[0].content)
+    assert "TINYJOBS_RUNNER_TOKEN" not in str(model.returns[0].content)
+
+
+def test_a_single_allowed_command_still_runs(project: Path) -> None:
+    _, model = run_chat(
+        project=project, calls=[("run_command", {"command": "pytest --version"})]
     )
-    capabilities = build_app(settings=settings).agent.root_capability.capabilities
-    assert any(isinstance(capability, Hooks) for capability in capabilities)
+    assert isinstance(model.returns[0], ToolReturnPart)
+    assert "pytest" in str(model.returns[0].content)
 
 
-def test_an_earlier_script_still_runs_and_writes_no_log(project: Path) -> None:
-    # Earlier scripts build the agent without a log: nothing changes for them.
-    result = run_script(name="workspace_reach.py", folder=project, env={})
-    assert result.returncode == 0, result.stderr
-    assert "tools the model is offered:" in result.stdout
-    assert not (project / "work" / "activity.jsonl").exists()
+# Point 2: a hook's place decides what it sees.
 
 
-# Point 2: a setting decides which hooks the agent gets.
-
-
-def test_only_the_chosen_moments_are_recorded(project: Path) -> None:
+def test_the_log_records_a_refused_attempt(project: Path) -> None:
     entries, _ = run_chat(
         project=project,
-        calls=[("list_modules", {})],
-        hooks=frozenset({"before_tool_execute"}),
-    )
-    assert entries == [
-        {"hook": "before_tool_execute", "step": 1, "tool": "list_modules"}
-    ]
-
-
-def test_an_empty_choice_records_nothing_and_makes_no_file(project: Path) -> None:
-    entries, _ = run_chat(
-        project=project, calls=[("list_modules", {})], hooks=frozenset()
-    )
-    assert entries == []
-    assert not (project / "work" / "activity.jsonl").exists()
-
-
-def test_settings_default_to_every_moment_and_refuse_a_typo(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    from pydantic_tutor.capabilities.activity_log import HookName
-    from pydantic_tutor.settings import Settings
-
-    assert Settings().activity_log == frozenset(HookName)
-    assert Settings().activity_log_path.parts[-2:] == ("work", "activity.jsonl")
-    monkeypatch.setenv(name=f"{PREFIX}ACTIVITY_LOG", value='["before_tool"]')
-    with pytest.raises(ValidationError):
-        Settings()
-
-
-def test_watch_run_follows_the_setting(project: Path) -> None:
-    result = run_script(
-        name="watch_run.py",
-        folder=project,
-        env={f"{PREFIX}ACTIVITY_LOG": "[]"},
-    )
-    assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == "(nothing recorded)"
-
-
-# Point 3: the log shows what was tried, not only what finished.
-
-
-def test_a_refused_command_has_a_before_and_no_after(project: Path) -> None:
-    entries, model = run_chat(
-        project=project, calls=[("run_command", {"command": "rm -rf build"})]
+        calls=[("run_command", {"command": "pytest --version && cat .env"})],
     )
     tool_lines = [entry for entry in entries if "tool" in entry]
     assert tool_lines == [
@@ -210,7 +179,24 @@ def test_a_refused_command_has_a_before_and_no_after(project: Path) -> None:
             "hook": "before_tool_execute",
             "step": 1,
             "tool": "run_command",
-            "target": "rm -rf build",
+            "target": "pytest --version && cat .env",
         }
     ]
-    assert isinstance(model.returns[0], RetryPromptPart)
+
+
+def test_the_log_counts_the_result_the_model_gets(project: Path) -> None:
+    with_a_token(project=project)
+    entries, model = run_chat(
+        project=project, calls=[("read_file", {"path": "deploy.toml"})]
+    )
+    after = [e for e in entries if e["hook"] == "after_tool_execute"]
+    assert after[0]["result_chars"] == len(str(model.returns[0].content))
+
+
+def test_guard_check_prints_what_the_page_shows(project: Path) -> None:
+    result = run_script(name="guard_check.py", folder=project, env={})
+    assert result.returncode == 0, result.stderr
+    assert 'runner_token = "[token removed]"' in result.stdout
+    assert "Run one command at a time, with no chaining." in result.stdout
+    assert "TINYJOBS_RUNNER_TOKEN" not in result.stdout
+    assert '"target":"pytest --version && cat .env"' in result.stdout
