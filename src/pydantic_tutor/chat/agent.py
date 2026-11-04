@@ -25,8 +25,10 @@ from pydantic_ai.capabilities import (
     WebSearch,
 )
 from pydantic_ai_harness import FileSystem, Shell
+from pydantic_ai_harness.memory import FileStore
 
 from pydantic_tutor.capabilities.guards import guards
+from pydantic_tutor.capabilities.listable_memory import ListableMemory
 from pydantic_tutor.capabilities.prompt_file import PromptFile
 from pydantic_tutor.capabilities.redact_tokens import RedactTokens
 from pydantic_tutor.tools.workspace_toolset import build_workspace_toolset
@@ -35,6 +37,10 @@ from tutor_given.paths import project_root
 # File names the file tools may not touch. A precaution, not a complete
 # data-security policy.
 SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
+
+# The notebook's folder, in the workspace. The file tools may not touch it: the
+# memory tools are its only way in.
+NOTEBOOK = ".agent-memory"
 
 # The commands the shell may start. A precaution, not a boundary: it checks
 # only a command's first word, so `ls && cat .env` still runs.
@@ -61,11 +67,14 @@ def build_chat_agent(
         LocalWorkspace(working_dir=workspace_root),
         # File tools: read and write files in that workspace, minus the secret
         # patterns.
-        FileSystem(denied_patterns=SECRET_PATTERNS),
+        # The notebook is denied too, for reads and writes alike.
+        FileSystem(denied_patterns=(*SECRET_PATTERNS, f"**/{NOTEBOOK}/**")),
         # Shell tools: run the allowed commands in that workspace.
         Shell(allowed_commands=SHELL_COMMANDS),
         # Toolset: the workspace's own tools, built for this folder.
         Toolset(toolset=build_workspace_toolset(root=workspace_root)),
+        # Injection off: the model lists and reads the notebook with tools.
+        ListableMemory(store=FileStore(directory=NOTEBOOK), inject_memory=False),
         # Our rules for tool calls: see the module's limits.
         guards,
         RedactTokens(pattern=TOKEN_PATTERN),
