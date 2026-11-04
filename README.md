@@ -96,5 +96,20 @@ no branches is one to read.
 | [03-04 Let the chat read your project](lessons/03-04-files/README.md) | Give the continuing chat file tools, then let a real model discover, read and investigate the tinyjobs project. | [`03-04-files/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/03-04-files/end) |
 | [03-05 Let the chat run a command](lessons/03-05-shell/README.md) | Give the continuing chat a limited shell, then use a real model to run the tinyjobs tests. | [`03-05-shell/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/03-05-shell/end) |
 
+### Chapter 4: Capabilities
+
+[Chapter overview](lessons/04-00-capabilities/README.md)
+
+| Lesson | What you do | End |
+|---|---|---|
+| [04-01 Toolsets](lessons/04-01-toolsets/README.md) | Package supplied workspace tools in a FunctionToolset, attach it to the chat, and try prefixed and filtered views. | [`04-01-toolsets/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/04-01-toolsets/end) |
+| [04-02 Agent runs with hooks](lessons/04-02-hooks/README.md) | Write three hooks that record each request and tool call of a run in a log file, and read the agent's loop from what they write. | [`04-02-hooks/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/04-02-hooks/end) |
+| [04-03 Put the activity log in the chat](lessons/04-03-activity-log/README.md) | Connect the activity log to the chat through the composition root, choose what it records from Settings, and read the log of a real conversation. | [`04-03-activity-log/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/04-03-activity-log/end) |
+| [04-04 Change tool calls with hooks](lessons/04-04-guards/README.md) | Write hooks that refuse a chained shell command and remove this project's tokens from tool results, and see why their place in the list decides what the activity log records. | [`04-04-guards/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/04-04-guards/end) |
+| [04-05 Build a custom capability](lessons/04-05-capability/README.md) | See what each capability in the chat's list brings, then turn the token-removing hook into a capability of your own that also tells the model what it did. | [`04-05-capability/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/04-05-capability/end) |
+| [04-06 Move the chat prompt into a file](lessons/04-06-prompt/README.md) | Move the chat's prompt out of Python into a file that a capability of your own reads, without changing what the model is sent, and predict the order in which instructions from several places reach the model. | [`04-06-prompt/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/04-06-prompt/end) |
+| [04-07 Save notes between chats](lessons/04-07-memory/README.md) | Give the chat a notebook of files it reads and writes across sessions, with a list tool of your own, and see what the library's memory injection would add to every request and why the chat turns it off. | [`04-07-memory/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/04-07-memory/end) |
+| [04-08 Separate agent settings from capabilities](lessons/04-08-seam/README.md) | Sort what the chat agent is from what it does: the constructor keeps its name, output type and request defaults, a list of capabilities holds the rest, and the capabilities whose place matters declare it, so the list can be rearranged and added to safely. | [`04-08-seam/end`](https://github.com/chrislomeli/pydanticai-tutorial-student/tree/04-08-seam/end) |
+
 Written against `pydantic-ai` 2.56.0 and `pydantic-ai-harness` 0.56.0, on
 Python 3.14.
