@@ -11,6 +11,7 @@ Built from these pieces:
 - Web search: switched on by a setting.
 - Activity log: a record of the run, if one is given.
 - Guards: our rules for tool calls.
+- Token redaction: secrets removed before the model sees them.
 """
 
 from pathlib import Path
@@ -26,6 +27,7 @@ from pydantic_ai.capabilities import (
 from pydantic_ai_harness import FileSystem, Shell
 
 from pydantic_tutor.capabilities.guards import guards
+from pydantic_tutor.capabilities.redact_tokens import RedactTokens
 from pydantic_tutor.tools.workspace_toolset import build_workspace_toolset
 from tutor_given.paths import project_root
 
@@ -36,6 +38,9 @@ SECRET_PATTERNS = ("**/.env", "**/.env.*", "*.pem", "*.key", "**/secrets*")
 # The commands the shell may start. A precaution, not a boundary: it checks
 # only a command's first word, so `ls && cat .env` still runs.
 SHELL_COMMANDS = ("pytest", "pwd", "ls", "cat")
+
+# The shape of this project's tokens.
+TOKEN_PATTERN = r"tj-[A-Za-z0-9-]+"
 
 
 def build_chat_agent(
@@ -55,6 +60,7 @@ def build_chat_agent(
         Toolset(toolset=build_workspace_toolset(root=workspace_root)),
         # Our rules for tool calls: see the module's limits.
         guards,
+        RedactTokens(pattern=TOKEN_PATTERN),
     ]
     if web_search:
         # Web search: the model may search when it needs to. Each search is

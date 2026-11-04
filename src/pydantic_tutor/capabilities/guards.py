@@ -1,10 +1,9 @@
-"""Two rules only this application knows, as hooks on the chat's tool calls.
+"""A rule only this application knows, as a hook on the chat's shell commands.
 
 A safety net for mistakes, not a security boundary: `pytest` still runs any code
-it is given, and `TOKEN` matches one known format, not every secret.
+it is given.
 """
 
-import re
 from typing import Any
 
 from pydantic_ai import RunContext
@@ -15,8 +14,6 @@ from pydantic_ai.tools import ToolDefinition
 
 # What joins one shell command to another, or runs one inside another.
 CHAINING = ("&&", "||", ";", "|", "`", "$(", "\n")
-# The shape of this project's tokens.
-TOKEN = re.compile(r"tj-[A-Za-z0-9-]+")
 
 
 async def refuse_chained_commands(
@@ -33,21 +30,4 @@ async def refuse_chained_commands(
     return args
 
 
-async def remove_tokens(
-    ctx: RunContext[None],
-    *,
-    call: ToolCallPart,
-    tool_def: ToolDefinition,
-    args: dict[str, Any],
-    result: object,
-) -> object:
-    """Return the tool's result with this project's tokens removed."""
-    if isinstance(result, str):
-        return TOKEN.sub("[token removed]", result)
-    return result
-
-
-guards: Hooks[None] = Hooks(
-    before_tool_execute=refuse_chained_commands,
-    after_tool_execute=remove_tokens,
-)
+guards: Hooks[None] = Hooks(before_tool_execute=refuse_chained_commands)
