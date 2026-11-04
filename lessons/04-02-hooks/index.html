@@ -1,0 +1,2272 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Write three hooks that record each request and tool call of a run in a log file, and read the agent's loop from what they write.">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/04-02-hooks/">
+      
+      
+        <link rel="prev" href="../04-01-toolsets/">
+      
+      
+        <link rel="next" href="../04-03-activity-log/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Hooks: watching a run - pydantic-tutor</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#agent-runs-with-hooks" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pydantic-tutor" class="md-header__button md-logo" aria-label="pydantic-tutor" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pydantic-tutor
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Hooks: watching a run
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pydantic-tutor" class="md-nav__button md-logo" aria-label="pydantic-tutor" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    pydantic-tutor
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4 Capabilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 4 Capabilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-00-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-01-toolsets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-01 Toolsets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-02 Agent runs with hooks
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-02 Agent runs with hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hooks-run-at-named-points-in-a-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hooks run at named points in a run
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hooks-can-observe-or-change-a-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hooks can observe or change a run
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        example:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-write-the-activity-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Write the activity log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-run-the-agent-and-read-the-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Run the agent and read the log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-03-activity-log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-03 Put the activity log in the chat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-04-guards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-04 Change tool calls with hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-05-capability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-05 Build a custom capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-06-prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-06 Move the chat prompt into a file
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-07-memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-07 Save notes between chats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-08-seam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-08 Separate agent settings from capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#hooks-run-at-named-points-in-a-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hooks run at named points in a run
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hooks-can-observe-or-change-a-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Hooks can observe or change a run
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        example:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-write-the-activity-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Write the activity log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-run-the-agent-and-read-the-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Run the agent and read the log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="agent-runs-with-hooks">Agent runs with hooks</h1>
+<h2 id="welcome">Welcome</h2>
+<p>This lesson is about <strong>hooks</strong>: functions the agent calls at named points during a run. 
+We'll use three hooks to build an <strong>activity log</strong>: it records each model request, each tool the agent is about to execute, and each tool call that finished, so we can read the loop from the log itself. We'll try everything in a separate demo; the next lesson connects the log to our regular chat.</p>
+<p>By the end, you'll be able to:</p>
+<ul>
+<li>Say where a hook runs in the agent's loop, and what it's given.</li>
+<li>Write hooks that watch a run without changing it.</li>
+</ul>
+<p>About 15 minutes. No API key is needed.</p>
+<h2 id="concepts">Concepts</h2>
+<h3 id="hooks-run-at-named-points-in-a-run">Hooks run at named points in a run</h3>
+<p>One user question may require several exchanges with the model. The model can request a tool instead of giving a final answer; the agent executes that tool and sends its result back. This continues until the model answers.</p>
+<p>The diagram marks three places where we'll observe that cycle:</p>
+<pre class="mermaid"><code>flowchart TD
+    A["The agent prepares a request"] --&gt;|before_model_request| B["The model responds"]
+    B --&gt; C{"Did it ask for tools?"}
+    C --&gt;|"yes"| D["The agent runs each tool"]
+    D --&gt;|"before_tool_execute, after_tool_execute"| A
+    C --&gt;|"no"| E["The run ends"]</code></pre>
+<p>Pydantic AI runs the loop and calls our hooks at the points we choose.</p>
+<p>You'll see names such as <code>before_model_request</code> and <code>after_tool_execute</code>. The names identify the hook; the arguments tell our function what happened there. Other hooks can wrap operations or handle errors, but we don't need those to build this log.</p>
+<h3 id="hooks-can-observe-or-change-a-run">Hooks can observe or change a run</h3>
+<p>Each hook receives <code>ctx</code>, a <code>RunContext</code> describing the current run. You met this object when we used dependencies. Here, <code>ctx.run_step</code> tells us which model-request step we're observing.</p>
+<p>The remaining arguments depend on the hook. A tool hook receives the tool call and its validated arguments. A model-request hook receives a <code>ModelRequestContext</code>: the messages and tool definitions about to go to the model.</p>
+<p>A hook's return value can change how the run continues. This <code>before_tool_execute</code> hook captures the model's request parameters and changes them literally changing how the tool will be called:</p>
+<h3 id="example">example:</h3>
+<p>In this case the model asks for a file named <code>a</code>, but the hook below changes it to <code>changed_by_hook.txt</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">before_tool_execute</span><span class="p">(</span>        
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">RunContext</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">call</span><span class="p">:</span> <span class="n">ToolCallPart</span><span class="p">,</span>
+    <span class="n">tool_def</span><span class="p">:</span> <span class="n">ToolDefinition</span><span class="p">,</span>
+    <span class="n">args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="p">{</span><span class="o">**</span><span class="n">args</span><span class="p">,</span> <span class="s2">"path"</span><span class="p">:</span> <span class="s2">"changed_by_hook.txt"</span><span class="p">}</span>
+</code></pre></div>
+<p>In the log we'll see that even though the model asked for <code>a</code> the before_tool_execute changes that to <code>changed_by_hook.txt</code> and the tool writes that file:</p>
+<div class="highlight"><pre><span></span><code>the model asked for: {'path': 'a', 'content': 'a'}
+the model got back: Wrote 1 chars (1 lines) to changed_by_hook.txt. [hash:ca978112ca1b]
+</code></pre></div>
+<h2 id="what-youll-build">What you'll build</h2>
+<ul>
+<li><code>src/pydantic_tutor/capabilities/activity_log.py</code>, new: the hook names, the record, three hooks, and a function that builds them into a capability</li>
+<li><code>demos/watch_run.py</code>, new: runs the chat's agent on a stand-in model with the log added, and prints the log</li>
+</ul>
+<p>The steps:</p>
+<ol>
+<li>Write the activity log.</li>
+<li>Run the agent and read the log.</li>
+</ol>
+<h2 id="before-you-start">Before you start</h2>
+<p>Carry on in your <code>pydantic-tutor</code> project from the last lesson.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> run <code>uv run demos/fresh_copy.py</code>, then <code>uv run demos/workspace_reach.py</code>. Its output starts with <code>tools the model is offered: 14</code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Joining here, or has your project gone wrong?</strong> If your project works, skip this. To refresh a broken project, delete its folder first: you lose your work and anything else in it, including your <code>.env</code> and its API keys.</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span><span class="m">04</span>-01-toolsets/end<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/chrislomeli/pydanticai-tutorial-student.git<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>sync
+</code></pre></div>
+<p>Then run the check above.</p>
+</div>
+<h2 id="step-1-write-the-activity-log">Step 1: Write the activity log</h2>
+<blockquote>
+<p><strong>Goal:</strong> write three hooks, and a function that hands them to an agent as one capability.</p>
+</blockquote>
+<p>Each hook records one of the named points in the loop. Together they cover a whole cycle: the request the agent is about to send, the tools it's about to execute, and the tool calls that finished.</p>
+<p>Create <code>src/pydantic_tutor/capabilities/activity_log.py</code>. This is the whole log: the next lesson connects it to the chat without changing it.</p>
+<p>It is the longest block of the lesson, but it does one thing: <code>build_activity_hooks</code> makes three hooks — <code>before_model_request</code>, <code>before_tool_execute</code> and <code>after_tool_execute</code> — and each hook writes one <code>Entry</code>, a line of the log.</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""Record what the agent does during a run, one JSON line per hook call.</span>
+
+<span class="sd">Milestones:</span>
+<span class="sd">1. HookName: names a hook the log can record.</span>
+<span class="sd">2. Entry: one line of the log.</span>
+<span class="sd">3. Hooks: one per name; each writes an entry and returns what it received.</span>
+<span class="sd">4. Registration: only the chosen names get a hook.</span>
+
+<span class="sd">The hooks return their input unchanged, so the log watches and changes nothing.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelRequestContext</span><span class="p">,</span> <span class="n">RunContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolCallPart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolDefinition</span>
+
+<span class="c1"># The only arguments copied into the log. Named one by one, so a file's</span>
+<span class="c1"># contents passed to `write_file` never reach it.</span>
+<span class="n">LOGGED_ARGUMENTS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"path"</span><span class="p">,</span> <span class="s2">"command"</span><span class="p">)</span>
+
+
+<span class="c1"># 1. HookName</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HookName</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""The hooks this log can record, named as in `Hooks(...)`."""</span>
+
+    <span class="n">BEFORE_MODEL_REQUEST</span> <span class="o">=</span> <span class="s2">"before_model_request"</span>
+    <span class="n">BEFORE_TOOL_EXECUTE</span> <span class="o">=</span> <span class="s2">"before_tool_execute"</span>
+    <span class="n">AFTER_TOOL_EXECUTE</span> <span class="o">=</span> <span class="s2">"after_tool_execute"</span>
+
+
+<span class="c1"># 2. Entry</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Entry</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""One line of the log: names and counts, never contents.</span>
+
+<span class="sd">    Fields left as `None` aren't written.</span>
+<span class="sd">    """</span>
+
+    <span class="n">hook</span><span class="p">:</span> <span class="n">HookName</span>
+    <span class="n">step</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">tool</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">messages</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">tools</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">result_chars</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_activity_hooks</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">hooks</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="n">HookName</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">HookName</span><span class="p">)</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Hooks</span><span class="p">[</span><span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""A capability that logs the chosen hooks to the file at `path`."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="o">*</span><span class="p">,</span> <span class="n">entry</span><span class="p">:</span> <span class="n">Entry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">log</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">model_dump_json</span><span class="p">(</span><span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># 3. Hooks</span>
+    <span class="c1"># `async`, with no `await` inside: when the model asks for several tools</span>
+    <span class="c1"># at once, these hooks can't write over each other.</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">before_model_request</span><span class="p">(</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">RunContext</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">request_context</span><span class="p">:</span> <span class="n">ModelRequestContext</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ModelRequestContext</span><span class="p">:</span>
+        <span class="n">write</span><span class="p">(</span>
+            <span class="n">entry</span><span class="o">=</span><span class="n">Entry</span><span class="p">(</span>
+                <span class="n">hook</span><span class="o">=</span><span class="n">HookName</span><span class="o">.</span><span class="n">BEFORE_MODEL_REQUEST</span><span class="p">,</span>
+                <span class="n">step</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">run_step</span><span class="p">,</span>
+                <span class="n">messages</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">request_context</span><span class="o">.</span><span class="n">messages</span><span class="p">),</span>
+                <span class="n">tools</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">request_context</span><span class="o">.</span><span class="n">model_request_parameters</span><span class="o">.</span><span class="n">function_tools</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">request_context</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">before_tool_execute</span><span class="p">(</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">RunContext</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">call</span><span class="p">:</span> <span class="n">ToolCallPart</span><span class="p">,</span>
+        <span class="n">tool_def</span><span class="p">:</span> <span class="n">ToolDefinition</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+        <span class="n">targets</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="n">name</span><span class="p">])</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">LOGGED_ARGUMENTS</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">args</span><span class="p">]</span>
+        <span class="n">write</span><span class="p">(</span>
+            <span class="n">entry</span><span class="o">=</span><span class="n">Entry</span><span class="p">(</span>
+                <span class="n">hook</span><span class="o">=</span><span class="n">HookName</span><span class="o">.</span><span class="n">BEFORE_TOOL_EXECUTE</span><span class="p">,</span>
+                <span class="n">step</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">run_step</span><span class="p">,</span>
+                <span class="n">tool</span><span class="o">=</span><span class="n">call</span><span class="o">.</span><span class="n">tool_name</span><span class="p">,</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">targets</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">targets</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">args</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">after_tool_execute</span><span class="p">(</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">RunContext</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">call</span><span class="p">:</span> <span class="n">ToolCallPart</span><span class="p">,</span>
+        <span class="n">tool_def</span><span class="p">:</span> <span class="n">ToolDefinition</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">result</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+        <span class="n">write</span><span class="p">(</span>
+            <span class="n">entry</span><span class="o">=</span><span class="n">Entry</span><span class="p">(</span>
+                <span class="n">hook</span><span class="o">=</span><span class="n">HookName</span><span class="o">.</span><span class="n">AFTER_TOOL_EXECUTE</span><span class="p">,</span>
+                <span class="n">step</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">run_step</span><span class="p">,</span>
+                <span class="n">tool</span><span class="o">=</span><span class="n">call</span><span class="o">.</span><span class="n">tool_name</span><span class="p">,</span>
+                <span class="n">result_chars</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="p">)),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="c1"># 4. Registration</span>
+    <span class="k">return</span> <span class="n">Hooks</span><span class="p">[</span><span class="kc">None</span><span class="p">](</span>
+        <span class="n">before_model_request</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">before_model_request</span> <span class="k">if</span> <span class="n">HookName</span><span class="o">.</span><span class="n">BEFORE_MODEL_REQUEST</span> <span class="ow">in</span> <span class="n">hooks</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="n">before_tool_execute</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">before_tool_execute</span> <span class="k">if</span> <span class="n">HookName</span><span class="o">.</span><span class="n">BEFORE_TOOL_EXECUTE</span> <span class="ow">in</span> <span class="n">hooks</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+        <span class="n">after_tool_execute</span><span class="o">=</span><span class="p">(</span>
+            <span class="n">after_tool_execute</span> <span class="k">if</span> <span class="n">HookName</span><span class="o">.</span><span class="n">AFTER_TOOL_EXECUTE</span> <span class="ow">in</span> <span class="n">hooks</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>What's in it:</p>
+<ul>
+<li><code>HookName</code> names the three hooks the log can record, one per point in the loop. A <code>StrEnum</code> limits them to these names, so a typo fails at once instead of quietly recording nothing.</li>
+<li><code>Entry</code> is a Pydantic model, because each line leaves the program for a file. It holds names and counts, never contents.</li>
+<li><code>LOGGED_ARGUMENTS</code> names the only arguments we copy. Listing them keeps a file's contents, passed to <code>write_file</code>, out of the log.</li>
+<li><code>before_model_request</code> receives a <code>ModelRequestContext</code>, and counts the messages and tool definitions about to go to the model.</li>
+<li><code>before_tool_execute</code> receives the tool call and its validated arguments. It records what the agent <em>attempted</em>, before we can tell whether the call finished.</li>
+<li><code>after_tool_execute</code> also receives the tool's result, and records that the call finished, with the result's length.</li>
+<li>Each hook ends by returning what it was given: <code>request_context</code>, <code>args</code>, <code>result</code>. That's what makes them watchers.</li>
+</ul>
+<p><code>build_activity_hooks</code> returns <code>Hooks(...)</code>. Each keyword names a hook, which tells the framework <em>when</em> to call the function given to it; a keyword given <code>None</code> gets no hook. The <code>hooks</code> parameter chooses which hooks are registered. Here we keep its default, all three; in the next lesson a setting chooses.</p>
+<p><code>Hooks</code> is a supplied <strong>capability</strong>: a component we attach to an agent to provide behavior. We've already used capabilities such as <code>FileSystem</code> and <code>Shell</code>.</p>
+<p>Run a syntax check before connecting the hooks to the agent and validate that there are no errors:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>py_compile<span class="w"> </span>src/pydantic_tutor/capabilities/activity_log.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the command finishes without an error.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p>The file is valid Python. We haven't checked the hooks' behavior yet; the next step runs them with an agent.</p>
+<h2 id="step-2-run-the-agent-and-read-the-log">Step 2: Run the agent and read the log</h2>
+<blockquote>
+<p><strong>Goal:</strong> attach the log for one run and read the loop from its records.</p>
+</blockquote>
+<p>We've built our hooks. Now let's write a small program to see them in action.</p>
+<p>We'll use <code>TestModel</code> to ask the agent to call two tools. This gives us a predictable run without needing an API key. We'll also attach our new activity log just for this test, leaving the chat application unchanged.</p>
+<p><code>TestModel</code> uses <code>a</code> for string arguments, so one of its tool calls will create a small file named <code>a</code> in our disposable workspace.</p>
+<p>Create <code>demos/watch_run.py</code>:
+<div class="highlight"><pre><span></span><code><span class="sd">"""Run the chat's agent on a stand-in model, and print its activity log.</span>
+
+<span class="sd">Needs no API key; run `demos/fresh_copy.py` first. It starts the log again,</span>
+<span class="sd">so the file holds this run only.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.models.test</span><span class="w"> </span><span class="kn">import</span> <span class="n">TestModel</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.capabilities.activity_log</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_activity_hooks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.chat.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_chat_agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">project_root</span>
+
+<span class="c1"># Beside the workspace copy and not in it, so the file tools can't reach it.</span>
+<span class="c1"># `work/` is already ignored by git.</span>
+<span class="n">LOG_PATH</span> <span class="o">=</span> <span class="n">project_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"work"</span> <span class="o">/</span> <span class="s2">"activity.jsonl"</span>
+<span class="n">LOG_PATH</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">chat</span> <span class="o">=</span> <span class="n">build_chat_agent</span><span class="p">(</span><span class="n">web_search</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">workspace_root</span><span class="o">=</span><span class="n">Settings</span><span class="p">()</span><span class="o">.</span><span class="n">workspace_root</span><span class="p">)</span>
+<span class="n">chat</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+    <span class="n">user_prompt</span><span class="o">=</span><span class="s2">"What does this project do?"</span><span class="p">,</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">TestModel</span><span class="p">(</span><span class="n">call_tools</span><span class="o">=</span><span class="p">[</span><span class="s2">"list_modules"</span><span class="p">,</span> <span class="s2">"write_file"</span><span class="p">]),</span>
+    <span class="c1"># Added for this run only: the chat itself doesn't change.</span>
+    <span class="n">capabilities</span><span class="o">=</span><span class="p">[</span><span class="n">build_activity_hooks</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">LOG_PATH</span><span class="p">)],</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">LOG_PATH</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+</code></pre></div></p>
+<p><code>fresh_copy.py</code> clears anything earlier runs left in the workspace copy:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/watch_run.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> ignoring any startup banner, you should see:</p>
+<div class="highlight"><pre><span></span><code>{"hook":"before_model_request","step":1,"messages":1,"tools":14}
+{"hook":"before_tool_execute","step":1,"tool":"list_modules"}
+{"hook":"before_tool_execute","step":1,"tool":"write_file","target":"a"}
+{"hook":"after_tool_execute","step":1,"tool":"list_modules","result_chars":137}
+{"hook":"after_tool_execute","step":1,"tool":"write_file","result_chars":49}
+{"hook":"before_model_request","step":2,"messages":3,"tools":14}
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>We can read the run from our own log. The agent prepared a model request, executed the requested tools, and prepared a second model request with their results:</p>
+<ul>
+<li>Both tool calls say <code>step: 1</code>. They came from the same model response; a run step is not the same as one tool call.</li>
+<li><code>write_file</code>'s line records its target path, <code>a</code>, but not the file's contents.</li>
+<li>Each <code>before_tool_execute</code> has a matching <code>after_tool_execute</code>, so both tools finished.</li>
+<li>The second request carries three messages: your question, the model's response asking for the tools, and the request carrying the tools' returns.</li>
+<li>All fourteen tool definitions go with every request.</li>
+<li>The run ends after step 2, because the model answered instead of asking for more tools.</li>
+</ul>
+<p>The last line is another <code>before_model_request</code>, not an <code>after_tool_execute</code>: the agent is ready to ask the model again. <code>TestModel</code> then gives its final answer, so there is no third request. Each hook passed its received value back unchanged. The agent behaved as it would without our log.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<ul>
+<li><strong>A run is a loop with named hooks.</strong> You can place a function on one, and find the others by their pattern.</li>
+<li><strong>A hook gets <code>ctx</code>, then what its hook passes, and the run carries on with what it returns.</strong> Yours return what they were given, so they only watch.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p>We can now observe the agent's loop without changing its behavior. In the next lesson, we'll connect this same activity log to the continuing chat, configure which hooks it records, and inspect a real conversation.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../04-01-toolsets/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 04-01 Toolsets">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                04-01 Toolsets
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-03-activity-log/" class="md-footer__link md-footer__link--next" aria-label="Next: 04-03 Put the activity log in the chat">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                04-03 Put the activity log in the chat
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

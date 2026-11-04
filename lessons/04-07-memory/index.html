@@ -1,0 +1,2406 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Give the chat a notebook of files it reads and writes across sessions, with a list tool of your own, and see what the library's memory injection would add to every request and why the chat turns it off.">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/04-07-memory/">
+      
+      
+        <link rel="prev" href="../04-06-prompt/">
+      
+      
+        <link rel="next" href="../04-08-seam/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Memory, with injection off - pydantic-tutor</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#save-notes-between-chats" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pydantic-tutor" class="md-header__button md-logo" aria-label="pydantic-tutor" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pydantic-tutor
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Memory, with injection off
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pydantic-tutor" class="md-nav__button md-logo" aria-label="pydantic-tutor" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    pydantic-tutor
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4 Capabilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 4 Capabilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-00-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-01-toolsets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-01 Toolsets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-02-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-02 Agent runs with hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-03-activity-log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-03 Put the activity log in the chat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-04-guards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-04 Change tool calls with hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-05-capability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-05 Build a custom capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-06-prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-06 Move the chat prompt into a file
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-07 Save notes between chats
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-07 Save notes between chats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#saved-notes-survive-a-chat-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saved notes survive a chat session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#injection-adds-notes-to-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Injection adds notes to requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-model-can-request-saved-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The model can request saved notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-add-a-notebook-to-the-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Add a notebook to the chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-retrieve-a-note-in-a-new-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Retrieve a note in a new session
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-restrict-file-access-to-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Restrict file access to notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-compare-memory-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Compare memory injection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-try-memory-in-real-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Try memory in real chats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-08-seam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-08 Separate agent settings from capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#saved-notes-survive-a-chat-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Saved notes survive a chat session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#injection-adds-notes-to-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Injection adds notes to requests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-model-can-request-saved-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The model can request saved notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-add-a-notebook-to-the-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Add a notebook to the chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-retrieve-a-note-in-a-new-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Retrieve a note in a new session
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-restrict-file-access-to-notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Restrict file access to notes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-compare-memory-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Compare memory injection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-try-memory-in-real-chats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Try memory in real chats
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="save-notes-between-chats">Save notes between chats</h1>
+<h2 id="welcome">Welcome</h2>
+<p>This lesson is about <strong>memory</strong>: notes the chat keeps between sessions. Suppose you explain a project convention today and open a new chat tomorrow. A new session doesn't automatically receive yesterday's conversation history. We'll give the chat a notebook to save project decisions and conventions. Then we'll see how it can retrieve those notes without sending every note with every request.</p>
+<p>By the end, you'll be able to:</p>
+<ul>
+<li>Store a useful project note, start a fresh session, and retrieve it.</li>
+<li>Explain the trade-off between letting the model request notes and injecting notes into every model request.</li>
+</ul>
+<p>About 20 minutes. Steps 1 to 4 need no API key: the model is a stand-in that
+follows a script. Step 5 uses your OpenAI key.</p>
+<h2 id="concepts">Concepts</h2>
+<h3 id="saved-notes-survive-a-chat-session">Saved notes survive a chat session</h3>
+<p>The <code>Memory</code> capability stores notes as Markdown files that outlast a run.
+<code>MEMORY.md</code> is the main file, and the model can create others. It uses <code>write_memory</code> to save notes, <code>read_memory</code> to retrieve them, <code>search_memory</code> to find matching files, and <code>delete_memory</code> to remove files other than <code>MEMORY.md</code>. <code>Memory</code> also brings
+<strong>guidance</strong>, text in the instructions that says when to use them. The model reads these files through tools. The notes are not a second conversation history. A <strong>store</strong> keeps the files; <code>FileStore</code>
+keeps them in the run's workspace, in a folder you name.</p>
+<h3 id="injection-adds-notes-to-requests">Injection adds notes to requests</h3>
+<p>By default, <code>Memory</code> uses <strong>memory injection</strong>. Before each request, it adds the contents of <code>MEMORY.md</code> and the names of other note files alongside the latest question.
+The block isn't kept in the history: <code>Memory</code> takes the old one off the
+earlier question and puts a new one beside the latest, so it moves.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Injection on</th>
+<th>Injection off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sent with each request</td>
+<td>The guidance, and the notebook, up to 2,000 tokens together</td>
+<td>The guidance only</td>
+</tr>
+<tr>
+<td>The start of each request</td>
+<td>Changes each turn, from the previous question on</td>
+<td>The same as the request before</td>
+</tr>
+<tr>
+<td>The notebook reaches the model</td>
+<td>Beside your question, every time</td>
+<td>In a tool result, when it asks</td>
+</tr>
+</tbody>
+</table>
+<p>The second row costs the most. A provider that caches prompts reuses the
+unchanged start of a request; with injection on, each request changes
+from the previous question onward, even when the notebook hasn't. The
+library's <a href="https://pydantic.dev/docs/ai/harness/memory/">Memory page</a>
+recommends <code>inject_memory=False</code> for prompts that
+should stay the same. Turning injection off keeps the memory tools and guidance available.</p>
+<h3 id="the-model-can-request-saved-notes">The model can request saved notes</h3>
+<p>With injection off, the model no longer receives the file names automatically. It needs a way to discover them before calling <code>read_memory</code>. We'll add a <code>list_memory</code> tool and update the guidance to explain how to use it.</p>
+<p>A capability gives the model tools, as <code>PromptFile</code> gave it instructions,
+by overriding a method: <code>get_toolset()</code>, which returns a toolset.
+<code>ListableMemory</code> (ours, not the library's) is a subclass of <code>Memory</code> whose
+<code>get_toolset()</code> adds one tool. A subclass, so one capability keeps all its
+tools together: <code>prefix_tools</code> renames the lot.</p>
+<h2 id="what-youll-build">What you'll build</h2>
+<p>You write <code>capabilities/listable_memory.py</code>, give it to the chat in <code>chat/agent.py</code>,
+and add two scripts, <code>notebook.py</code> and <code>memory_injection.py</code>. Given, and
+not written by you: the replacement guidance and the shape <code>list_memory</code>
+returns (<code>tutor_given/memory_text.py</code>), and the scripts' stand-in models
+(<code>tutor_given/stand_ins.py</code>).</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>Carry on in your <code>pydantic-tutor</code> project from the last lesson.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> run <code>uv run demos/fresh_copy.py</code>, then <code>uv run demos/show_chat_request.py</code>. Its <code>tools:</code> line ends <code>list_modules, read_docstring</code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Joining here, or has your project gone wrong?</strong> If your project works, skip this. To refresh a broken project, delete its folder first: you lose your work and anything else in it, including your <code>.env</code> and its API keys.</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span><span class="m">04</span>-06-prompt/end<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/chrislomeli/pydanticai-tutorial-student.git<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>sync
+</code></pre></div>
+<p>Then run the check above.</p>
+</div>
+<h2 id="step-1-add-a-notebook-to-the-chat">Step 1: Add a notebook to the chat</h2>
+<blockquote>
+<p><strong>Goal:</strong> write <code>ListableMemory</code>, give it to the chat with injection
+off, and see what the model is now sent.</p>
+</blockquote>
+<p>We'll use the harness's <code>Memory</code> capability to save notes, but we'll leave injection off. That means the model needs a way to discover note names before reading them. Our subclass adds a <code>list_memory</code> tool.</p>
+<p>Create <code>src/pydantic_tutor/capabilities/listable_memory.py</code>. <code>LISTING_GUIDANCE</code> is
+the guidance text, which names <code>list_memory</code>, and <code>MemoryListing</code> is what
+the tool returns: its file names, and <code>truncated</code>, true when there were
+more than <code>max_list_files</code>, so a cut list isn't taken for the whole.</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""The library's `Memory`, plus a tool that lists the notebook's files.</span>
+
+<span class="sd">With injection off nothing names the files to the model, and none of `Memory`'s</span>
+<span class="sd">tools lists them: `ListableMemory` adds `list_memory`, and guidance that names it.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.toolsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentToolset</span><span class="p">,</span> <span class="n">FunctionToolset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai_harness</span><span class="w"> </span><span class="kn">import</span> <span class="n">Memory</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.memory_text</span><span class="w"> </span><span class="kn">import</span> <span class="n">LISTING_GUIDANCE</span><span class="p">,</span> <span class="n">MemoryListing</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ListableMemory</span><span class="p">[</span><span class="n">DepsT</span><span class="p">](</span><span class="n">Memory</span><span class="p">[</span><span class="n">DepsT</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">"""`Memory`, with a `list_memory` tool beside its own four."""</span>
+
+    <span class="n">guidance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">LISTING_GUIDANCE</span>
+    <span class="n">max_list_files</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># the most names one call returns</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_toolset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AgentToolset</span><span class="p">[</span><span class="n">DepsT</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return `Memory`'s own toolset, with `list_memory` added once."""</span>
+        <span class="n">memory_tools</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_toolset</span><span class="p">()</span>
+        <span class="c1"># `Memory` returns its one FunctionToolset: tells mypy, fails if not.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">memory_tools</span><span class="p">,</span> <span class="n">FunctionToolset</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">"Memory.get_toolset() did not return a FunctionToolset"</span><span class="p">)</span>
+        <span class="c1"># The same object every time, never a new one: `Memory`'s tools find</span>
+        <span class="c1"># the run's copy of the capability by it. The agent asks on every</span>
+        <span class="c1"># memory tool call, hence "once".</span>
+        <span class="k">if</span> <span class="s2">"list_memory"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">memory_tools</span><span class="o">.</span><span class="n">tools</span><span class="p">:</span>
+            <span class="n">memory_tools</span><span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">list_memory</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"list_memory"</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">memory_tools</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">list_memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">RunContext</span><span class="p">[</span><span class="n">DepsT</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">MemoryListing</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""List the files in your memory notebook, MEMORY.md included.</span>
+
+<span class="sd">        Call it before `read_memory` when you do not know a file's name.</span>
+<span class="sd">        """</span>
+        <span class="c1"># The run's store and this notebook's folder: the other tools' own.</span>
+        <span class="n">store</span><span class="p">,</span> <span class="n">scope</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resolve_scope</span><span class="p">(</span><span class="n">ctx</span><span class="o">=</span><span class="n">ctx</span><span class="p">)</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">scope</span><span class="si">}</span><span class="s2">/"</span>
+        <span class="c1"># One over the limit, so exactly that many files is not "cut".</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="k">await</span> <span class="n">store</span><span class="o">.</span><span class="n">list_paths</span><span class="p">(</span><span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_list_files</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Only names `read_memory` takes: Markdown, not in a folder below.</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+            <span class="n">name</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="n">prefix</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"/"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">name</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">".md"</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">MemoryListing</span><span class="p">(</span>
+            <span class="n">files</span><span class="o">=</span><span class="n">names</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_list_files</span><span class="p">],</span>
+            <span class="n">truncated</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_list_files</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>In <code>src/pydantic_tutor/chat/agent.py</code>, import <code>FileStore</code> from
+<code>pydantic_ai_harness.memory</code> and <code>ListableMemory</code> from
+<code>pydantic_tutor.capabilities.listable_memory</code>, add the notebook's folder after
+<code>SECRET_PATTERNS</code>, and add the capability after <code>Toolset(...)</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># The notebook's folder, in the workspace.</span>
+<span class="n">NOTEBOOK</span> <span class="o">=</span> <span class="s2">".agent-memory"</span>
+<span class="o">...</span>
+        <span class="n">Toolset</span><span class="p">(</span><span class="n">toolset</span><span class="o">=</span><span class="n">build_workspace_toolset</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">workspace_root</span><span class="p">)),</span>
+        <span class="c1"># Injection off: the model lists and reads the notebook with tools.</span>
+        <span class="n">ListableMemory</span><span class="p">(</span><span class="n">store</span><span class="o">=</span><span class="n">FileStore</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">NOTEBOOK</span><span class="p">),</span> <span class="n">inject_memory</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/show_chat_request.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the <code>tools:</code> line now ends <code>..., read_docstring, write_memory,
+read_memory, delete_memory, search_memory, list_memory</code>, and its
+<code>instructions:</code> line holds the prompt, then the guidance
+(<code>You have a persistent memory: ...</code>), then what <code>RedactTokens</code> says, then the
+workspace sentence.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p>The guidance is a <code>str</code>, so it is static, in the capabilities' list order. <code>get_toolset()</code> returns <code>Memory</code>'s own toolset with
+<code>list_memory</code> added, never a new one: <code>Memory</code>'s tools find the run's copy
+of the capability through it, and the agent asks for it on every memory
+tool call, hence the <code>if</code>.</p>
+<h2 id="step-2-retrieve-a-note-in-a-new-session">Step 2: Retrieve a note in a new session</h2>
+<blockquote>
+<p><strong>Goal:</strong> run two sessions with no history between them, and see a note
+written in the first found in the second.</p>
+</blockquote>
+<p>We'll prove that the notes survive without carrying conversation history forward. Create <code>demos/notebook.py</code> to run two separate sessions against the same notebook:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""Two sessions with the chat's agent: one stores a note, the next finds it.</span>
+
+<span class="sd">The notebook lives in the workspace, so run `demos/fresh_copy.py` first.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.chat.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_chat_agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.stand_ins</span><span class="w"> </span><span class="kn">import</span> <span class="n">remembers_then_recalls</span>
+
+<span class="n">chat</span> <span class="o">=</span> <span class="n">build_chat_agent</span><span class="p">(</span><span class="n">web_search</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">workspace_root</span><span class="o">=</span><span class="n">Settings</span><span class="p">()</span><span class="o">.</span><span class="n">workspace_root</span><span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">remembers_then_recalls</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Remember that we log to stderr."</span><span class="p">,</span> <span class="s2">"What did we decide about logging?"</span><span class="p">]:</span>
+    <span class="c1"># No message_history: a new session, as far as the model can tell.</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"session: </span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">chat</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span><span class="n">user_prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"  output"</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+</code></pre></div>
+<p>The given stand-in writes a note when a prompt starts with "Remember",
+and otherwise looks one up:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/notebook.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> you should see the output below (the <code>version</code> is a hash of
+the note, so it matches too), and
+<code>cat work/tinyjobs/.agent-memory/main/logging.md</code> prints the note.</p>
+<div class="highlight"><pre><span></span><code>session: Remember that we log to stderr.
+request ['user-prompt']
+call   write_memory {"content": "- Logging goes to stderr, so stdout stays pipeable.\n", "file": "logging.md"}
+request ['tool-return']
+result {"file":"logging.md","version":"9eb4a459b5f2bb5a0a1554df7230342c45d02c6c53231a4115be9b8d8a22a291","replayed":false,"status":"created"}
+output Noted.
+session: What did we decide about logging?
+request ['user-prompt']
+call   list_memory {}
+request ['tool-return']
+result {"files":["logging.md"],"truncated":false}
+call   read_memory {"file": "logging.md"}
+request ['tool-return']
+result - Logging goes to stderr, so stdout stays pipeable.
+
+output We decided: - Logging goes to stderr, so stdout stays pipeable.
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>The second session's first request is <code>['user-prompt']</code>: the question and
+nothing else. With no history and no memory part, the note can reach the
+model only through a tool call, and it does: <code>list_memory</code> for the name,
+then <code>read_memory</code>. The note is <code>.agent-memory/main/logging.md</code> (<code>main</code> is
+<code>Memory</code>'s <code>agent_name</code>; the model never sees it), and <code>fresh_copy.py</code>
+deletes it with the rest of the copy. A stand-in does what its script
+says: whether a real model writes a note, or looks, isn't shown.</p>
+<h2 id="step-3-restrict-file-access-to-notes">Step 3: Restrict file access to notes</h2>
+<blockquote>
+<p><strong>Goal:</strong> deny the file tools the notebook's folder, and see two calls
+refused.</p>
+</blockquote>
+<p>The notebook is in the workspace, so the chat's file tools reach it too.
+In a test run for this lesson, a <code>write_file</code> replaced the note outright, and the next
+<code>write_memory</code> appended to the file tool's text. The memory tools append
+and keep a record; a file tool does neither. So the notebook gets one
+owner. In <code>chat/agent.py</code>, put its folder in the file tools' deny list, next to
+the secrets:</p>
+<div class="highlight"><pre><span></span><code>        <span class="c1"># The notebook is denied too, for reads and writes alike.</span>
+        <span class="n">FileSystem</span><span class="p">(</span><span class="n">denied_patterns</span><span class="o">=</span><span class="p">(</span><span class="o">*</span><span class="n">SECRET_PATTERNS</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"**/</span><span class="si">{</span><span class="n">NOTEBOOK</span><span class="si">}</span><span class="s2">/**"</span><span class="p">)),</span>
+</code></pre></div>
+<p>and say so in <code>NOTEBOOK</code>'s comment: "The file tools may not touch it: the
+memory tools are its only way in." Add two calls to <code>CALLS</code> in
+<code>demos/file_tools.py</code>, before the last: <code>("read_file",
+".agent-memory/main/logging.md", {})</code> and <code>("write_file",
+".agent-memory/main/logging.md", {"content": "mine\n"})</code>.</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/file_tools.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the earlier calls print as before, then:</p>
+<div class="highlight"><pre><span></span><code>read_file .agent-memory/main/logging.md:
+Path '.agent-memory/main/logging.md' is denied by pattern '**/.agent-memory/**'.
+write_file .agent-memory/main/logging.md:
+Path '.agent-memory/main/logging.md' is denied by pattern '**/.agent-memory/**'.
+</code></pre></div>
+<p>and <code>cat</code> of the note still prints it.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p><code>denied_patterns</code> stops reads and writes alike; <code>FileStore</code> doesn't go
+through the file tools, so the memory tools are unaffected. It is a guard
+against mistakes, not a boundary: <code>pytest</code> runs any code it is given. In
+a real project the notebook belongs in <code>.gitignore</code> as <code>.agent-memory/</code>;
+here all of <code>work/</code> is already there.</p>
+<h2 id="step-4-compare-memory-injection">Step 4: Compare memory injection</h2>
+<blockquote>
+<p><strong>Goal:</strong> run a second agent on the same notebook with injection on, and
+see what the chat doesn't send.</p>
+</blockquote>
+<p>Create <code>demos/memory_injection.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""What memory injection would send: the notebook beside every question.</span>
+
+<span class="sd">A second agent reads the notebook `demos/notebook.py` left in the workspace, with</span>
+<span class="sd">injection on.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">LocalWorkspace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelMessage</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai_harness</span><span class="w"> </span><span class="kn">import</span> <span class="n">Memory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai_harness.memory</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileStore</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.chat.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">NOTEBOOK</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.stand_ins</span><span class="w"> </span><span class="kn">import</span> <span class="n">prints_every_message</span>
+
+<span class="c1"># The chat's notebook; only `inject_memory` differs.</span>
+<span class="n">injecting</span><span class="p">:</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Agent</span><span class="p">(</span>
+    <span class="n">capabilities</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">LocalWorkspace</span><span class="p">(</span><span class="n">working_dir</span><span class="o">=</span><span class="n">Settings</span><span class="p">()</span><span class="o">.</span><span class="n">workspace_root</span><span class="p">),</span>
+        <span class="n">Memory</span><span class="p">(</span><span class="n">store</span><span class="o">=</span><span class="n">FileStore</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">NOTEBOOK</span><span class="p">),</span> <span class="n">inject_memory</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">prints_every_message</span><span class="p">()</span>
+<span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ModelMessage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">prompt</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"What does tinyjobs do?"</span><span class="p">,</span> <span class="s2">"And how is it tested?"</span><span class="p">]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"turn: </span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">injecting</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+        <span class="n">user_prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">message_history</span><span class="o">=</span><span class="n">history</span>
+    <span class="p">)</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">all_messages</span><span class="p">()</span>
+</code></pre></div>
+<p>Run it on the same workspace, so <code>logging.md</code> is there:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/memory_injection.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> each line is one message of a request:</p>
+<div class="highlight"><pre><span></span><code>turn: What does tinyjobs do?
+request: ['What does tinyjobs do?', '&lt;memory&gt; ### Other memory files - logging.md &lt;/memory&gt;']
+turn: And how is it tested?
+request: ['What does tinyjobs do?']
+response: ['ok']
+request: ['And how is it tested?', '&lt;memory&gt; ### Other memory files - logging.md &lt;/memory&gt;']
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>Every request carries the block, beside the newest question and only
+there: on turn two the first question has lost it. It lists "Other memory
+files": that is how this agent learns <code>logging.md</code>, and why it needs no
+<code>list_memory</code>. The moving is the cost: this request's start differs from
+the previous one's, though the notebook didn't change, so a provider's
+cache has less to reuse. The block is also cut to a budget, 2,000 tokens
+at four characters a token, shared with the guidance.</p>
+<h2 id="step-5-try-memory-in-real-chats">Step 5: Try memory in real chats</h2>
+<blockquote>
+<p><strong>Goal:</strong> see whether a real model saves a note and finds it again.</p>
+</blockquote>
+<p>This step uses your API key, and the model decides what it does.</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pydantic_tutor
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Please remember that this project logs to stderr, so stdout stays pipeable.
+</code></pre></div>
+<p>End the chat with an empty line, then start it again and ask:</p>
+<div class="highlight"><pre><span></span><code>What did we decide about logging?
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the second chat starts with no history. If the model saved and looked up the note, <code>work/activity.jsonl</code> has a <code>write_memory</code> call from the first chat, and <code>list_memory</code> or <code>read_memory</code> from the second. A model may also choose not to use the notebook, and the log shows that too.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p>The note survived because it's in a file, not in the conversation. With injection off, using it is the model's choice, which is the trade-off from Concepts. Your activity log shows you which choice it made.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<ul>
+<li><strong><code>Memory</code> is a notebook the model reads and writes with tools.</strong> Kept in the workspace, it outlasts a run.</li>
+<li><strong>Injection sends the notebook beside every question.</strong> With it off, the model asks, and needs a tool to list the files.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p>The chat now has a prompt file, a capability of its own and a notebook.
+The next lesson brings <code>build_chat_agent</code> together in one place.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../04-06-prompt/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 04-06 Move the chat prompt into a file">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                04-06 Move the chat prompt into a file
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-08-seam/" class="md-footer__link md-footer__link--next" aria-label="Next: 04-08 Separate agent settings from capabilities">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                04-08 Separate agent settings from capabilities
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

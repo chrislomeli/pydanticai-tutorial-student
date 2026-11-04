@@ -1,0 +1,2311 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Sort what the chat agent is from what it does: the constructor keeps its name, output type and request defaults, a list of capabilities holds the rest, and the capabilities whose place matters declare it, so the list can be rearranged and added to safely.">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/04-08-seam/">
+      
+      
+        <link rel="prev" href="../04-07-memory/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>What the agent sets and what a capability supplies - pydantic-tutor</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#separate-agent-settings-from-capabilities" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pydantic-tutor" class="md-header__button md-logo" aria-label="pydantic-tutor" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pydantic-tutor
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              What the agent sets and what a capability supplies
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pydantic-tutor" class="md-nav__button md-logo" aria-label="pydantic-tutor" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    pydantic-tutor
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4 Capabilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 4 Capabilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-00-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-01-toolsets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-01 Toolsets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-02-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-02 Agent runs with hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-03-activity-log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-03 Put the activity log in the chat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-04-guards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-04 Change tool calls with hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-05-capability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-05 Build a custom capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-06-prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-06 Move the chat prompt into a file
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-07-memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-07 Save notes between chats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-08 Separate agent settings from capabilities
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-08 Separate agent settings from capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-constructor-sets-agent-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The constructor sets agent defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capabilities-can-declare-their-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capabilities can declare their order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-separate-settings-from-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Separate settings from capabilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-reverse-the-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Reverse the list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-set-capability-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Set capability order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-inspect-the-finished-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Inspect the finished chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-constructor-sets-agent-defaults" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The constructor sets agent defaults
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#capabilities-can-declare-their-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capabilities can declare their order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-separate-settings-from-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Separate settings from capabilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-reverse-the-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Reverse the list
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-set-capability-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Set capability order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-inspect-the-finished-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Inspect the finished chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="separate-agent-settings-from-capabilities">Separate agent settings from capabilities</h1>
+<h2 id="welcome">Welcome</h2>
+<p>This lesson is about <strong>agent settings and capability order</strong>. We'll separate the settings that define our agent from the capabilities that add behavior. Our chat now has tools, guards, an activity log, a prompt file, and a notebook. We'll separate constructor settings from capability behavior. Then we'll make the ordering requirements explicit.</p>
+<p>By the end, you'll be able to:</p>
+<ul>
+<li>Explain why some settings belong on <code>Agent(...)</code> and others in capabilities.</li>
+<li>Make important ordering constraints explicit so adding another capability doesn't silently change behavior.</li>
+</ul>
+<p>About 15 minutes. Steps 1 to 3 need no API key. Step 4 uses your OpenAI key.</p>
+<h2 id="concepts">Concepts</h2>
+<h3 id="the-constructor-sets-agent-defaults">The constructor sets agent defaults</h3>
+<p>Capabilities can supply instructions, tools, a model, model settings, a workspace, and hooks. The <code>Agent(...)</code> constructor sets the agent's name, output type, and loop policy. Some of those choices can be overridden for a run.</p>
+<p>We'll keep the agent's identity and defaults on the constructor, and put its tools and behavior in capabilities:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>On the constructor</th>
+<th>In a capability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name, types, loop policy</td>
+<td><code>name</code>, <code>description</code>, <code>deps_type</code>, <code>output_type</code>, <code>retries</code>, <code>end_strategy</code>, <code>tool_timeout</code>, <code>max_concurrency</code></td>
+<td>No way to set them</td>
+</tr>
+<tr>
+<td>Instructions</td>
+<td><code>instructions</code></td>
+<td><code>get_instructions()</code></td>
+</tr>
+<tr>
+<td>Tools</td>
+<td><code>tools</code>, <code>toolsets</code></td>
+<td><code>get_toolset()</code></td>
+</tr>
+<tr>
+<td>Model settings</td>
+<td><code>model_settings</code></td>
+<td><code>get_model_settings()</code></td>
+</tr>
+<tr>
+<td>Model</td>
+<td><code>model</code></td>
+<td><code>get_model()</code></td>
+</tr>
+<tr>
+<td>A workspace, hooks at each stage</td>
+<td>No way to set them</td>
+<td><code>get_workspace()</code>, <code>before_model_request()</code> and the rest</td>
+</tr>
+</tbody>
+</table>
+<p>Some settings can appear in either place. In this project, capabilities supply what the model receives and what acts during a run. That lets us move related behavior between agents as one object. We'll keep ordinary request defaults, such as a timeout, on the constructor. The library's <a href="https://pydantic.dev/docs/ai/capabilities/overview/">Capabilities</a> page also shows model settings there. If both sides set the same setting, they
+merge key by key: a capability's value beats the constructor's, and a
+run's beats both.</p>
+<h3 id="capabilities-can-declare-their-order">Capabilities can declare their order</h3>
+<p>Capability order matters. <code>PromptFile</code> supplies the chat's initial instructions, and the activity log needs to see every tool attempt. Rearranging the list could change either behavior.</p>
+<p>A capability can say where it belongs instead, with <strong><code>get_ordering()</code></strong>.
+It returns a <code>CapabilityOrdering</code>, whose <code>position</code> is <code>"outermost"</code>,
+first of all, or <code>"innermost"</code>, last before the model. When the agent is
+made, it sorts its capabilities so that every declared place holds, and
+keeps your list's order for the rest; two that declare the same position
+share it, and list order decides between them. A <code>Hooks</code> object takes the
+same thing as <code>ordering=</code>. (<code>CapabilityOrdering</code> can also say that one
+capability wraps another: see "Ordering" on the <a href="https://pydantic.dev/docs/ai/capabilities/custom/">Custom
+capabilities</a> page.)
+The harness does this itself: its input guardrail declares <code>innermost</code>, so
+it checks the prompt as every other capability has left it.</p>
+<h2 id="what-youll-build">What you'll build</h2>
+<p>You split <code>build_chat_agent</code> into <code>chat_capabilities()</code>, the list of everything the chat does, and <code>build_chat_agent()</code>, whose constructor holds only what the agent is. Then <code>demos/stack_order.py</code> builds the agent with its list forwards and reversed, to show what the order changes, and <code>PromptFile</code> and the activity log declare their places.</p>
+<h2 id="before-you-start">Before you start</h2>
+<p>Carry on in your <code>pydantic-tutor</code> project from the last lesson.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> run <code>uv run demos/fresh_copy.py</code>, then <code>uv run demos/guard_check.py</code>. Its log's last line is the refused <code>pytest --version &amp;&amp; cat .env</code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Joining here, or has your project gone wrong?</strong> If your project works, skip this. To refresh a broken project, delete its folder first: you lose your work and anything else in it, including your <code>.env</code> and its API keys.</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span><span class="m">04</span>-07-memory/end<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/chrislomeli/pydanticai-tutorial-student.git<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>sync
+</code></pre></div>
+<p>Then run the check above.</p>
+</div>
+<h2 id="step-1-separate-settings-from-capabilities">Step 1: Separate settings from capabilities</h2>
+<blockquote>
+<p><strong>Goal:</strong> turn <code>build_chat_agent</code> into two functions: one returns the
+chat's capabilities, one builds the agent from them.</p>
+</blockquote>
+<p>We'll separate building the capability list from constructing the agent. The list stays the same, so this refactor should not change what the model receives.</p>
+<p>In <code>src/pydantic_tutor/chat/agent.py</code>:</p>
+<ul>
+<li>Add <code>from collections.abc import Sequence</code> and <code>from
+  pydantic_ai.settings import ModelSettings</code>, and import <code>AgentCapability</code>
+  from <code>pydantic_ai.capabilities</code> in place of <code>AbstractCapability</code>.</li>
+<li>Rename <code>build_chat_agent</code> to <code>chat_capabilities</code>. It returns
+  <code>list[AgentCapability[None]]</code>, as does its <code>capabilities</code> variable, and
+  its docstring is <code>"""Everything the chat does, as a list of
+  capabilities, each one new."""</code>. Its list stays as it is.</li>
+<li>At the end of that function, replace <code>return Agent(...)</code> with <code>return
+  capabilities</code>, and write <code>build_chat_agent</code> after it:</li>
+</ul>
+<div class="highlight"><pre><span></span><code>        <span class="n">capabilities</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">capabilities</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_chat_agent</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">web_search</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">workspace_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">activity_log</span><span class="p">:</span> <span class="n">Hooks</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">capabilities</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">AgentCapability</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Build the chat's agent: what it is here, what it does in `capabilities`.</span>
+
+<span class="sd">    The constructor sets what no capability can. `capabilities` defaults to</span>
+<span class="sd">    `chat_capabilities(...)`; pass another list to rearrange or extend the</span>
+<span class="sd">    stack, and the other arguments are not used.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">capabilities</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">capabilities</span> <span class="o">=</span> <span class="n">chat_capabilities</span><span class="p">(</span>
+            <span class="n">web_search</span><span class="o">=</span><span class="n">web_search</span><span class="p">,</span>
+            <span class="n">workspace_root</span><span class="o">=</span><span class="n">workspace_root</span><span class="p">,</span>
+            <span class="n">activity_log</span><span class="o">=</span><span class="n">activity_log</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">](</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"chat"</span><span class="p">,</span>
+        <span class="c1"># The type the type checker holds every run to.</span>
+        <span class="n">output_type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="c1"># Each attempt at a request that takes longer fails; most hosted</span>
+        <span class="c1"># models honour it, the given stand-in models do not.</span>
+        <span class="n">model_settings</span><span class="o">=</span><span class="n">ModelSettings</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">),</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>The <code>chat_agent = build_chat_agent(...)</code> line below doesn't change. Nothing the
+model is sent should change either:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/guard_check.py
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">"from pydantic_tutor.chat.agent import chat_agent as a; print(a.name, a.output_type, a.model_settings)"</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> <code>guard_check.py</code> prints what it printed in Before you start. The
+second command prints:</p>
+<div class="highlight"><pre><span></span><code>chat &lt;class 'str'&gt; {'timeout': 120}
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>Nothing the model is sent changed: the capabilities are the same, in the same
+order. The constructor holds the agent's name and output type
+(<code>output_type=str</code> was the default; written out, it says what the agent
+is) and a request default, the one middle row this project's rule keeps
+there. The timeout is new, and is the library's: a model that honours it
+fails an attempt that takes longer than 120 seconds. The stand-in models
+here don't, so nothing in this lesson shows it working.</p>
+<p><code>chat_capabilities()</code> makes new objects on each call, so two agents built
+from it share no capability that holds state of its own, such as the
+notebook's. <code>build_app</code> and <code>chat_agent</code> call <code>build_chat_agent</code> as
+before, so neither changed.</p>
+<h2 id="step-2-reverse-the-list">Step 2: Reverse the list</h2>
+<blockquote>
+<p><strong>Goal:</strong> build the agent with its capabilities forwards and reversed, and see what the order changes.</p>
+</blockquote>
+<p>Now we'll compare the normal list with its reverse. This shows which behaviors depend on a capability's position. It reuses the given model from the guards lesson, which also prints how each piece of its instructions starts.</p>
+<p>Create <code>demos/stack_order.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""The chat's agent with its capabilities listed forwards, then reversed.</span>
+
+<span class="sd">Needs no API key. It adds a `deploy.toml` with a fake token to the workspace copy;</span>
+<span class="sd">run `demos/fresh_copy.py` first.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgentCapability</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.capabilities.activity_log</span><span class="w"> </span><span class="kn">import</span> <span class="n">HookName</span><span class="p">,</span> <span class="n">build_activity_hooks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.chat.agent</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_chat_agent</span><span class="p">,</span> <span class="n">chat_capabilities</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.settings</span><span class="w"> </span><span class="kn">import</span> <span class="n">Settings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.stand_ins</span><span class="w"> </span><span class="kn">import</span> <span class="n">reads_a_token_then_chains_a_command</span>
+
+<span class="n">settings</span> <span class="o">=</span> <span class="n">Settings</span><span class="p">()</span>
+<span class="n">ROOT</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">workspace_root</span>
+<span class="n">LOG</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">activity_log_path</span>
+<span class="p">(</span><span class="n">ROOT</span> <span class="o">/</span> <span class="s2">"deploy.toml"</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">'runner_token = "tj-FAKE-0000-not-a-real-secret"</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">stack</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">AgentCapability</span><span class="p">[</span><span class="kc">None</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""The chat's capabilities, each one new."""</span>
+    <span class="k">return</span> <span class="n">chat_capabilities</span><span class="p">(</span>
+        <span class="n">web_search</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">workspace_root</span><span class="o">=</span><span class="n">ROOT</span><span class="p">,</span>
+        <span class="n">activity_log</span><span class="o">=</span><span class="n">build_activity_hooks</span><span class="p">(</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">LOG</span><span class="p">,</span> <span class="n">hooks</span><span class="o">=</span><span class="nb">frozenset</span><span class="p">({</span><span class="n">HookName</span><span class="o">.</span><span class="n">BEFORE_TOOL_EXECUTE</span><span class="p">})</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+
+<span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">capabilities</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">"forwards"</span><span class="p">,</span> <span class="n">stack</span><span class="p">()),</span> <span class="p">(</span><span class="s2">"reversed"</span><span class="p">,</span> <span class="n">stack</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">])]:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">label</span><span class="p">)</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">chat</span> <span class="o">=</span> <span class="n">build_chat_agent</span><span class="p">(</span>
+        <span class="n">web_search</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">workspace_root</span><span class="o">=</span><span class="n">ROOT</span><span class="p">,</span> <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span>
+    <span class="p">)</span>
+    <span class="n">chat</span><span class="o">.</span><span class="n">run_sync</span><span class="p">(</span>
+        <span class="n">user_prompt</span><span class="o">=</span><span class="s2">"Check the deployment settings."</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">reads_a_token_then_chains_a_command</span><span class="p">(</span><span class="n">show_instructions</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"  logged:"</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">LOG</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()),</span> <span class="s2">"tool calls"</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/stack_order.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> ignoring any startup banner, you should see:</p>
+<div class="highlight"><pre><span></span><code>forwards
+instructions: You are a helpful ...
+instructions: You have a persistent ...
+instructions: [token removed] in a ...
+instructions: Your workspace holds the ...
+model got, from read_file:
+[deploy.toml | 1 lines | hash:e3b623df92da]
+1   runner_token = "[token removed]"
+model got, from run_command:
+Run one command at a time, with no chaining.
+logged: 2 tool calls
+reversed
+instructions: [token removed] in a ...
+instructions: You have a persistent ...
+instructions: You are a helpful ...
+instructions: Your workspace holds the ...
+model got, from read_file:
+[deploy.toml | 1 lines | hash:e3b623df92da]
+1   runner_token = "[token removed]"
+model got, from run_command:
+Run one command at a time, with no chaining.
+logged: 1 tool calls
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>Two things differ, and they're the two facts the list's order was holding.</p>
+<p>Reversed, the prompt isn't first: the notebook's guidance and <code>RedactTokens</code>'s sentence reach the model ahead of it, because text is sent in list order. And the log records one tool call, not two, because it now sits after the guard, which refused the second before the log saw it. The workspace sentence stays last in both, because a toolset's instructions are sent after a capability's.</p>
+<h2 id="step-3-set-capability-order">Step 3: Set capability order</h2>
+<blockquote>
+<p><strong>Goal:</strong> make <code>PromptFile</code> and the activity log declare their positions, so reversing the list no longer changes the behavior.</p>
+</blockquote>
+<p>We'll give the prompt and activity log explicit positions so future edits don't depend on their list order.</p>
+<p>In <code>src/pydantic_tutor/capabilities/prompt_file.py</code>, import <code>CapabilityOrdering</code> beside
+<code>AbstractCapability</code>, and add a method to <code>PromptFile</code>, after
+<code>get_instructions</code>:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span><span class="w"> </span><span class="nf">get_ordering</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CapabilityOrdering</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Put this capability first, wherever it is listed."""</span>
+        <span class="c1"># The prompt says what the agent is for, so it is the first text the</span>
+        <span class="c1"># model is sent: of the instructions given as text, the agent sends</span>
+        <span class="c1"># those of the outermost capability first.</span>
+        <span class="k">return</span> <span class="n">CapabilityOrdering</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s2">"outermost"</span><span class="p">)</span>
+</code></pre></div>
+<p>In <code>src/pydantic_tutor/capabilities/activity_log.py</code>, import <code>CapabilityOrdering</code> beside <code>Hooks</code>, and add one argument to the <code>HooksNone</code> that <code>build_activity_hooks</code> returns, after <code>after_tool_execute</code>:</p>
+<div class="highlight"><pre><span></span><code>        <span class="c1"># Outermost, wherever it is listed: its `before_` hooks see every</span>
+        <span class="c1"># attempt, and its `after_` hooks see the result the model gets.</span>
+        <span class="n">ordering</span><span class="o">=</span><span class="n">CapabilityOrdering</span><span class="p">(</span><span class="n">position</span><span class="o">=</span><span class="s2">"outermost"</span><span class="p">),</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/stack_order.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> you should see:</p>
+<div class="highlight"><pre><span></span><code>forwards
+instructions: You are a helpful ...
+instructions: You have a persistent ...
+instructions: [token removed] in a ...
+instructions: Your workspace holds the ...
+model got, from read_file:
+[deploy.toml | 1 lines | hash:e3b623df92da]
+1   runner_token = "[token removed]"
+model got, from run_command:
+Run one command at a time, with no chaining.
+logged: 2 tool calls
+reversed
+instructions: You are a helpful ...
+instructions: [token removed] in a ...
+instructions: You have a persistent ...
+instructions: Your workspace holds the ...
+model got, from read_file:
+[deploy.toml | 1 lines | hash:e3b623df92da]
+1   runner_token = "[token removed]"
+model got, from run_command:
+Run one command at a time, with no chaining.
+logged: 2 tool calls
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>The agent sorts its capabilities when it is made. <code>PromptFile</code> and the log declared <code>outermost</code>, so they go first whichever way the list runs: the prompt is the first text sent, and the log records both tool calls in both orders. Every other capability keeps its place from your list, which is why the guidance and <code>RedactTokens</code>'s sentence still swap. Nothing relies on their order, so they don't declare one.</p>
+<p>When something relies on a place, it belongs in a declaration, not a comment.</p>
+<h2 id="step-4-inspect-the-finished-chat">Step 4: Inspect the finished chat</h2>
+<blockquote>
+<p><strong>Goal:</strong> connect each thing the chat does to the part that brings it.</p>
+</blockquote>
+<p>This step uses your API key, and the model decides what it does.</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/show_capabilities.py
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pydantic_tutor
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Which module handles retries in this project? Save a note about it, then run the tests.
+</code></pre></div>
+<p>End the chat with an empty line, then open <code>work/activity.jsonl</code>.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the log shows the tools the model chose, with a request between each round. Each tool came from a line that <code>show_capabilities.py</code> printed. Your calls will differ from anyone else's.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p>Everything the chat does beyond the model is in one list, and you can name what each entry brings. <code>build_chat_agent</code> itself says only what the agent is.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<ul>
+<li><strong>The constructor says what the agent is, and the list says what it does.</strong> You can put a choice on the right side.</li>
+<li><strong>A capability whose place matters declares it.</strong> The list can be rearranged and added to without breaking what relies on it.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p>Chapter 4 is done: the agent is built from parts, and the list can grow. Next, the chat learns to ask you before it writes a file or runs a command.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../04-07-memory/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 04-07 Save notes between chats">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                04-07 Save notes between chats
+              </div>
+            </div>
+          </a>
+        
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

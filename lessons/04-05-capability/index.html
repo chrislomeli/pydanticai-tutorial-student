@@ -1,0 +1,2337 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="See what each capability in the chat's list brings, then turn the token-removing hook into a capability of your own that also tells the model what it did.">
+      
+      
+      
+        <link rel="canonical" href="https://chrislomeli.github.io/pydanticai-tutorial-student/lessons/04-05-capability/">
+      
+      
+        <link rel="prev" href="../04-04-guards/">
+      
+      
+        <link rel="next" href="../04-06-prompt/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>What a capability is - pydantic-tutor</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#build-a-custom-capability" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="pydantic-tutor" class="md-header__button md-logo" aria-label="pydantic-tutor" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pydantic-tutor
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              What a capability is
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="pydantic-tutor" class="md-nav__button md-logo" aria-label="pydantic-tutor" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    pydantic-tutor
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/chrislomeli/pydanticai-tutorial-student" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 0 Before you start
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 0 Before you start
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-01-orientation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-01 From chat window to agent
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-02-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-02 The tools: uv, git, Ruff and mypy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-03-operating-systems/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-03 Pick your operating system
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-04-macos-installs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-04 Install the tools: macOS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-05-linux-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-05 Install the tools: Linux
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-06-windows-installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-06 Install the tools: Windows
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../00-07-the-tinyjobs-example/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    00-07 The example you'll work with
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 1 The agent
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 1 The agent
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-01-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-01 Setting up the environment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-02-agent/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-02 An agent, and a model you can script
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-03-function-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-03 Tools, and the loop that calls them
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-04-deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-04 Dependencies
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-05-instructions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-05 A word on system prompts and instructions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-06-typed-answer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-06 Structured output: a typed answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-07-output-trap/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-07 The structured-output trap
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-08-limits/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    01-08 Limits, retries and timeouts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 2 A chat
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 2 A chat
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-01-real-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-01 A real model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-02-console-chat/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-02 A chat in the terminal
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-03-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-03 A chat that remembers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-04-streaming/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-04 Streaming the answer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-05-web-search/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    02-05 Web search, a capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 3 The application and a workspace
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 3 The application and a workspace
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-00-application-and-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-01-settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-01 Settings and a composition root
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-02-models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-02 Models and providers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-03-workspace/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-03 A workspace
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-04-files/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-04 Let the chat read your project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../03-05-shell/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    03-05 Let the chat run a command
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chapter 4 Capabilities
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chapter 4 Capabilities
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-00-capabilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-01-toolsets/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-01 Toolsets
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-02-hooks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-02 Agent runs with hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-03-activity-log/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-03 Put the activity log in the chat
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-04-guards/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-04 Change tool calls with hooks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-05 Build a custom capability
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-05 Build a custom capability
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#capabilities-add-behavior-to-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capabilities add behavior to an agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-class-keeps-related-behavior-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A class keeps related behavior together
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-inspect-the-chats-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Inspect the chat's capabilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-build-the-redaction-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Build the redaction capability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-test-redaction-in-the-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Test redaction in the chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-06-prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-06 Move the chat prompt into a file
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-07-memory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-07 Save notes between chats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-08-seam/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    04-08 Separate agent settings from capabilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#welcome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Welcome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#capabilities-add-behavior-to-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Capabilities add behavior to an agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-class-keeps-related-behavior-together" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A class keeps related behavior together
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-youll-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you'll build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before you start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-inspect-the-chats-capabilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: Inspect the chat's capabilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-build-the-redaction-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Build the redaction capability
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-test-redaction-in-the-chat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Test redaction in the chat
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-you-can-now-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What you can now do
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="build-a-custom-capability">Build a custom capability</h1>
+<h2 id="welcome">Welcome</h2>
+<p>This lesson is about <strong>custom capabilities</strong>: classes we write to give an agent new behavior. You've been adding them to a list since Chapter 2, and <code>Hooks</code> was one too. Now we'll build one of our own.</p>
+<p>Last time we left a flaw. <code>remove_tokens</code> puts <code>[token removed]</code> into a tool's result, and nothing has told the model what that means. Fixing it takes a hook and an instruction that travel together, and that's what a capability you write yourself is for. We'll look at what's already in the chat's list, then turn the hook into a class.</p>
+<p>By the end, you'll be able to:</p>
+<ul>
+<li>Say what a capability is, and name what the chat's capabilities bring.</li>
+<li>Write a capability with a setting, an instruction and a hook.</li>
+<li>Choose between <code>Hooks(...)</code> and a class of your own.</li>
+</ul>
+<p>About 15 minutes. Steps 1 and 2 need no API key. Step 3 uses your OpenAI key.</p>
+<h2 id="concepts">Concepts</h2>
+<h3 id="capabilities-add-behavior-to-an-agent">Capabilities add behavior to an agent</h3>
+<p>The library's base class, <code>AbstractCapability</code>, has a method for each thing a capability can bring. Each one does nothing by default, and a capability overrides the ones it needs:</p>
+<table>
+<thead>
+<tr>
+<th>A capability can bring</th>
+<th>By overriding</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Instructions</td>
+<td><code>get_instructions()</code></td>
+</tr>
+<tr>
+<td>Tools</td>
+<td><code>get_toolset()</code></td>
+</tr>
+<tr>
+<td>A workspace</td>
+<td><code>get_workspace()</code></td>
+</tr>
+<tr>
+<td>Hooks</td>
+<td><code>before_tool_execute()</code>, <code>after_tool_execute()</code> and the rest</td>
+</tr>
+</tbody>
+</table>
+<p><code>Shell</code>, <code>FileSystem</code>, <code>WebSearch</code> and <code>Hooks</code> are all subclasses of it. To the agent, they're the same kind of thing, so the <code>capabilities</code> list can hold them side by side. Capabilities can also supply model settings; we'll return to that later.</p>
+<h3 id="a-class-keeps-related-behavior-together">A class keeps related behavior together</h3>
+<p>Use <code>Hooks(...)</code> when a function can stand on its own. We'll keep <code>refuse_chained_commands</code> that way.</p>
+<p><code>remove_tokens</code> also needs to explain the replacement text to the model. We'll put the hook and that instruction in one class. The class will hold the token pattern as a setting.</p>
+<h2 id="what-youll-build">What you'll build</h2>
+<ul>
+<li><code>src/pydantic_tutor/capabilities/redact_tokens.py</code>, new: <code>RedactTokens</code> (our name, not the library's)</li>
+<li><code>src/pydantic_tutor/capabilities/guards.py</code>, changed: <code>remove_tokens</code> moves out</li>
+<li><code>src/pydantic_tutor/chat/agent.py</code>, changed: the chat takes <code>RedactTokens</code></li>
+</ul>
+<p>Given: <code>demos/show_capabilities.py</code>, which lists what each of the chat's capabilities brings. You don't need to read it.</p>
+<p>The steps:</p>
+<ol>
+<li>See what's in the chat's list.</li>
+<li>Turn the hook into a capability.</li>
+<li>Try it in a real chat.</li>
+</ol>
+<h2 id="before-you-start">Before you start</h2>
+<p>Carry on in your <code>pydantic-tutor</code> project from the last lesson.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> run <code>uv run demos/fresh_copy.py</code>, then <code>uv run demos/guard_check.py</code>. Its output includes <code>runner_token = "[token removed]"</code>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Joining here, or has your project gone wrong?</strong> If your project works, skip this. To refresh a broken project, delete its folder first: you lose your work and anything else in it, including your <code>.env</code> and its API keys.</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>--branch<span class="w"> </span><span class="m">04</span>-04-guards/end<span class="w"> </span>--single-branch<span class="w"> </span>https://github.com/chrislomeli/pydanticai-tutorial-student.git<span class="w"> </span>pydantic-tutor
+<span class="nb">cd</span><span class="w"> </span>pydantic-tutor
+uv<span class="w"> </span>sync
+</code></pre></div>
+<p>Then run the check above.</p>
+</div>
+<h2 id="step-1-inspect-the-chats-capabilities">Step 1: Inspect the chat's capabilities</h2>
+<blockquote>
+<p><strong>Goal:</strong> see that the things you've been adding are all one kind of thing.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/show_capabilities.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> ignoring any startup banner, you should see:</p>
+<div class="highlight"><pre><span></span><code>LocalWorkspace: a workspace
+FileSystem: tools, hooks
+Shell: tools, hooks
+Toolset: tools
+Hooks: hooks
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>Each line is one entry in the chat's list, and each brings something different. <code>LocalWorkspace</code> brings only a workspace. <code>Toolset</code> brings only tools. <code>FileSystem</code> and <code>Shell</code> bring tools and hooks of their own. <code>Hooks</code> is the <code>guards</code> you wrote last time, and brings hooks only.</p>
+<p>None of them brings instructions yet. That's what we'll add.</p>
+<h2 id="step-2-build-the-redaction-capability">Step 2: Build the redaction capability</h2>
+<blockquote>
+<p><strong>Goal:</strong> one object that removes tokens and tells the model it does.</p>
+</blockquote>
+<p>We'll create <code>RedactTokens</code> to keep the redaction hook and its explanation together. The pattern becomes a setting on the class.</p>
+<p>Create <code>src/pydantic_tutor/capabilities/redact_tokens.py</code>. Three Python features matter here:</p>
+<ul>
+<li><code>@dataclass(kw_only=True)</code> makes each field a keyword argument: <code>RedactTokens(pattern=...)</code>.</li>
+<li><code>__post_init__</code> runs at the end of the constructor, so a bad pattern stops the app at startup, not in the middle of a run.</li>
+<li><code>[DepsT]</code> means "for whatever deps type the agent has". This capability reads none, so any agent can take it.</li>
+<li><code>after_tool_execute</code> is the same hook as before, now a method. It has to be <code>async</code>. A plain <code>def</code> fails the run with a <code>TypeError</code> at the first tool call, and a method with any other name is never called, with no error at all.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">"""Remove tokens from tool results, and tell the model that it happens.</span>
+
+<span class="sd">A safety net for mistakes, not a security boundary: it matches one known</span>
+<span class="sd">format, not every secret.</span>
+<span class="sd">"""</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AbstractCapability</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolCallPart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolDefinition</span>
+
+<span class="n">REPLACEMENT</span> <span class="o">=</span> <span class="s2">"[token removed]"</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RedactTokens</span><span class="p">[</span><span class="n">DepsT</span><span class="p">](</span><span class="n">AbstractCapability</span><span class="p">[</span><span class="n">DepsT</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">"""Replace anything matching `pattern` in tool results, and say so."""</span>
+
+    <span class="c1"># A regular expression for the tokens to remove.</span>
+    <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">compiled</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">Pattern</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Compile the pattern now, so a bad one fails when the app starts."""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compiled</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pattern</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_instructions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Tell the model what the replacement text means."""</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">REPLACEMENT</span><span class="si">}</span><span class="s2"> in a tool result marks a secret removed on purpose. "</span>
+            <span class="s2">"The file isn't broken. Don't try to recover the secret."</span>
+        <span class="p">)</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">after_tool_execute</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ctx</span><span class="p">:</span> <span class="n">RunContext</span><span class="p">[</span><span class="n">DepsT</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">call</span><span class="p">:</span> <span class="n">ToolCallPart</span><span class="p">,</span>
+        <span class="n">tool_def</span><span class="p">:</span> <span class="n">ToolDefinition</span><span class="p">,</span>
+        <span class="n">args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+        <span class="n">result</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the tool's result with the tokens removed."""</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">compiled</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">REPLACEMENT</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+<p>Now <code>guards.py</code> only needs the refusal. In <code>src/pydantic_tutor/capabilities/guards.py</code>, delete the <code>remove_tokens</code> function, the <code>TOKEN</code> constant and its comment, and the <code>import re</code> line. Then replace the last lines of the file, which make <code>guards</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">guards</span><span class="p">:</span> <span class="n">Hooks</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">Hooks</span><span class="p">(</span><span class="n">before_tool_execute</span><span class="o">=</span><span class="n">refuse_chained_commands</span><span class="p">)</span>
+</code></pre></div>
+<p>And replace the module's docstring, which no longer describes it:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">"""A rule only this application knows, as a hook on the chat's shell commands.</span>
+
+<span class="sd">A safety net for mistakes, not a security boundary: `pytest` still runs any code</span>
+<span class="sd">it is given.</span>
+<span class="sd">"""</span>
+</code></pre></div>
+<p>In <code>src/pydantic_tutor/chat/agent.py</code>, add this import after the <code>guards</code> import:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.capabilities.redact_tokens</span><span class="w"> </span><span class="kn">import</span> <span class="n">RedactTokens</span>
+</code></pre></div>
+<p>Add the token format after <code>SHELL_COMMANDS</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># The shape of this project's tokens.</span>
+<span class="n">TOKEN_PATTERN</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"tj-[A-Za-z0-9-]+"</span>
+</code></pre></div>
+<p>And add the capability after <code>guards</code> in the list:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">guards</span><span class="p">,</span>
+        <span class="n">RedactTokens</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="n">TOKEN_PATTERN</span><span class="p">),</span>
+    <span class="p">]</span>
+</code></pre></div>
+<p>And name it in the docstring's piece list, after "Guards":</p>
+<div class="highlight"><pre><span></span><code><span class="o">-</span> <span class="n">Guards</span><span class="p">:</span> <span class="n">our</span> <span class="n">rules</span> <span class="k">for</span> <span class="n">tool</span> <span class="n">calls</span><span class="o">.</span>
+<span class="o">-</span> <span class="n">Token</span> <span class="n">redaction</span><span class="p">:</span> <span class="n">secrets</span> <span class="n">removed</span> <span class="n">before</span> <span class="n">the</span> <span class="n">model</span> <span class="n">sees</span> <span class="n">them</span><span class="o">.</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/show_capabilities.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/guard_check.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/show_chat_request.py
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> <code>show_capabilities.py</code> now ends with these two lines:</p>
+<div class="highlight"><pre><span></span><code>Hooks: hooks
+RedactTokens: instructions, hooks
+</code></pre></div>
+<p><code>guard_check.py</code> prints exactly what it did before, including <code>runner_token = "[token removed]"</code>.</p>
+<p><code>show_chat_request.py</code> prints the tools, then these instructions:</p>
+<div class="highlight"><pre><span></span><code>instructions: "You are a helpful assistant. Answer briefly.\n\n[token removed] in a tool result marks a secret removed on purpose. The file isn't broken. Don't try to recover the secret.\n\nYour workspace holds the Python project tinyjobs."
+</code></pre></div>
+</div>
+<p><strong>What it means</strong></p>
+<p>The tokens are removed just as before, and the model is now told what the replacement means. Both came from one line in the list. <code>RedactTokens</code> is the first entry that brings instructions and hooks together, and a second agent could take the whole thing with that one line.</p>
+<p><code>guards</code> stayed a <code>Hooks</code>, because it's one function with nothing to say to the model. That's the choice from Concepts: reach for a class when pieces have to travel together.</p>
+<details>
+<summary>Optional: compare your finished files</summary>
+
+`src/pydantic_tutor/capabilities/guards.py`:
+
+<div class="highlight"><pre><span></span><code><span class="sd">"""A rule only this application knows, as a hook on the chat's shell commands.</span>
+
+<span class="sd">A safety net for mistakes, not a security boundary: `pytest` still runs any code</span>
+<span class="sd">it is given.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunContext</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hooks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelRetry</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolCallPart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">ToolDefinition</span>
+
+<span class="c1"># What joins one shell command to another, or runs one inside another.</span>
+<span class="n">CHAINING</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"&amp;&amp;"</span><span class="p">,</span> <span class="s2">"||"</span><span class="p">,</span> <span class="s2">";"</span><span class="p">,</span> <span class="s2">"|"</span><span class="p">,</span> <span class="s2">"`"</span><span class="p">,</span> <span class="s2">"$("</span><span class="p">,</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">refuse_chained_commands</span><span class="p">(</span>
+    <span class="n">ctx</span><span class="p">:</span> <span class="n">RunContext</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">call</span><span class="p">:</span> <span class="n">ToolCallPart</span><span class="p">,</span>
+    <span class="n">tool_def</span><span class="p">:</span> <span class="n">ToolDefinition</span><span class="p">,</span>
+    <span class="n">args</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Refuse a shell command that holds more than one command."""</span>
+    <span class="n">command</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"command"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">mark</span> <span class="ow">in</span> <span class="n">command</span> <span class="k">for</span> <span class="n">mark</span> <span class="ow">in</span> <span class="n">CHAINING</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ModelRetry</span><span class="p">(</span><span class="s2">"Run one command at a time, with no chaining."</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">args</span>
+
+
+<span class="n">guards</span><span class="p">:</span> <span class="n">Hooks</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="n">Hooks</span><span class="p">(</span><span class="n">before_tool_execute</span><span class="o">=</span><span class="n">refuse_chained_commands</span><span class="p">)</span>
+</code></pre></div>
+
+`src/pydantic_tutor/chat/agent.py`:
+
+<div class="highlight"><pre><span></span><code><span class="sd">"""The agent the chat talks to.</span>
+
+<span class="sd">No model here, as for every agent in this project: the chat passes one on</span>
+<span class="sd">each run.</span>
+
+<span class="sd">Built from these pieces:</span>
+<span class="sd">- Workspace: the folder the tools work in.</span>
+<span class="sd">- File tools: read and write files there.</span>
+<span class="sd">- Shell tools: run a few commands there.</span>
+<span class="sd">- Toolset: the workspace's own tools.</span>
+<span class="sd">- Web search: switched on by a setting.</span>
+<span class="sd">- Activity log: a record of the run, if one is given.</span>
+<span class="sd">- Guards: our rules for tool calls.</span>
+<span class="sd">- Token redaction: secrets removed before the model sees them.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai</span><span class="w"> </span><span class="kn">import</span> <span class="n">Agent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai.capabilities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AbstractCapability</span><span class="p">,</span>
+    <span class="n">Hooks</span><span class="p">,</span>
+    <span class="n">LocalWorkspace</span><span class="p">,</span>
+    <span class="n">Toolset</span><span class="p">,</span>
+    <span class="n">WebSearch</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_ai_harness</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileSystem</span><span class="p">,</span> <span class="n">Shell</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.capabilities.guards</span><span class="w"> </span><span class="kn">import</span> <span class="n">guards</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.capabilities.redact_tokens</span><span class="w"> </span><span class="kn">import</span> <span class="n">RedactTokens</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic_tutor.tools.workspace_toolset</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_workspace_toolset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tutor_given.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">project_root</span>
+
+<span class="c1"># File names the file tools may not touch. A precaution, not a complete</span>
+<span class="c1"># data-security policy.</span>
+<span class="n">SECRET_PATTERNS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"**/.env"</span><span class="p">,</span> <span class="s2">"**/.env.*"</span><span class="p">,</span> <span class="s2">"*.pem"</span><span class="p">,</span> <span class="s2">"*.key"</span><span class="p">,</span> <span class="s2">"**/secrets*"</span><span class="p">)</span>
+
+<span class="c1"># The commands the shell may start. A precaution, not a boundary: it checks</span>
+<span class="c1"># only a command's first word, so `ls &amp;&amp; cat .env` still runs.</span>
+<span class="n">SHELL_COMMANDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"pytest"</span><span class="p">,</span> <span class="s2">"pwd"</span><span class="p">,</span> <span class="s2">"ls"</span><span class="p">,</span> <span class="s2">"cat"</span><span class="p">)</span>
+
+<span class="c1"># The shape of this project's tokens.</span>
+<span class="n">TOKEN_PATTERN</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">"tj-[A-Za-z0-9-]+"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_chat_agent</span><span class="p">(</span>
+    <span class="o">*</span><span class="p">,</span> <span class="n">web_search</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">workspace_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">:</span> <span class="n">Hooks</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Build the chat's agent."""</span>
+    <span class="n">capabilities</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">AbstractCapability</span><span class="p">[</span><span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="c1"># Workspace: a place for tools to work in. It adds no tool: they use</span>
+        <span class="c1"># `ctx.workspace`.</span>
+        <span class="n">LocalWorkspace</span><span class="p">(</span><span class="n">working_dir</span><span class="o">=</span><span class="n">workspace_root</span><span class="p">),</span>
+        <span class="c1"># File tools: read and write files in that workspace, minus the secret</span>
+        <span class="c1"># patterns.</span>
+        <span class="n">FileSystem</span><span class="p">(</span><span class="n">denied_patterns</span><span class="o">=</span><span class="n">SECRET_PATTERNS</span><span class="p">),</span>
+        <span class="c1"># Shell tools: run the allowed commands in that workspace.</span>
+        <span class="n">Shell</span><span class="p">(</span><span class="n">allowed_commands</span><span class="o">=</span><span class="n">SHELL_COMMANDS</span><span class="p">),</span>
+        <span class="c1"># Toolset: the workspace's own tools, built for this folder.</span>
+        <span class="n">Toolset</span><span class="p">(</span><span class="n">toolset</span><span class="o">=</span><span class="n">build_workspace_toolset</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">workspace_root</span><span class="p">)),</span>
+        <span class="c1"># Our rules for tool calls: see the module's limits.</span>
+        <span class="n">guards</span><span class="p">,</span>
+        <span class="n">RedactTokens</span><span class="p">(</span><span class="n">pattern</span><span class="o">=</span><span class="n">TOKEN_PATTERN</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">web_search</span><span class="p">:</span>
+        <span class="c1"># Web search: the model may search when it needs to. Each search is</span>
+        <span class="c1"># billed by the provider, on top of the tokens.</span>
+        <span class="n">capabilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">WebSearch</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">activity_log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># First: its `before_` hooks see every attempt, and its `after_` hooks</span>
+        <span class="c1"># run last, so they see the result the model gets.</span>
+        <span class="n">capabilities</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">activity_log</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Agent</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="nb">str</span><span class="p">](</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"chat"</span><span class="p">,</span>
+        <span class="n">instructions</span><span class="o">=</span><span class="s2">"You are a helpful assistant. Answer briefly."</span><span class="p">,</span>
+        <span class="n">capabilities</span><span class="o">=</span><span class="n">capabilities</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># Earlier demos import this name; the console chat builds its agent in build_app.</span>
+<span class="n">chat_agent</span> <span class="o">=</span> <span class="n">build_chat_agent</span><span class="p">(</span>
+    <span class="n">web_search</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">workspace_root</span><span class="o">=</span><span class="n">project_root</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"work"</span> <span class="o">/</span> <span class="s2">"tinyjobs"</span>
+<span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<h2 id="step-3-test-redaction-in-the-chat">Step 3: Test redaction in the chat</h2>
+<blockquote>
+<p><strong>Goal:</strong> see whether a real model understands the replacement.</p>
+</blockquote>
+<p>This step uses your API key, and the model decides what it says. <code>guard_check.py</code> adds <code>deploy.toml</code> to the workspace copy, so run it first and don't reset the copy afterwards:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>demos/fresh_copy.py
+uv<span class="w"> </span>run<span class="w"> </span>demos/guard_check.py
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>pydantic_tutor
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Read deploy.toml and tell me what's in it.
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p><strong>Check:</strong> the answer doesn't contain <code>tj-FAKE</code>. The model should describe the value as removed, rather than call the file broken. It's the model's wording, so yours will differ.</p>
+</div>
+<p><strong>What it means</strong></p>
+<p>The hook guarantees what the model is sent, and that part isn't up to the model. The instruction only asks, and a real model's response to it can vary. That's the difference between code and a prompt, and a capability can carry both.</p>
+<h2 id="what-you-can-now-do">What you can now do</h2>
+<ul>
+<li><strong>A capability is one object that gives an agent part of what it does.</strong> You can say what the chat's capabilities bring.</li>
+<li><strong><code>Hooks(...)</code> is enough for a function on its own.</strong> A class is for when a hook needs an instruction or a setting to go with it.</li>
+</ul>
+<h2 id="next">Next</h2>
+<p><code>RedactTokens</code> brings an instruction and a hook. Next we'll write a capability with no hooks at all, one that moves the chat's prompt out of Python and into a file.</p>
+<hr />
+<p><em>Tested with <code>pydantic-ai</code> 2.56.0 and <code>pydantic-ai-harness</code> 0.56.0.</em></p>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../04-04-guards/" class="md-footer__link md-footer__link--prev" aria-label="Previous: 04-04 Change tool calls with hooks">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                04-04 Change tool calls with hooks
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-06-prompt/" class="md-footer__link md-footer__link--next" aria-label="Next: 04-06 Move the chat prompt into a file">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                04-06 Move the chat prompt into a file
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["content.code.copy", "navigation.footer", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
