@@ -32,6 +32,13 @@
 .md-typeset .highlight code {
   border-radius: 6px;
 }
+/* On white, Material's code background is too pale to see: deepen it, and edge it. */
+[data-md-color-scheme="default"] {
+  --md-code-bg-color: #eef0f6;
+}
+[data-md-color-scheme="default"] .md-typeset .highlight code {
+  border: 1px solid #d3d8e8;
+}
 .md-typeset blockquote {
   margin: 1.5em 0;
   padding: 0.6em 1em;
