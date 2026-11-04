@@ -12,3 +12,4 @@ wheels/
 # Secrets: holds your API key from the chat lesson on. Never commit it.
 .env
 .env.*
+/work/

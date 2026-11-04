@@ -21,12 +21,18 @@ pydantic-tutor = "pydantic_tutor:main"
 requires = ["uv_build>=0.13.1,<0.14.0"]
 build-backend = "uv_build"
 
+[tool.uv.build-backend]
+module-name = ["pydantic_tutor", "tutor_given"]
+
 [dependency-groups]
 dev = [
     "mypy==2.4.0",
     "pytest==9.1.1",
     "ruff==0.16.10",
 ]
+
+[tool.ruff]
+extend-exclude = ["sample_code", "work"]
 
 [tool.ruff.lint]
 select = [
@@ -46,4 +52,11 @@ ignore = ["E501"]  # line length is the formatter's job
 [tool.mypy]
 strict = true
 plugins = ["pydantic.mypy"]
-exclude = ["^tests/"]  # the series' lesson tests refer to code you have not written yet
+exclude = [
+    "^tests/",
+    "^sample_code/",
+    "^work/",
+]
+
+[tool.pytest]
+addopts = ["--ignore=sample_code", "--ignore=work"]

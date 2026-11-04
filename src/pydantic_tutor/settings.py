@@ -4,10 +4,13 @@ Values only: strings and flags read from the environment. The objects built
 from them are in `composition.py`.
 """
 
+from pathlib import Path
+
 from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from pydantic_tutor.model import CHAT_MODEL
+from tutor_given.paths import project_root
 
 
 class Settings(BaseSettings):
@@ -18,7 +21,7 @@ class Settings(BaseSettings):
         frozen=True,
         # Read here, into these fields only: a key in `.env` never enters
         # the process environment. A shell variable wins over `.env`.
-        env_file=".env",
+        env_file=project_root() / ".env",
         # `OPENAI_API_KEY=` with nothing after it counts as unset.
         env_ignore_empty=True,
         # `.env` may hold variables for other tools; skip them.
@@ -29,6 +32,8 @@ class Settings(BaseSettings):
     chat_model: str = CHAT_MODEL
     # Whether the chat may search the web. Each search is billed.
     web_search: bool = True
+    # The folder the chat works in. `demos/fresh_copy.py` makes the default.
+    workspace_root: Path = project_root() / "work" / "tinyjobs"
     # One key per provider the composition root can build. SecretStr:
     # printing the settings shows `**********`, never the key.
     openai_api_key: SecretStr | None = Field(

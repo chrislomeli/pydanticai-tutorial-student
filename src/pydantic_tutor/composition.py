@@ -8,6 +8,7 @@ stops the app before the chat opens, not when the first message is sent.
 from dataclasses import dataclass
 
 from pydantic_ai import Agent
+from pydantic_ai.exceptions import UserError
 from pydantic_ai.models import Model, infer_model
 
 from pydantic_tutor.chat.agent import build_chat_agent
@@ -29,8 +30,16 @@ def build_app(*, settings: Settings) -> App:
     Raises `pydantic_ai.exceptions.UserError` if the model name's provider is
     unknown or its API key is not set.
     """
+    if not settings.workspace_root.is_dir():
+        raise UserError(
+            f"PYDANTIC_TUTOR_WORKSPACE_ROOT is {str(settings.workspace_root)!r}, "
+            "which is not a folder. Make the default with "
+            "`uv run demos/fresh_copy.py`, or set the variable to another folder."
+        )
     return App(
-        agent=build_chat_agent(web_search=settings.web_search),
+        agent=build_chat_agent(
+            web_search=settings.web_search, workspace_root=settings.workspace_root
+        ),
         model=build_model(settings=settings),
     )
 
